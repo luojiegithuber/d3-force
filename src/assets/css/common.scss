@@ -1,0 +1,64 @@
+$error-color:red;
+$main-color:#00C1DE;
+
+//常用黑色边框
+@mixin box-border($border-color: #000) {
+  border: 1px solid $border-color;
+}
+
+@mixin big-box {
+  width: 1000px;
+  height: 800px;
+  background-color: #fff;
+}
+
+//操作性质的icon
+@mixin icon-operate {
+    font-size: 20px ;
+    margin:5px 10px ;
+    cursor:pointer;
+}
+
+@mixin blood-div-margin {
+    margin:5px 0px;
+}
+
+
+//容器宽高的百分比填充
+@mixin percentage-fill($width:100%,$height:100%) {
+    width:$width;
+    height:$height;
+}
+
+//背景图片的一般设置
+@mixin background-img-set($url){
+    background-image: url($url);
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+}
+
+//标题的icon
+@mixin title-icon{
+    width: 40px;
+    height: 40px;
+}
+
+//小小的icon
+@mixin little-icon{
+    width: 14px;
+    height: 14px;
+}
+
+//水平垂直居中对齐
+@mixin flex-center{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+//如果你希望你里面的内容块是中心对齐的
+@mixin align-by-axis{
+    display: flex;
+    align-items: center;
+}
