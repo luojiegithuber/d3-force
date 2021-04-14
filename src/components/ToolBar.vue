@@ -2,15 +2,15 @@
   <div class="toolbar-justify">
       <a-checkbox-group @change="onCheckBoxChange">
         <a-checkbox value="A">
-          我负责的
+          力引导布局
         </a-checkbox>
 
         <a-checkbox value="B">
-          临时表
+          圆形布局
         </a-checkbox>
 
         <a-checkbox value="C">
-          视图
+          同心圆布局
         </a-checkbox>
 
       </a-checkbox-group>

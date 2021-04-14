@@ -4,7 +4,7 @@
     <tool-bar :is-full-screen = isFullScreen></tool-bar>
     <div style="display:flex;align-items:center">
     <a-input-search
-    placeholder="支持名称和任务id精准搜索"
+    placeholder="id搜索"
     style="width: 500px;margin-right:32px"
     @search="onSearch" />
 
@@ -109,7 +109,7 @@ export default {
     },
 
     exitFullscreen () {
-      let element = document.getElementById('diagram-operate')
+      // let element = document.getElementById('diagram-operate')
       if (document.exitFullscreen) {
         document.exitFullscreen()
       } else if (document.mozExitFullScreen) {
@@ -150,12 +150,12 @@ export default {
     },
 
     makeBlob () {
-      this.myDiagram = this.$refs.demo3.myDiagram
+      /* this.myDiagram = this.$refs.demo3.myDiagram
       var blob = this.myDiagram.makeImageData({
         background: 'white',
         returnType: 'blob',
         callback: this.myCallback
-      })
+      }) */
     }
 
   }

@@ -6,10 +6,10 @@
       </div>
 
       <!--作业详情部分-->
-      <div>所属任务id：<span style="color:#00C1DE;cursor:pointer;">33098</span></div>
-      <div>运行状态：成功</div>
-      <div>第3行：夜来风雨声</div>
-      <div>第4行：花落知多少</div>
+      <div>所属id：<span style="color:#00C1DE;cursor:pointer;">12</span></div>
+      <div>概括信息</div>
+      <div>详细信息</div>
+      <div>其他信息</div>
       <hr style="color:#666666;" />
   </div>
 </template>

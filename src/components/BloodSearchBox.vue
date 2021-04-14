@@ -3,7 +3,7 @@
       <search-select></search-select>
 
       <a-input
-      placeholder="输入hive/关系型数据库/GP/KYLIN/HBASE表名精准搜索"
+      placeholder=""
       :value="content"
 
       style="width:400px"

@@ -1,8 +1,9 @@
 <template>
-    <div id="demo3-container">
+    <div id="canvas-container">
       <node-context-menu v-show="isShowContextMenu" ref="contextMenu"></node-context-menu>
-      <div id="demo3" ref="demo3">
-        <canvas width="960" height="600"></canvas>
+      <div id="canvas" ref="canvas">
+        <canvas width="1200" height="800"></canvas>
+
       </div>
     </div>
 </template>
@@ -10,8 +11,24 @@
 <script>
 
 import NodeContextMenu from './NodeContextMenu'
-import * as d3 from '../../static/d3/d3.v6-6-0.min.js'
 import data from '../../static/data/miserables.json'
+// import * as d3 from '../../static/d3/d3.v6-6-0.min.js'
+var d31 = require('../../static/d3/d3.min.js')
+
+// var d31 = require('d3')
+// var d31 = require('../../static/d3/d3.min.js')
+var d32 = require('../../static/d3/d3-canvas-transition.js')
+/* var d32 = require('d3-canvas-transition')
+var d3Collection = require('../../static/d3/d3-collection.js')
+var d3Selection = require('../../static/d3/d3-selection.js') */
+// var d3Selection2 = Object.assign({}, d3Collection, d3Selection);
+console.log(d31.version)
+console.log(d32)
+var d3 = Object.assign({}, d31, d32);
+/* var d3Other = Object.assign({}, d32, d3Collection, d3Selection);
+console.log(d3Other);
+console.log(d3Collection);
+console.log(d3Selection); */
 export default {
   name: 'demo3',
   components: {
@@ -41,7 +58,14 @@ export default {
   },
 
   mounted () {
-    console.log(data)
+    var example = d3.select('#canvas');
+    console.log(example)
+    /* const svg = example
+      .append('canvas')
+      .attr('width', 100)
+      .attr('height', 100)
+      .canvas(true)
+    console.log(svg) */
 
     this.initGraph();
   },
@@ -184,11 +208,11 @@ export default {
 
 <style scoped lang='scss'>
 @import '../assets/css/common.scss';
-#demo3-container{
+#canvas-container{
   flex-grow:1;
 }
 
-#demo3{
+#canvas{
   //@include box-border;
   // @include big-box;
   height:100%;
@@ -196,7 +220,7 @@ export default {
   background-color: #fff;
 }
 
-#demo3 canvas {
+#canvas canvas {
   outline: none;
   -webkit-tap-highlight-color: rgba(255, 255, 255, 1);
 }
