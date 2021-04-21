@@ -9,7 +9,7 @@ const radius = width / 2
 const tree = d3.cluster()
   .size([2 * Math.PI, radius - 100])
 
-function createCircularLayout (data, svg, beta = 0.85) {
+function createCircularLayout (data, svg, beta = 0.85, callFunSelectNode) {
   const line = d3.lineRadial()
     .curve(d3.curveBundle.beta(beta)) // d3.lineRadial.curve()方法用于为lineRadial绘制曲线。
     .radius(d => d.y) // 它设置或获取半径访问器。如果提供了半径，则它必须是数字或返回代表半径的数字的函数。
@@ -39,7 +39,10 @@ function createCircularLayout (data, svg, beta = 0.85) {
     .selectAll('g')
     .data(root.leaves())
 
-  var g = node.enter().append('g')
+  var g = node.enter().append('g').on('click', (e, d) => {
+    console.log('在 圆形/捆图 布局中选择了节点', d.data.data);
+    callFunSelectNode(d.data.data);
+  })
 
   g
     .attr('transform', d => `rotate(${d.x * 180 / Math.PI - 90}) translate(${d.y + 20},0) rotate(${-d.x * 180 / Math.PI + 90})`)

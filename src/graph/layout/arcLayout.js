@@ -61,7 +61,7 @@ function createArcLayout (data, svg, callFunSelectNode) {
     .append('g')
   // .attr("transform",`rotate(-90) translate(-${height-100},0)`)
 
-  var buttonDiv = document.createElement('div');
+  /* var buttonDiv = document.createElement('div');
   buttonDiv.innerHTML = `
     【排序指标】
     <select id="orderBySelectInArcLayout">
@@ -77,7 +77,7 @@ function createArcLayout (data, svg, callFunSelectNode) {
   // console.log(document.getElementById('canvas').innerHTML)
   // const svgHTMLparent = document.getElementById('canvas');
 
-  svgHTMLparent.insertBefore(buttonDiv, svgHTML);
+  svgHTMLparent.insertBefore(buttonDiv, svgHTML); */
 
   function zoomed (e) {
     svg.attr('transform', e.transform);
@@ -187,10 +187,6 @@ function createArcLayout (data, svg, callFunSelectNode) {
       .delay((d, i) => i * 20)
       .attr('y', d => y(d.id) - step / 2);
   }
-
-  document.getElementById('orderBySelectInArcLayout').addEventListener('change', (e) => {
-    update(orderFun[e.target.value])
-  });
 
   function arc (d) {
     const y1 = d.source.y;

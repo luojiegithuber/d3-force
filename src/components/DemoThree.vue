@@ -3,10 +3,10 @@
 <!--       <node-context-menu v-show="isShowContextMenu" ref="contextMenu"></node-context-menu>
  -->
 <!-- <button @click="go">123</button> -->
-      <div id="d3show" >
+      <div id="d3show" v-if="!isClearD3Content">
 
-        <canvas v-if="isCanvas" width="960" height="500"></canvas>
-        <svg v-else id="mainsvg" width="960" height="500" ></svg>
+        <canvas  v-if="isCanvas"  :width="width" :height="height"></canvas>
+        <svg v-else id="mainsvg" :width="width" :height="height" ></svg>
 <!-- viewBox="-480 -250 960 500" -->
       </div>
     </div>
@@ -18,12 +18,7 @@ import NodeContextMenu from './NodeContextMenu'
 import originData from '../../static/data/huawei.json'
 // import '../../static/d3/d3-canvas-transition.min.js'
 import * as d3 from '../../static/d3/d3.v6-6-0.min.js'
-import createCentric from '../../src/graph/layout/concentric'
-import createChordLayout from '../../src/graph/layout/chordLayout'
-import createForceDirectedGraph from '../../src/graph/layout/force'
-import createArcLayout from '../../src/graph/layout/arcLayout'
-import createAdjacentMatrixLayout from '../../src/graph/layout/adjacentMatrixLayout'
-import createCircularLayout from '../../src/graph/layout/circularLayout'
+import selectGraphLayout from '../graph/layout/selectGraphLayout.ts'
 
 // import * as d3 from '../../static/d3/d3.min.js'
 
@@ -60,6 +55,8 @@ export default {
 
       d3showDIV: null,
 
+      isClearD3Content: false,
+
       originData: originData,
       isCanvas: false,
       svg: d3.select('#mainsvg'),
@@ -92,20 +89,16 @@ export default {
     this.d3showDIV = document.getElementById('d3show');
     this.height = this.d3showDIV.clientHeight
     this.width = this.d3showDIV.clientWidth
-    this.svg.attr('height', this.height)
-    this.svg.attr('width', this.width)
-    this.changeLayout(3)
+    // this.svg.attr('height', this.height)
+    // this.svg.attr('width', this.width)
+    this.changeLayout(7)
     // console.log(this.$store.state.layoutId)
   },
   beforeCreate () {
     // 兄弟组件传值
     // 监听抽屉的滑动，以免滑梯滑动之后canvas的面积不会被改变
-    this.bus.$on('toDiagramForArea', msg => {
+    /* this.bus.$on('toDiagramForArea', msg => {
       this.upDateDiagramAnimationFrame(0)
-    })
-
-    /* this.bus.$on('changeGraphLayout', layoutId => {
-      this.changeLayout(layoutId)
     }) */
   },
 
@@ -128,59 +121,25 @@ export default {
       this.$store.dispatch('changeNodeFun', node)
     },
 
-    upDateDiagramAnimationFrame (count) {
+    /* upDateDiagramAnimationFrame (count) {
       count++
       requestAnimationFrame(() => {
         this.myDiagram.requestUpdate()
         if (count < 60) { this.upDateDiagramAnimationFrame(count) }
       })
-    },
+    }, */
 
-    changeLayout (layout) {
-      if (layout === 7) {
-        this.d3showDIV.innerHTML = `
-        <canvas width="${this.width}" height="${this.height}"></canvas>
-      `
-      } else {
-        this.d3showDIV.innerHTML = `
-       <svg id="mainsvg" width="${this.width}" height="${this.height}" ></svg>
-      `
-      }
-
-      if (layout === 7) {
-        this.isCanvas = true;
+    changeLayout (layoutId) {
+      this.isClearD3Content = true;
+      this.$nextTick(() => {
+        this.isClearD3Content = false;
+        this.isCanvas = (layoutId === 7);
         this.$nextTick(() => {
-          this.canvas = document.querySelector('canvas');
-          createForceDirectedGraph(this.originData, this.canvas)
-        });
-      } else {
-        this.$nextTick(() => {
-          this.svg = d3.select('#mainsvg')
-          this.isCanvas = false;
-          switch (layout) {
-            case 1:
-              createCentric(this.originData, this.svg)
-              break;
-            case 2:
-              createChordLayout(this.originData, this.svg)
-              break;
-            case 3:
-              this.arcObj = createArcLayout(this.originData, this.svg, this.selectedNodeChange)
-              break;
-            case 4:
-              createAdjacentMatrixLayout(this.originData, this.svg)
-              break;
-            case 5:
-              createCircularLayout(this.originData, this.svg, 0)
-              break;
-            case 6:
-              createCircularLayout(this.originData, this.svg, 0.85)
-              break;
-            default:
-              break;
-          }
-        });
-      }
+          const htmlDomSelection = (layoutId === 7) ? document.querySelector('canvas') : d3.select('#mainsvg')
+          this.arcObj = selectGraphLayout(layoutId, this.originData, htmlDomSelection, this.selectedNodeChange)
+        })
+      })
+      ;
     }
 
   }

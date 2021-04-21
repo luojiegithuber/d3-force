@@ -1,9 +1,9 @@
 import * as d3 from '../../../static/d3/d3.v6-6-0.min.js';
 
-function createChordLayout (data, svg) {
-  console.log('【数据】', data)
+function createChordLayout (data, svg, callFunSelectNode) {
+  // console.log('【数据】', data)
   data = dataMatrix(data)
-  console.log('【新数据】', data)
+  // console.log('【新数据】', data)
 
   const names = data.names === undefined ? d3.range(data.length) : data.names
   const colors = data.colors === undefined ? d3.quantize(d3.interpolateRainbow, names.length) : data.colors
@@ -47,7 +47,11 @@ function createChordLayout (data, svg) {
     .attr('font-family', 'sans-serif')
     .selectAll('g')
     .data(chords.groups)
-    .join('g');
+    .join('g')
+    .on('click', (e, d) => {
+      console.log('在 弦图 布局中选择了节点', data.nodes[d.index]);
+      callFunSelectNode(data.nodes[d.index]);
+    });
 
   group.append('path')
     .attr('fill', d => color(names[d.index]))
@@ -124,6 +128,7 @@ function dataMatrix (data) {
   })
 
   return Object.assign(matrix, {
+    nodes: data.nodes,
     names: data.nodes.map(d => d.label),
     colors: [ '#3957ff', '#d3fe14', '#c9080a', '#fec7f8', '#0b7b3e', '#0bf0e9', '#c203c8', '#fd9b39', '#888593', '#906407', '#98ba7f', '#fe6794', '#10b0ff', '#ac7bff', '#fee7c0', '#964c63', '#1da49c', '#0ad811', '#bbd9fd', '#fe6cfe' ]
   });

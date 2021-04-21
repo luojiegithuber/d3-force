@@ -14,8 +14,9 @@ function Node (node) {
   this.data = node;
 }
 
-function createForceDirectedGraph (data, canvas) {
-  console.log(data)
+function createForceDirectedGraph (data, canvas, callFunSelectNode) {
+  var curSelectedNode = null;
+
   const nodes = data.nodes.map(d => new Node(d));
   const links = data.edges.map(d => new Link(d));
 
@@ -71,13 +72,18 @@ function createForceDirectedGraph (data, canvas) {
       if (dx * dx + dy * dy < radius * radius) {
         node.x = transform.applyX(node.x);
         node.y = transform.applyY(node.y);
-        console.log('您拖动了节点', node)
+        nodeSelectChange(node)
+        curSelectedNode = node;
         return node;
       }
     }
 
     console.log('你拖动了画布')
-    console.log(data)
+  }
+
+  function nodeSelectChange (d) {
+    console.log('在力导向布局中选择了节点', d.data);
+    callFunSelectNode(d.data)
   }
 
   function dragstarted (e) {
@@ -122,10 +128,31 @@ function createForceDirectedGraph (data, canvas) {
 
     nodes.forEach((d, i) => {
       context.beginPath();
-      context.arc(d.x, d.y, radius, 0, 2 * Math.PI, true); // 方法创建弧/曲线（用于创建圆或部分圆）
       context.fillStyle = colorNode(d) // 设置或返回用于填充绘画的颜色、渐变或模式。
+      context.arc(d.x, d.y, radius, 0, 2 * Math.PI, true); // 方法创建弧/曲线（用于创建圆或部分圆）
+      context.fill(); // 填充当前绘图（路径）
+      context.beginPath();
+      context.font = '10px Arial';
+      context.fillStyle = 'white';
+      context.textAlign = 'center';
+      context.fillText(d.id, d.x, d.y + 2.5);
       context.fill(); // 填充当前绘图（路径）
     });
+
+    if (curSelectedNode) {
+      context.beginPath();
+      context.arc(curSelectedNode.x, curSelectedNode.y, radius, 0, 2 * Math.PI, true); // 方法创建弧/曲线（用于创建圆或部分圆）
+      context.fillStyle = colorNode(curSelectedNode) // 设置或返回用于填充绘画的颜色、渐变或模式。
+      context.lineWidth = 2;
+      context.stroke();
+      context.fill(); // 填充当前绘图（路径）
+      context.beginPath();
+      context.font = '10px Arial';
+      context.fillStyle = 'white';
+      context.textAlign = 'center';
+      context.fillText(curSelectedNode.id, curSelectedNode.x, curSelectedNode.y + 2.5);
+      context.fill(); // 填充当前绘图（路径）
+    }
 
     context.restore(); // 返回之前保存过的路径状态和属性
   }

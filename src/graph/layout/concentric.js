@@ -8,7 +8,7 @@ const colornone = '#ccc'
 // const allNodes = [];
 var allNodeMap = null;
 
-function createContric (data, svg) {
+function createContric (data, svg, callFunSelectNode) {
   const edges = data.edges;
   const allNodes = packingNode(data).sort((a, b) => b.pathNum - a.pathNum)
   console.log('【封装后的nodes】', allNodes);
@@ -59,13 +59,17 @@ function createContric (data, svg) {
     .data(allNodes)
     .enter()
     .append('g')
+    .on('mouseover', overed)
+    .on('mouseout', outed)
+    .on('click', (e, d) => {
+      console.log('在同心圆布局中选择了节点', d.data);
+      callFunSelectNode(d.data);
+    })
 
   nodeG
     .append('circle')
     .attr('r', 10)
     .attr('fill', function (d) { return colorNode(d); })
-    .on('mouseover', overed)
-    .on('mouseout', outed)
     .append('title')
     .attr('width', 100)
     .attr('height', 100)
@@ -76,8 +80,6 @@ function createContric (data, svg) {
     .style('fill', '#000')
     .style('font-size', '15px')
     .style('text-anchor', 'middle')
-    .on('mouseover', overed)
-    .on('mouseout', outed)
     .text(function (d) {
       return (d.id)
     })
@@ -112,7 +114,6 @@ function createContric (data, svg) {
     .enter().append('path')
 
   function overed (event, d) {
-    console.log(d)
     edge.style('mix-blend-mode', null);
     d3.select(this).attr('font-weight', 'bold');
     d3.selectAll(d.incoming.map(d => d.path)).attr('stroke', colorin).raise();
@@ -131,7 +132,7 @@ function createContric (data, svg) {
   }
 
   function ticked () {
-    console.log(1)
+    // console.log(1)
 
     node
       .attr('cx', function (d) { return d.x; })
