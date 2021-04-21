@@ -15,6 +15,17 @@ function createContric (data, svg) {
   console.log('【分层后的nodes】', hierarchyNodeByDegree(allNodes));
   bilink(allNodes, edges)
 
+  svg
+    .attr('viewBox', [-960 / 2, -500 / 2, 960, 500]);
+
+  svg = svg
+    .call(d3.zoom()
+      .scaleExtent([1 / 2, 4])
+      .on('zoom', e => {
+        svg.attr('transform', e.transform);
+      }))
+    .append('g')
+
   // 颜色比例尺（固定10种颜色）
   const colors = d3.scaleOrdinal(d3.schemeCategory10);
   function colorNode (d) {

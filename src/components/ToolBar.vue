@@ -1,19 +1,7 @@
 <template>
   <div class="toolbar-justify">
-      <a-checkbox-group @change="onCheckBoxChange">
-        <a-checkbox value="A">
-          力引导布局
-        </a-checkbox>
+      <a-radio-group v-model="layoutId" :options="options" :default-value="layoutId" @change="onChangeSelectLayout" />
 
-        <a-checkbox value="B">
-          圆形布局
-        </a-checkbox>
-
-        <a-checkbox value="C">
-          同心圆布局
-        </a-checkbox>
-
-      </a-checkbox-group>
       <div class="diagram-icons-list">
           <a-icon v-show="!isFullScreen" type="fullscreen" @click="canvasFullScreen" />
           <a-icon v-show="isFullScreen" type="fullscreen-exit" @click="canvasFullScreen"/>
@@ -26,6 +14,16 @@
   </div>
 </template>
 <script>
+const options = [
+  { label: '同心圆', value: 1 },
+  { label: '弦图', value: 2 },
+  { label: '弧线图', value: 3 },
+  { label: '邻接矩阵', value: 4 },
+  { label: '圆形布局', value: 5 },
+  { label: '捆图布局', value: 6 },
+  { label: '力导向', value: 7 }
+];
+
 export default {
   props: {
     isFullScreen: {
@@ -34,9 +32,17 @@ export default {
     }
   },
 
+  data () {
+    return {
+      options: options,
+      layoutId: 3
+    }
+  },
+
   methods: {
-    onCheckBoxChange (checkedValues) {
-      console.log('checked = ', checkedValues)
+    onChangeSelectLayout (e) {
+      // this.bus.$emit('changeGraphLayout', e.target.value)
+      this.$store.dispatch('changeLayoutIdFun', e.target.value)
     },
 
     canvasFullScreen () {

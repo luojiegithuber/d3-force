@@ -8,27 +8,51 @@
     </div>
 
     <div style="overflow:hidden" >
-        <div style="width:318px;font:bold 1.5em Arial,sans-serif,bold;color:#666666;margin:10px">节点信息</div>
+        <div style="width:318px;font:bold 1.5em Arial,sans-serif,bold;color:#666666;margin:10px">信息操作栏</div>
         <hr style="color:#666666;" />
 
-        <sidebar-card card-title="基本信息"></sidebar-card>
-        <sidebar-card card-title="作业详情"></sidebar-card>
-        <sidebar-card card-title="质量情况"></sidebar-card>
+        <!-------------------------------------------------------------->
+
+        <sidebar-card card-title="节点信息">
+          <div>ID：<span style="color:#00C1DE;cursor:pointer;">{{nodeData.id}}</span></div>
+            <div>种类：{{nodeData.group}}</div>
+            <div>节点文本：{{nodeData.label}}</div>
+            <div>度数：{{nodeData.pathNum}}</div>
+        </sidebar-card>
+
+        <sidebar-card card-title="排序操作（目前仅支持Arc）">
+          <OrderNodesInLayout></OrderNodesInLayout>
+        </sidebar-card>
+
+        <!-------------------------------------------------------------->
+
     </div>
   </div>
 </template>
 <script>
 import SidebarCard from './SidebarCard'
+import OrderNodesInLayout from './LayoutOperation/OrderNodesInLayout'
 
 export default {
 
   components: {
-    SidebarCard
+    SidebarCard,
+    OrderNodesInLayout
+  },
+
+  watch: {
+    '$store.state.nodeData': function (nodeData) {
+      // console.log('当前选中的节点:', nodeData);
+      this.nodeData = nodeData;
+      // this.$store.dispatch('changeNodeFun', nodeData)
+    }
+
   },
 
   data () {
     return {
-      isExtend: true // 和isShrink配套
+      isExtend: true, // 和isShrink配套
+      nodeData: {}
     }
   },
 

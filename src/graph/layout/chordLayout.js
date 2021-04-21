@@ -32,6 +32,14 @@ function createChordLayout (data, svg) {
   svg
     .attr('viewBox', [-width / 2, -height / 2, width, height]);
 
+  svg = svg
+    .call(d3.zoom()
+      .scaleExtent([1 / 2, 4])
+      .on('zoom', e => {
+        svg.attr('transform', e.transform);
+      }))
+    .append('g')
+
   const chords = chord(data);
 
   const group = svg.append('g')

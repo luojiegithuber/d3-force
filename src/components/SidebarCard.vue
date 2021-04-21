@@ -5,11 +5,7 @@
         <span style="font-weight:bold;"> &nbsp;&nbsp;{{cardTitle}}</span>
       </div>
 
-      <!--作业详情部分-->
-      <div>所属id：<span style="color:#00C1DE;cursor:pointer;">12</span></div>
-      <div>概括信息</div>
-      <div>详细信息</div>
-      <div>其他信息</div>
+      <slot></slot>
       <hr style="color:#666666;" />
   </div>
 </template>
