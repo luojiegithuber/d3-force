@@ -3,8 +3,7 @@
 <!--       <node-context-menu v-show="isShowContextMenu" ref="contextMenu"></node-context-menu>
  -->
 <!-- <button @click="go">123</button> -->
-      <div id="d3show" v-if="!isClearD3Content">
-
+      <div id="d3show" v-if="!isClearD3Content" :class="isExtend? 'no-expend-div' : 'expend-div'">
         <canvas  v-if="isCanvas"  :width="width" :height="height"></canvas>
         <svg v-else id="mainsvg" :width="width" :height="height" ></svg>
 <!-- viewBox="-480 -250 960 500" -->
@@ -63,6 +62,8 @@ export default {
       canvas: null,
       layout: 0,
 
+      isExtend: true,
+
       width: 0,
       height: 0,
 
@@ -91,15 +92,16 @@ export default {
     this.width = this.d3showDIV.clientWidth
     // this.svg.attr('height', this.height)
     // this.svg.attr('width', this.width)
-    this.changeLayout(7)
+    this.changeLayout(8)
     // console.log(this.$store.state.layoutId)
   },
   beforeCreate () {
     // 兄弟组件传值
     // 监听抽屉的滑动，以免滑梯滑动之后canvas的面积不会被改变
-    /* this.bus.$on('toDiagramForArea', msg => {
-      this.upDateDiagramAnimationFrame(0)
-    }) */
+    this.bus.$on('toDiagramForArea', isExtend => {
+      this.isExtend = isExtend
+      // this.upDateDiagramAnimationFrame(0)
+    })
   },
 
   watch: {
@@ -133,9 +135,9 @@ export default {
       this.isClearD3Content = true;
       this.$nextTick(() => {
         this.isClearD3Content = false;
-        this.isCanvas = (layoutId === 7);
+        this.isCanvas = (layoutId === 7 || layoutId === 8);
         this.$nextTick(() => {
-          const htmlDomSelection = (layoutId === 7) ? document.querySelector('canvas') : d3.select('#mainsvg')
+          const htmlDomSelection = (layoutId === 7 || layoutId === 8) ? document.querySelector('canvas') : d3.select('#mainsvg')
           this.arcObj = selectGraphLayout(layoutId, this.originData, htmlDomSelection, this.selectedNodeChange)
         })
       })
@@ -162,7 +164,26 @@ export default {
   margin: 0;
   overflow: hidden;
   height:100%;
-  width: calc(100vw - 350px)
+  border: 1px solid black;
 }
 
+.expend-div{
+  width: 98vw;
+  animation: extend 1s ;
+}
+
+.no-expend-div{
+  width: calc(98vw - 350px);
+  animation: shrink 1s ;
+}
+
+@keyframes shrink {
+    0% {width: 98vw;}
+    100% {width: calc(98vw - 350px);}
+}
+
+@keyframes extend {
+    0% {width: calc(98vw - 350px);}
+    100% {width: 98vw;}
+}
 </style>

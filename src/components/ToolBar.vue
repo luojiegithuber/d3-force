@@ -21,7 +21,8 @@ const options = [
   { label: '邻接矩阵', value: 4 },
   { label: '圆形布局', value: 5 },
   { label: '捆图布局', value: 6 },
-  { label: '力导向', value: 7 }
+  { label: '力导向', value: 7 },
+  { label: '网格', value: 8 }
 ];
 
 export default {

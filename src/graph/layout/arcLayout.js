@@ -165,6 +165,8 @@ function createArcLayout (data, svg, callFunSelectNode) {
     callFunSelectNode(d.data)
   }
 
+  // 暴露给外界自行调用更新函数
+  // 当然同时暴露了orderFun
   function update (sortFun) {
     // console.log(sortFun)
     y.domain(graph.nodes.sort(sortFun).map(d => d.id));

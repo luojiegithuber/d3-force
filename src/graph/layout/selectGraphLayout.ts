@@ -2,10 +2,12 @@
 
 import createCentric from './concentric'
 import createChordLayout from './chordLayout'
-import createForceDirectedGraph from './force'
 import createArcLayout from './arcLayout'
 import createAdjacentMatrixLayout from './adjacentMatrixLayout'
 import createCircularLayout from './circularLayout'
+
+import createForceDirectedGraph from './force'
+import createGridGraph from './gridLayout'
 
 function Option (option) {
   this.beta = option.beta
@@ -38,7 +40,8 @@ const createGraphLayoutFun = {
   4: createAdjacentMatrixLayout,
   5: (data, selection, cbFunSelectNode) => createCircularLayout(data, selection, 0, cbFunSelectNode),
   6: (data, selection, cbFunSelectNode) => createCircularLayout(data, selection, 0.85, cbFunSelectNode),
-  7: createForceDirectedGraph
+  7: createForceDirectedGraph,
+  8: createGridGraph,
 }
 
 // LayoutObj 应该有一个基类
