@@ -1,4 +1,5 @@
 import * as d3 from '../../../static/d3/d3.v6-6-0.min.js';
+import {Node, Edge, createNodes, createEdges, setColor, colorin, colorout, colornone, allNodeByIdMap, setAllNodeByIdMap} from './object.js';
 
 const orderFun = {
   byId: (a, b) => d3.ascending(a.id, b.id),
@@ -8,41 +9,25 @@ const orderFun = {
 }
 
 function createGraph (data) {
-  const nodes = data.nodes.map(d => ({
-    id: d.id,
-    sourceLinks: [],
-    targetLinks: [],
-    group: d.group,
-    pathNum: 0,
-    data: d
-  }));
+  const nodes = createNodes(data.nodes, node => {
+    allNodeByIdMap.set(node.id, node)
+  })
 
-  const nodeById = new Map(nodes.map(d => [d.id, d]));
-
-  const links = data.edges.map(edge => {
-    const sourceNode = nodeById.get(edge.source);
-    const targetNode = nodeById.get(edge.target);
+  const edges = createEdges(data.edges, edge => {
+    const sourceNode = allNodeByIdMap.get(edge.source);
+    const targetNode = allNodeByIdMap.get(edge.target);
     sourceNode.pathNum++;
     targetNode.pathNum++;
+    sourceNode.incoming.push(edge);
+    targetNode.outgoing.push(edge);
+  })
 
-    const link = {
-      source: sourceNode,
-      target: targetNode,
-      value: edge.weight,
-      data: edge
-    }
-
-    sourceNode.sourceLinks.push(link);
-    targetNode.targetLinks.push(link);
-
-    return link
-  });
-
-  return {nodes, links};
+  return {nodes, edges};
 }
 
 function createArcLayout (data, svg, callFunSelectNode) {
   let graph = createGraph(data)
+  console.log(graph)
 
   const color = d3.scaleOrdinal(graph.nodes.map(d => d.group).sort(d3.ascending), d3.schemeCategory10)
   const step = 30
@@ -59,25 +44,6 @@ function createArcLayout (data, svg, callFunSelectNode) {
       .scaleExtent([1 / 2, 4])
       .on('zoom', zoomed))
     .append('g')
-  // .attr("transform",`rotate(-90) translate(-${height-100},0)`)
-
-  /* var buttonDiv = document.createElement('div');
-  buttonDiv.innerHTML = `
-    【排序指标】
-    <select id="orderBySelectInArcLayout">
-      <option value="byId" selected="selected">ID</option>
-      <option value="byGroup">分类</option>
-      <option value="byLabel"">文本</option>
-      <option value="byPathNum">度数</option>
-    </select>
-    `;
-
-  const svgHTML = svg._groups[0][0]
-  const svgHTMLparent = svgHTML.parentNode
-  // console.log(document.getElementById('canvas').innerHTML)
-  // const svgHTMLparent = document.getElementById('canvas');
-
-  svgHTMLparent.insertBefore(buttonDiv, svgHTML); */
 
   function zoomed (e) {
     svg.attr('transform', e.transform);
@@ -132,9 +98,9 @@ function createArcLayout (data, svg, callFunSelectNode) {
     .attr('stroke-opacity', 0.6)
     .attr('stroke-width', 1.5)
     .selectAll('path')
-    .data(graph.links)
+    .data(graph.edges)
     .join('path')
-    .attr('stroke', d => d.source.group === d.target.group ? color(d.source.group) : '#aaa')
+    .attr('stroke', d => d.sourceNode.group === d.targetNode.group ? color(d.sourceNode.group) : '#aaa')
     .attr('d', arc);
 
   const overlay = svg.append('g')
@@ -149,8 +115,8 @@ function createArcLayout (data, svg, callFunSelectNode) {
     .on('mouseover', (e, d) => {
       svg.classed('hover', true);
       label.classed('primary', n => n === d);
-      label.classed('secondary', n => n.sourceLinks.some(l => l.target === d) || n.targetLinks.some(l => l.source === d));
-      path.classed('primary', l => l.source === d || l.target === d).filter('.primary').raise();
+      label.classed('secondary', n => n.incoming.some(l => l.targetNode === d) || n.outgoing.some(l => l.sourceNode === d));
+      path.classed('primary', l => l.sourceNode === d || l.targetNode === d).filter('.primary').raise();
     })
     .on('mouseout', (e, d) => {
       svg.classed('hover', false);
@@ -191,8 +157,8 @@ function createArcLayout (data, svg, callFunSelectNode) {
   }
 
   function arc (d) {
-    const y1 = d.source.y;
-    const y2 = d.target.y;
+    const y1 = d.sourceNode.y;
+    const y2 = d.targetNode.y;
     const r = Math.abs(y2 - y1) / 2;
     return `M${margin.left},${y1}A${r},${r} 0,0,${y1 < y2 ? 1 : 0} ${margin.left},${y2}`;
   }

@@ -10,9 +10,9 @@ function Link (edge) {
 }
 
 function Node (node) {
-  this.id = node.id;
+  this.id = node.guid;
   this.group = node.group;
-  this.label = node.label;
+  this.label = 'D';
   this.data = node;
   this.x = 200;
   this.y = 200;
@@ -50,7 +50,7 @@ function createGridGraph (data, canvas, callFunSelectNode) {
   const width = canvas.width;
   const height = canvas.height;
 
-  const nodes = createNodeCoordinate(data.nodes, 5, 4);
+  const nodes = createNodeCoordinate(data.nodes, 5, 5);
   const links = createLinkCoordinate(data.edges)
 
   console.log(nodes)
@@ -169,7 +169,7 @@ function createGridGraph (data, canvas, callFunSelectNode) {
       context.font = '10px Arial';
       context.fillStyle = 'white';
       context.textAlign = 'center';
-      context.fillText(d.id, d.x, d.y + 2.5);
+      context.fillText('D', d.x, d.y + 2.5);
       context.fill(); // 填充当前绘图（路径）
     });
 
@@ -184,7 +184,7 @@ function createGridGraph (data, canvas, callFunSelectNode) {
       context.font = '10px Arial';
       context.fillStyle = 'white';
       context.textAlign = 'center';
-      context.fillText(curSelectedNode.id, curSelectedNode.x, curSelectedNode.y + 2.5);
+      context.fillText('D', curSelectedNode.x, curSelectedNode.y + 2.5);
       context.fill(); // 填充当前绘图（路径）
     }
 

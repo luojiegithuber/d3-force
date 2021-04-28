@@ -3,14 +3,21 @@ import * as d3 from '../../../static/d3/d3.v6-6-0.min.js';
 function Link (edge) {
   this.source = edge.source;
   this.target = edge.target;
-  this.weight = edge.weight;
+  // this.weight = edge.weight;
   this.data = edge;
 }
 
-function Node (node) {
+/* function Node (node) {
   this.id = node.id;
   this.group = node.group;
   this.label = node.label;
+  this.data = node;
+} */
+
+function Node (node) {
+  this.id = node.guid;
+  this.group = node.type_name;
+  this.label = 'D';
   this.data = node;
 }
 
@@ -135,7 +142,7 @@ function createForceDirectedGraph (data, canvas, callFunSelectNode) {
       context.font = '10px Arial';
       context.fillStyle = 'white';
       context.textAlign = 'center';
-      context.fillText(d.id, d.x, d.y + 2.5);
+      context.fillText(d.label, d.x, d.y + 2.5);
       context.fill(); // 填充当前绘图（路径）
     });
 
@@ -150,7 +157,7 @@ function createForceDirectedGraph (data, canvas, callFunSelectNode) {
       context.font = '10px Arial';
       context.fillStyle = 'white';
       context.textAlign = 'center';
-      context.fillText(curSelectedNode.id, curSelectedNode.x, curSelectedNode.y + 2.5);
+      context.fillText(curSelectedNode.label, curSelectedNode.x, curSelectedNode.y + 2.5);
       context.fill(); // 填充当前绘图（路径）
     }
 

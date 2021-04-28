@@ -1,9 +1,7 @@
 import * as d3 from '../../../static/d3/d3.v6-6-0.min.js';
 
 function createChordLayout (data, svg, callFunSelectNode) {
-  // console.log('【数据】', data)
   data = dataMatrix(data)
-  // console.log('【新数据】', data)
 
   const names = data.names === undefined ? d3.range(data.length) : data.names
   const colors = data.colors === undefined ? d3.quantize(d3.interpolateRainbow, names.length) : data.colors

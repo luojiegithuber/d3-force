@@ -1,15 +1,19 @@
 
 import * as d3 from '../../../static/d3/d3.v6-6-0.min.js';
+import {Node, Edge, createNodes, createEdges, setColor, colorin, colorout, colornone, allNodeByIdMap, setAllNodeByIdMap} from './object.js';
+
+const height = 15;
+const margin = ({top: 20, right: 1, bottom: 40, left: 50});
+const width = 800;
 
 function createAdjacentMatrixLayout (data, svg) {
-  const colorGroup = d3.scaleOrdinal(data.nodes.map(d => d.group).sort(d3.ascending), d3.schemeCategory10)
+  // const colorGroup = d3.scaleOrdinal(nodes.map(d => d.group).sort(d3.ascending), d3.schemeCategory10)
 
   data = dataMatrix(data);
+  console.log('矩阵数据结束')
+
   const color = d3.scaleSequentialSqrt([0, d3.max(data.values, d => d3.max(d))], d3.interpolateOrRd)
 
-  const margin = ({top: 20, right: 1, bottom: 40, left: 50});
-  const height = 15; //
-  const width = 800;
   const innerHeight = height * data.names.length;
 
   const y = d3.scaleBand()
@@ -35,6 +39,8 @@ function createAdjacentMatrixLayout (data, svg) {
       .call(d3.axisTop(x).ticks(null, 'd'))
       .call(g => g.select('.domain').remove()))
 
+  console.log('轴渲染结束')
+
   svg
     .attr('viewBox', [-50, -50, width, innerHeight + margin.top + margin.bottom])
     .attr('font-family', 'sans-serif')
@@ -52,14 +58,16 @@ function createAdjacentMatrixLayout (data, svg) {
     .call(xAxis)
     .selectAll('text')
     .data(data.nodes)
-    .attr('fill', d => colorGroup(d.group))
+    .attr('fill', 'black')
     .attr('transform', 'translate(12,-30) rotate(-90)')
 
   svg.append('g')
     .call(yAxis)
     .selectAll('text')
     .data(data.nodes)
-    .attr('fill', d => colorGroup(d.group))
+    .attr('fill', 'black')
+
+  console.log('节点渲染结束')
 
   svg.append('g')
     .selectAll('g')
@@ -77,31 +85,29 @@ function createAdjacentMatrixLayout (data, svg) {
     .attr('stroke-opacity', 1)
     .append('title')
     .text((d, i) => `${d}`);
+  console.log('矩阵块渲染结束')
 }
 
 function dataMatrix (data) {
-  const n = data.nodes.length;
+  const nodes = createNodes(data.nodes, (node, index) => {
+    node.matrixIndex = index;
+  });
+
+  const n = nodes.length;
   const matrix = []
   for (let i = 0; i < n; i++) {
     matrix.push(new Array(n).fill(0))
   }
-  const mapNode = new Map(data.nodes.map((d, index) => {
-    d.matrixIndex = index;
-    return [ d.id, d ];
-  }))
 
-  data.edges.forEach(edge => {
-    const sourceNode = mapNode.get(edge.source);
-    const targetNode = mapNode.get(edge.target);
-    matrix[sourceNode.matrixIndex][targetNode.matrixIndex]++;
-    // matrix[targetNode.matrixIndex][sourceNode.matrixIndex]++;
-  })
+  const edges = createEdges(data.edges, edge => {
+    matrix[edge.sourceNode.matrixIndex][edge.targetNode.matrixIndex]++;
+  });
 
   return {
-    names: data.nodes.map(d => d.label),
+    names: nodes.map(d => d.id),
     values: matrix,
-    nodes: data.nodes,
-    edges: data.edges
+    nodes: nodes,
+    edges: edges
   };
 }
 

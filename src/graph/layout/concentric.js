@@ -1,43 +1,37 @@
 
 import * as d3 from '../../../static/d3/d3.v6-6-0.min.js';
-const colorin = '#00f'
-const colorout = '#f00'
-const colornone = '#ccc'
+import {Node, Edge, createNodes, createEdges, setColor, colorin, colorout, colornone} from './object.js';
+
 // const width = 1000
-// const radius = width / 2
+
 // const allNodes = [];
-var allNodeMap = null;
+const nodeRadius = 10;
+const ringRadius = 50;
+var allNodeByIdMap = null;
 
 function createContric (data, svg, callFunSelectNode) {
-  const edges = data.edges;
+  // ——————————【数据预处理阶段】————————-
+  const edges = createEdges(data.edges);
   const allNodes = packingNode(data).sort((a, b) => b.pathNum - a.pathNum)
-  console.log('【封装后的nodes】', allNodes);
-  console.log('【分层后的nodes】', hierarchyNodeByDegree(allNodes));
-  bilink(allNodes, edges)
+  createIncomingAndOutgoing(allNodes, edges)
+
+  // ——————————【绘图阶段】————————-
 
   svg
     .attr('viewBox', [-960 / 2, -500 / 2, 960, 500]);
 
   svg = svg
     .call(d3.zoom()
-      .scaleExtent([1 / 2, 4])
+      .scaleExtent([1 / 50, 4])
       .on('zoom', e => {
         svg.attr('transform', e.transform);
       }))
     .append('g')
 
-  // 颜色比例尺（固定10种颜色）
-  const colors = d3.scaleOrdinal(d3.schemeCategory10);
-  function colorNode (d) {
-    return colors(d.degree);
-  }
-
-  // const svg = d3.select('svg')
-
   const rings = hierarchyNodeByDegree(allNodes).map((d, index) => {
     return {degree: index}
   });
-  console.log(rings)
+  // console.log(rings)
 
   svg
     .append('g')
@@ -46,12 +40,12 @@ function createContric (data, svg, callFunSelectNode) {
     .enter().append('circle')
     .style('fill', 'none')
     .style('stroke-opacity', '0.5')
-    .style('stroke', colorNode)
+    .style('stroke', d => setColor(d.degree))
     .attr('r', function (d) {
-      return d.degree * 50
+      return d.degree * ringRadius
     })
 
-  console.log('所有的节点', allNodes)
+  // console.log('所有的节点', allNodes)
 
   var nodeG = svg
     .append('g')
@@ -68,12 +62,10 @@ function createContric (data, svg, callFunSelectNode) {
 
   nodeG
     .append('circle')
-    .attr('r', 10)
-    .attr('fill', function (d) { return colorNode(d); })
+    .attr('r', nodeRadius)
+    .attr('fill', d => setColor(d.degree))
     .append('title')
-    .attr('width', 100)
-    .attr('height', 100)
-    .text(function (d) { return `${d.id}       ` })
+    .text(function (d) { return `${d.id}` })
 
   nodeG
     .append('text')
@@ -81,13 +73,13 @@ function createContric (data, svg, callFunSelectNode) {
     .style('font-size', '15px')
     .style('text-anchor', 'middle')
     .text(function (d) {
-      return (d.id)
+      return (d.label)
     })
     .each(function (d) { d.text = this; })
 
   var node = nodeG.selectAll('circle')
   var text = nodeG.selectAll('text')
-  console.log(node)
+  // console.log(node)
 
   var linksFun = d3
     .forceLink()
@@ -98,7 +90,7 @@ function createContric (data, svg, callFunSelectNode) {
   var simulation = d3.forceSimulation(allNodes)
     .force('charge', d3.forceCollide().radius(0))
     .force('link', linksFun)
-    .force('r', d3.forceRadial(function (d) { return d.degree * 50; }))
+    .force('r', d3.forceRadial(function (d) { return d.degree * ringRadius; }))
     .on('tick', ticked);
 
     /* simulation.force("link") // 绘制边
@@ -132,8 +124,6 @@ function createContric (data, svg, callFunSelectNode) {
   }
 
   function ticked () {
-    // console.log(1)
-
     node
       .attr('cx', function (d) { return d.x; })
       .attr('cy', function (d) { return d.y; });
@@ -142,7 +132,6 @@ function createContric (data, svg, callFunSelectNode) {
       return 'translate(' + d.x + ',' + (d.y + 5) + ')';
     });
 
-    // if(edge)edge.selectAll("path").remove()
     edge
       .data(simulation.nodes().flatMap(leaf => leaf.outgoing))
       .style('mix-blend-mode', 'multiply')
@@ -161,25 +150,18 @@ function createContric (data, svg, callFunSelectNode) {
 function packingNode (data) {
   const nodes = data.nodes;
   const edges = data.edges;
-  function Node (obj) {
-    this.id = obj.id;
-    this.pathNum = 0;
-    this.data = obj;
-    this.incoming = [];
-    this.outgoing = [];
-  }
 
   const allNodes = [];
 
-  allNodeMap = new Map(nodes.map(d => {
+  allNodeByIdMap = new Map(nodes.map(d => {
     const node = new Node(d);
     allNodes.push(node)
-    return [d.id, node]
+    return [node.id, node]
   }))
 
   edges.forEach(edge => {
-    const sourceNode = allNodeMap.get(edge.source);
-    const targetNode = allNodeMap.get(edge.target);
+    const sourceNode = allNodeByIdMap.get(edge.source);
+    const targetNode = allNodeByIdMap.get(edge.target);
 
     sourceNode.pathNum++;
     targetNode.pathNum++;
@@ -211,17 +193,17 @@ function hierarchyNodeByDegree (nodes) {
 
   allArr.push(samePathNumArr)
   allArr.shift()
-  console.log('allArr', allArr);
+  // console.log('allArr', allArr);
 
   return allArr
 }
 
-// 这一步根据import生成incoming
-function bilink (nodes, edges) {
-  console.log('【根】', nodes, edges)
+// 这一步根据import生成incoming和outgoing
+function createIncomingAndOutgoing (nodes, edges) {
+  // console.log('【根】', nodes, edges)
   edges.forEach(edge => {
-    const sourceNode = allNodeMap.get(edge.source);
-    const targetNode = allNodeMap.get(edge.target);
+    const sourceNode = allNodeByIdMap.get(edge.source);
+    const targetNode = allNodeByIdMap.get(edge.target);
 
     const path = [sourceNode, targetNode]
 

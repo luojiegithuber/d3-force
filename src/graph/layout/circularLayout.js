@@ -1,10 +1,8 @@
 import * as d3 from '../../../static/d3/d3.v6-6-0.min.js';
+import {Node, Edge, createNodes, createEdges, setColor, colorin, colorout, colornone} from './object.js';
 
-const colorin = '#00f'
-const colorout = '#f00'
-const colornone = '#ccc'
 const width = 960
-const radius = width / 2
+const radius = 500
 
 const tree = d3.cluster()
   .size([2 * Math.PI, radius - 100])
@@ -18,7 +16,7 @@ function createCircularLayout (data, svg, beta = 0.85, callFunSelectNode) {
   const color = d3.scaleOrdinal(data.nodes.map(d => d.group).sort(d3.ascending), d3.schemeCategory10)
   data = hierarchyData(data)
 
-  const root = tree(bilink2(d3.hierarchy(data)
+  const root = tree(createIncomingAndOutgoing(d3.hierarchy(data)
     .sort((a, b) => d3.ascending(b.data.pathNum, a.data.pathNum))));
     // ascending计算两个值的自然顺序
 
@@ -27,7 +25,7 @@ function createCircularLayout (data, svg, beta = 0.85, callFunSelectNode) {
   svg = svg
     .attr('viewBox', [-width / 2, -width / 2, width, width])
     .call(d3.zoom()
-      .scaleExtent([1 / 2, 4])
+      .scaleExtent([1 / 50, 4])
       .on('zoom', e => {
         svg.attr('transform', e.transform)
       }))
@@ -39,19 +37,20 @@ function createCircularLayout (data, svg, beta = 0.85, callFunSelectNode) {
     .selectAll('g')
     .data(root.leaves())
 
-  var g = node.enter().append('g').on('click', (e, d) => {
-    console.log('在 圆形/捆图 布局中选择了节点', d.data.data);
-    callFunSelectNode(d.data.data);
-  })
+  var g = node.enter().append('g')
+    .on('click', (e, d) => {
+      console.log('在 圆形/捆图 布局中选择了节点', d.data.data);
+      callFunSelectNode(d.data.data);
+    })
+    .on('mouseover', overed)
+    .on('mouseout', outed)
 
   g
     .attr('transform', d => `rotate(${d.x * 180 / Math.PI - 90}) translate(${d.y + 20},0) rotate(${-d.x * 180 / Math.PI + 90})`)
     .append('circle')
     .style('fill', d => color(d.data.data.group))
     .style('stroke', '#000')
-    .attr('r', 20)
-    .on('mouseover', overed)
-    .on('mouseout', outed)
+    .attr('r', 10)
 
   g
     .append('text')
@@ -60,11 +59,11 @@ function createCircularLayout (data, svg, beta = 0.85, callFunSelectNode) {
     .style('font-size', '30px')
     .style('text-anchor', 'middle')
     .text(function (d) {
-      return (d.data.id)
+      // return (d.data.id)
     })
     .each(function (d) { d.text = this; })
-    .on('mouseover', overed)
-    .on('mouseout', outed)
+    // .on('mouseover', overed)
+    // .on('mouseout', outed)
 
   // console.log('flatmap', root.leaves().flatMap(leaf => leaf.outgoing))
 
@@ -81,7 +80,6 @@ function createCircularLayout (data, svg, beta = 0.85, callFunSelectNode) {
   // console.log('【link】', link)
 
   function overed (event, d) {
-    console.log(d)
     link.style('mix-blend-mode', null);
     d3.select(this).attr('font-weight', 'bold');
     d3.selectAll(d.incoming.map(d => d.path)).attr('stroke', colorin).raise();
@@ -103,19 +101,13 @@ function createCircularLayout (data, svg, beta = 0.85, callFunSelectNode) {
   function hierarchyData (data) {
     const nodes = data.nodes;
     const edges = data.edges;
-    function Node (d) {
-      this.id = d.id;
-      this.children = null;
-      this.pathNum = 0;
-      this.data = d
-    }
 
     const root = new Node({id: 'root'});
     root.children = [];
     const nodeMap = new Map(nodes.map(d => {
       const node = new Node(d)
       root.children.push(node)
-      return [d.id, node]
+      return [node.id, node]
     }))
 
     edges.forEach(edge => {
@@ -132,7 +124,7 @@ function createCircularLayout (data, svg, beta = 0.85, callFunSelectNode) {
   }
 
   // 这一步根据import生成incoming
-  function bilink2 (root) {
+  function createIncomingAndOutgoing (root) {
     const nodes = root.leaves();
     const nodeMap = new Map(nodes.map(d => [d.data.id, d]));
 

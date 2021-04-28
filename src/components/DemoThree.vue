@@ -14,6 +14,8 @@
 <script>
 
 import NodeContextMenu from './NodeContextMenu'
+import originDataNode from '../../static/data/huaweinode.json'
+import originDataEdge from '../../static/data/huaweiedge.json'
 import originData from '../../static/data/huawei.json'
 // import '../../static/d3/d3-canvas-transition.min.js'
 import * as d3 from '../../static/d3/d3.v6-6-0.min.js'
@@ -56,6 +58,10 @@ export default {
 
       isClearD3Content: false,
 
+      /*       originData: {
+        nodes: originDataNode,
+        edges: originDataEdge
+      }, */
       originData: originData,
       isCanvas: false,
       svg: d3.select('#mainsvg'),
@@ -92,7 +98,7 @@ export default {
     this.width = this.d3showDIV.clientWidth
     // this.svg.attr('height', this.height)
     // this.svg.attr('width', this.width)
-    this.changeLayout(8)
+    this.changeLayout(3)
     // console.log(this.$store.state.layoutId)
   },
   beforeCreate () {
