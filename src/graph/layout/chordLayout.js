@@ -1,4 +1,8 @@
 import * as d3 from '../../../static/d3/d3.v6-6-0.min.js';
+import {Node, Edge, createNodes, createEdges, setColor, colorin, colorout, colornone} from './object.js';
+
+
+var allNodeByIdMap = new Map()
 
 function createChordLayout (data, svg, callFunSelectNode) {
   data = dataMatrix(data)
@@ -108,26 +112,25 @@ function createChordLayout (data, svg, callFunSelectNode) {
 }
 
 function dataMatrix (data) {
-  const n = data.nodes.length;
+
+  const nodes = createNodes(data.nodes, (node, index) => {
+    node.matrixIndex = index;
+    allNodeByIdMap.set(node.id ,node )
+  });
+
+  const n = nodes.length;
   const matrix = []
   for (let i = 0; i < n; i++) {
     matrix.push(new Array(n).fill(0))
   }
-  const mapNode = new Map(data.nodes.map((d, index) => {
-    d.matrixIndex = index;
-    return [ d.id, d ];
-  }))
 
-  data.edges.forEach(edge => {
-    const sourceNode = mapNode.get(edge.source);
-    const targetNode = mapNode.get(edge.target);
-    matrix[sourceNode.matrixIndex][targetNode.matrixIndex]++;
-    matrix[targetNode.matrixIndex][sourceNode.matrixIndex]++;
-  })
+  const edges = createEdges(data.edges, edge => {
+    matrix[edge.sourceNode.matrixIndex][edge.targetNode.matrixIndex]++;
+  });
 
   return Object.assign(matrix, {
-    nodes: data.nodes,
-    names: data.nodes.map(d => d.label),
+    nodes: nodes,
+    names: nodes.map(d => d.label),
     colors: [ '#3957ff', '#d3fe14', '#c9080a', '#fec7f8', '#0b7b3e', '#0bf0e9', '#c203c8', '#fd9b39', '#888593', '#906407', '#98ba7f', '#fe6794', '#10b0ff', '#ac7bff', '#fee7c0', '#964c63', '#1da49c', '#0ad811', '#bbd9fd', '#fe6cfe' ]
   });
 }

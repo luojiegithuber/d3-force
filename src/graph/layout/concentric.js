@@ -7,13 +7,13 @@ import {Node, Edge, createNodes, createEdges, setColor, colorin, colorout, color
 // const allNodes = [];
 const nodeRadius = 10;
 const ringRadius = 50;
-var allNodeByIdMap = null;
+var allNodeByIdMap = new Map();
 
 function createContric (data, svg, callFunSelectNode) {
   // ——————————【数据预处理阶段】————————-
-  const edges = createEdges(data.edges);
-  const allNodes = packingNode(data).sort((a, b) => b.pathNum - a.pathNum)
-  createIncomingAndOutgoing(allNodes, edges)
+  
+  const {allNodes,nodes,edges} = handelData(data)
+  //createIncomingAndOutgoing(allNodes, edges)
 
   // ——————————【绘图阶段】————————-
 
@@ -147,27 +147,33 @@ function createContric (data, svg, callFunSelectNode) {
 }
 
 // 额外封装node
-function packingNode (data) {
-  const nodes = data.nodes;
-  const edges = data.edges;
-
+function handelData (data) {
   const allNodes = [];
 
-  allNodeByIdMap = new Map(nodes.map(d => {
-    const node = new Node(d);
-    allNodes.push(node)
-    return [node.id, node]
-  }))
+  const nodes = createNodes(data.nodes,node => {
+    allNodes.push(node);
+    allNodeByIdMap.set(node.id,node)
+  });
 
-  edges.forEach(edge => {
+  const edges = createEdges(data.edges,edge => {
     const sourceNode = allNodeByIdMap.get(edge.source);
     const targetNode = allNodeByIdMap.get(edge.target);
 
     sourceNode.pathNum++;
     targetNode.pathNum++;
-  })
 
-  return allNodes;
+    const path = [sourceNode, targetNode]
+
+    sourceNode.outgoing.push(path);
+    targetNode.incoming.push(path)
+  });
+
+
+  return {
+    allNodes:allNodes.sort((a, b) => b.pathNum - a.pathNum),
+    nodes,
+    edges,
+  };
 }
 
 function hierarchyNodeByDegree (nodes) {
@@ -198,18 +204,5 @@ function hierarchyNodeByDegree (nodes) {
   return allArr
 }
 
-// 这一步根据import生成incoming和outgoing
-function createIncomingAndOutgoing (nodes, edges) {
-  // console.log('【根】', nodes, edges)
-  edges.forEach(edge => {
-    const sourceNode = allNodeByIdMap.get(edge.source);
-    const targetNode = allNodeByIdMap.get(edge.target);
-
-    const path = [sourceNode, targetNode]
-
-    sourceNode.outgoing.push(path);
-    targetNode.incoming.push(path)
-  })
-}
 
 export default createContric

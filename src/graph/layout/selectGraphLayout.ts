@@ -8,6 +8,7 @@ import createCircularLayout from './circularLayout'
 
 import createForceDirectedGraph from './force'
 import createGridGraph from './gridLayout'
+import createDagreLayout from './dagreLayout'
 
 function Option (option) {
   this.beta = option.beta
@@ -42,6 +43,7 @@ const createGraphLayoutFun = {
   6: (data, selection, cbFunSelectNode) => createCircularLayout(data, selection, 0.85, cbFunSelectNode),
   7: createForceDirectedGraph,
   8: createGridGraph,
+  9: createDagreLayout
 }
 
 // LayoutObj 应该有一个基类

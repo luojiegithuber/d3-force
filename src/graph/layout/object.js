@@ -17,7 +17,7 @@ export function createNodes (arr, callback) {
   return arr.map((d, index) => {
     const node = new Node(d);
     allNodeByIdMap.set(node.id, node)
-    callback(node, index);
+    if(callback)callback(node, index);
     return node;
   });
 }
@@ -35,7 +35,7 @@ export function Edge (edge) {
 export function createEdges (arr, callback) {
   const edges = arr.map((d, index) => {
     const edge = new Edge(d);
-    callback(edge, index);
+    if(callback)callback(edge, index);
     return edge
   })
 

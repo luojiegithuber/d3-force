@@ -22,7 +22,8 @@ const options = [
   { label: '圆形布局', value: 5 },
   { label: '捆图布局', value: 6 },
   { label: '力导向', value: 7 },
-  { label: '网格', value: 8 }
+  { label: '网格', value: 8 },
+  { label: '有向分层', value: 9 },
 ];
 
 export default {
@@ -36,7 +37,7 @@ export default {
   data () {
     return {
       options: options,
-      layoutId: 3
+      layoutId: 1
     }
   },
 
