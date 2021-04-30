@@ -98,7 +98,7 @@ export default {
     this.width = this.d3showDIV.clientWidth
     // this.svg.attr('height', this.height)
     // this.svg.attr('width', this.width)
-    this.changeLayout(1)
+    this.changeLayout(10)
     // console.log(this.$store.state.layoutId)
   },
   beforeCreate () {

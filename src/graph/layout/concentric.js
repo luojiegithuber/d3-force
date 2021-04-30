@@ -7,14 +7,14 @@ import {Node, Edge, createNodes, createEdges, setColor, colorin, colorout, color
 // const allNodes = [];
 const nodeRadius = 10;
 const ringRadius = 50;
-var allNodeByIdMap = new Map();
+
 
 function createContric (data, svg, callFunSelectNode) {
   // ——————————【数据预处理阶段】————————-
   
   const {allNodes,nodes,edges} = handelData(data)
   //createIncomingAndOutgoing(allNodes, edges)
-
+  console.log(allNodes)
   // ——————————【绘图阶段】————————-
 
   svg
@@ -82,14 +82,15 @@ function createContric (data, svg, callFunSelectNode) {
   // console.log(node)
 
   var linksFun = d3
-    .forceLink()
+    .forceLink(edges)
     .id(function (d) {
       return d.id;
-    });
+    })
+    .distance(d => 50)
 
   var simulation = d3.forceSimulation(allNodes)
     .force('charge', d3.forceCollide().radius(0))
-    .force('link', linksFun)
+    //.force('link', linksFun)
     .force('r', d3.forceRadial(function (d) { return d.degree * ringRadius; }))
     .on('tick', ticked);
 
@@ -152,20 +153,20 @@ function handelData (data) {
 
   const nodes = createNodes(data.nodes,node => {
     allNodes.push(node);
-    allNodeByIdMap.set(node.id,node)
   });
 
   const edges = createEdges(data.edges,edge => {
-    const sourceNode = allNodeByIdMap.get(edge.source);
-    const targetNode = allNodeByIdMap.get(edge.target);
+    //排除自指向的结点干扰pathNum
+    if(edge.sourceNode !== edge.targetNode ){
+      edge.sourceNode.pathNum++;
+      edge.targetNode.pathNum++;
+  
+      const path = [edge.sourceNode, edge.targetNode]
+  
+      edge.sourceNode.outgoing.push(path);
+      edge.targetNode.incoming.push(path)
+    }
 
-    sourceNode.pathNum++;
-    targetNode.pathNum++;
-
-    const path = [sourceNode, targetNode]
-
-    sourceNode.outgoing.push(path);
-    targetNode.incoming.push(path)
   });
 
 
@@ -199,7 +200,7 @@ function hierarchyNodeByDegree (nodes) {
 
   allArr.push(samePathNumArr)
   allArr.shift()
-  // console.log('allArr', allArr);
+  console.log('allArr', allArr);
 
   return allArr
 }
