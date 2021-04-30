@@ -1,196 +1,180 @@
 
 import * as d3 from '../../../static/d3/d3.v6-6-0.min.js';
 import {Node, Edge, createNodes, createEdges, setColor, colorin, colorout, colornone} from './object.js';
+var allNodeById = new Map();
 
-// const width = 1000
+function handelData (data) {
 
-// const allNodes = [];
-const nodeRadius = 10;
-const ringRadius = 50;
-var allNodeByIdMap = new Map();
+  const nodes = createNodes(data.nodes,node =>{
+    
+    //新增三个新属性，在这里会派上用场
+    node.parentId = undefined;
+    node.hierarchyNum = 0;
+    node.indegree = 0;
+
+    allNodeById.set(node.id,node)
+
+  });
+  var edges = createEdges(data.edges);
+
+
+  const hierarchys = []; // 层级金字塔数组（二维数组）
+  let curHierarchyNum = 0; // 当前层级
+
+  const queue = []; // 队列，用于辅助【拓扑排序】
+
+  //过滤掉 自指向结点（去环操作）
+  edges = edges.filter(d => {
+    if(d.source === d.target){
+      return false
+    }else{
+      d.sourceNode.outgoing.push(d);
+      d.targetNode.incoming.push(d);
+      d.targetNode.indegree++;
+      return true;
+    }
+    
+  })
+
+  //选取根，并放在第一层级
+  //默认选取方式是选择数组中第一个入度为0的结点
+  nodes.forEach(d => {
+    if(d.incoming.length === 0){
+      queue.push(d);
+      hierarchys.push(new Array());
+    }
+  })
+
+  //拓扑排序操作
+  while(queue.length!==0){
+    const tempNode = queue.shift()
+    if(tempNode.hierarchyNum !== curHierarchyNum){
+      hierarchys.push(new Array());
+      curHierarchyNum++;
+    }  
+    hierarchys[hierarchys.length - 1].push(tempNode)
+    //console.log(tempNode.id,tempNode.hierarchyNum)
+    tempNode.outgoing.forEach(edge => {
+      const targetNode = edge.targetNode;
+      targetNode.indegree--;
+      if(targetNode.indegree === 0){
+        targetNode.hierarchyNum = tempNode.hierarchyNum + 1
+        queue.push(targetNode);
+      } 
+    })
+  }
+
+  console.log('【层级】',hierarchys)
+
+  // link是不可能跨越两级的，根据这个可以过滤边
+  // 同时不需要自转边
+
+  function copyNode(node){
+    return new Node(node.data)
+  }
+
+  var newEdges = edges.filter(d => {
+    const sourceNode = d.sourceNode;
+    const targetNode = d.targetNode;
+    if((targetNode.hierarchyNum - sourceNode.hierarchyNum) === 1){
+      
+      if(!targetNode.parentId){
+        targetNode.parentId = sourceNode.id;
+      }else{
+        //多个父亲，就复制一个孩子联系第二个父亲
+        const newTargetNodeCopy = copyNode(targetNode)
+        newTargetNodeCopy.parentId = sourceNode.id;
+        nodes.push(newTargetNodeCopy)
+      }
+      return true;
+    }else{
+      return false;
+    }
+    
+  })
+
+
+  console.log('【过滤多余的边后】',newEdges)
+  console.log('【最终版本的结点】',nodes)
+
+  return nodes
+}
 
 function createRadialLayout (data, svg, callFunSelectNode) {
   // ——————————【数据预处理阶段】————————-
   
-  const {allNodes,nodes,edges} = handelData(data)
-  //createIncomingAndOutgoing(allNodes, edges)
+  var width = 800
+  var radius = 500/2
+  
+  const tree = d3.tree()
+      .size([2 * Math.PI, radius])
+      .separation((a, b) => (a.parent == b.parent ? 1 : 2) / a.depth)
+  const nodes = handelData(data)
+  
+  var data2 = d3.stratify()
+      .id(function(d) { return d.id; })
+      .parentId(function(d) { return d.parentId; })
+      (nodes);
+  
+  //**************************
+  
+  //data = d3.hierarchy(datajson)
+  //    .sort((a, b) => d3.ascending(a.data.name, b.data.name))
+  
+    const root = tree(data2);
+    
+    
+    svg.attr("viewBox", [-800/2,-500/2,800,500]);
 
-  // ——————————【绘图阶段】————————-
-
-  svg
-    .attr('viewBox', [-960 / 2, -500 / 2, 960, 500]);
-
-  svg = svg
-    .call(d3.zoom()
-      .scaleExtent([1 / 50, 4])
-      .on('zoom', e => {
-        svg.attr('transform', e.transform);
-      }))
+    svg = svg.call(d3.zoom()
+    .scaleExtent([1 / 50, 4])
+    .on('zoom', e => {
+      svg.attr('transform', e.transform);
+    }))
     .append('g')
-
-  const rings = hierarchyNodeByDegree(allNodes).map((d, index) => {
-    return {degree: index}
-  });
-
-
-  // console.log('所有的节点', allNodes)
-
-  var nodeG = svg
-    .append('g')
-    .selectAll('circle')
-    .data(allNodes)
-    .enter()
-    .append('g')
-    .on('mouseover', overed)
-    .on('mouseout', outed)
-    .on('click', (e, d) => {
-      console.log('在同心圆布局中选择了节点', d.data);
-      callFunSelectNode(d.data);
-    })
-
-  nodeG
-    .append('circle')
-    .attr('r', nodeRadius)
-    .attr('fill', d => setColor(d.degree))
-    .append('title')
-    .text(function (d) { return `${d.id}` })
-
-  nodeG
-    .append('text')
-    .style('fill', '#000')
-    .style('font-size', '15px')
-    .style('text-anchor', 'middle')
-    .text(function (d) {
-      return (d.label)
-    })
-    .each(function (d) { d.text = this; })
-
-  var node = nodeG.selectAll('circle')
-  var text = nodeG.selectAll('text')
-  // console.log(node)
-
-  var linksFun = d3
-    .forceLink(edges)
-    .id(function (d) {
-      return d.id;
-    })
-    .distance(d => 50)
-
-  var simulation = d3.forceSimulation(allNodes)
-    .force('charge', d3.forceCollide().radius(15))
-    .force('link', linksFun)
-    .force('r', d3.forceRadial(function (d) { return d.degree * ringRadius; }))
-    .on('tick', ticked);
-
-    /* simulation.force("link") // 绘制边
-        .links(edges); */
-
-  var edge = svg
-    .append('g')
-    .lower()
-    .attr('stroke', colornone)
-    .attr('fill', 'none')
-    .selectAll('path')
-    .data(simulation.nodes().flatMap(leaf => leaf.outgoing))
-    .enter().append('path')
-
-  function overed (event, d) {
-    edge.style('mix-blend-mode', null);
-    d3.select(this).attr('font-weight', 'bold');
-    d3.selectAll(d.incoming.map(d => d.path)).attr('stroke', colorin).raise();
-    d3.selectAll(d.incoming.map(([d]) => d.text)).attr('fill', colorin).attr('font-weight', 'bold');
-    d3.selectAll(d.outgoing.map(d => d.path)).attr('stroke', colorout).raise();
-    d3.selectAll(d.outgoing.map(([, d]) => d.text)).attr('fill', colorout).attr('font-weight', 'bold');
-  }
-
-  function outed (event, d) {
-    edge.style('mix-blend-mode', 'multiply');
-    d3.select(this).attr('font-weight', null);
-    d3.selectAll(d.incoming.map(d => d.path)).attr('stroke', null);
-    d3.selectAll(d.incoming.map(([d]) => d.text)).attr('fill', null).attr('font-weight', null);
-    d3.selectAll(d.outgoing.map(d => d.path)).attr('stroke', null);
-    d3.selectAll(d.outgoing.map(([, d]) => d.text)).attr('fill', null).attr('font-weight', null);
-  }
-
-  function ticked () {
-    node
-      .attr('cx', function (d) { return d.x; })
-      .attr('cy', function (d) { return d.y; });
-
-    text.attr('transform', function (d) {
-      return 'translate(' + d.x + ',' + (d.y + 5) + ')';
-    });
-
-    edge
-      .data(simulation.nodes().flatMap(leaf => leaf.outgoing))
-      .style('mix-blend-mode', 'multiply')
-      .attr('d', ([i, o]) => {
-        const path = d3.path();
-        path.moveTo(i.x, i.y);
-        path.lineTo(o.x, o.y);
-        path.closePath();
-        return path
-      })
-      .each(function (d) { d.path = this; });
-  }
-}
-
-// 额外封装node
-function handelData (data) {
-  const allNodes = [];
-
-  const nodes = createNodes(data.nodes,node => {
-    allNodes.push(node);
-    allNodeByIdMap.set(node.id,node)
-  });
-
-  const edges = createEdges(data.edges,edge => {
-    const sourceNode = allNodeByIdMap.get(edge.source);
-    const targetNode = allNodeByIdMap.get(edge.target);
-
-    sourceNode.pathNum++;
-    targetNode.pathNum++;
-
-    const path = [sourceNode, targetNode]
-
-    sourceNode.outgoing.push(path);
-    targetNode.incoming.push(path)
-  });
-
-
-  return {
-    allNodes:allNodes.sort((a, b) => b.pathNum - a.pathNum),
-    nodes,
-    edges,
-  };
-}
-
-function hierarchyNodeByDegree (nodes) {
-  const allArr = [];
-  let curPathNum = -1;
-  let samePathNumArr = [];
-  // let headNode;
-  let degree = -1;
-
-  nodes.forEach(d => {
-    if (curPathNum !== d.pathNum) {
-      allArr.push(samePathNumArr);
-      samePathNumArr = [];
-      degree++;
-      d.degree = degree;
-      samePathNumArr.push(d)
-      curPathNum = d.pathNum;
-    } else {
-      d.degree = degree;
-      samePathNumArr.push(d)
-    }
-  })
-
-  allArr.push(samePathNumArr)
-  allArr.shift()
-  // console.log('allArr', allArr);
-
-  return allArr
+  
+    svg.append("g")
+        .attr("fill", "none")
+        .attr("stroke", "#555")
+        .attr("stroke-opacity", 0.4)
+        .attr("stroke-width", 1.5)
+      .selectAll("path")
+      .data(root.links())
+      .join("path")
+        .attr("d", d3.linkRadial()
+            .angle(d => d.x)
+            .radius(d => d.y));
+    
+    svg.append("g")
+      .selectAll("circle")
+      .data(root.descendants())
+      .join("circle")
+        .attr("transform", d => `
+          rotate(${d.x * 180 / Math.PI - 90})
+          translate(${d.y},0)
+        `)
+        .attr("fill", d => d.children ? "black" : "green")
+        .attr("r", 5);
+  
+    svg.append("g")
+        .attr("font-family", "sans-serif")
+        .attr("font-size", 10)
+        .attr("stroke-linejoin", "round")
+        .attr("stroke-width", 3)
+      .selectAll("text")
+      .data(root.descendants())
+      .join("text")
+        .attr("transform", d => `
+          rotate(${d.x * 180 / Math.PI - 90}) 
+          translate(${d.y},0) 
+          rotate(${d.x >= Math.PI ? 180 : 0})
+        `)
+        .attr("dy", "0.31em")
+        .attr("x", d => d.x < Math.PI === !d.children ? 6 : -6)
+        .attr("text-anchor", d => d.x < Math.PI === !d.children ? "start" : "end")
+        .text(d => d.data.id)
+      .clone(true).lower()
+        .attr("stroke", "white");
 }
 
 
