@@ -1,44 +1,23 @@
 
 import * as d3 from '../../../static/d3/d3.v6-6-0.min.js';
+import {Node, Edge, createNodes, createEdges, colorin, colorout, colornone} from './object.js';
 const allNodeById = {};
-
-function Link (edge) {
-  this.source = allNodeById[edge.source];
-  this.target = allNodeById[edge.target];
-  this.weight = edge.weight;
-  this.data = edge;
-}
-
-function Node (node) {
-  this.id = node.guid;
-  this.group = node.group;
-  this.label = 'D';
-  this.data = node;
-  this.x = 200;
-  this.y = 200;
+const colors = d3.scaleOrdinal(d3.schemeCategory10);
+export function setColor (x) {
+  return colors(x);
 }
 
 function createNodeCoordinate (nodes, xNum, yNum) {
-  // const  horizontalWidth = width/x_num;
-  // const  verticalWidth =  height/y_num;
   const horizontalWidth = 80;
   const verticalWidth = 80;
-  return nodes.map((d, index) => {
-    const node = new Node(d);
+  return createNodes(nodes,(node,index) => {
+    node.x = 100;
+    node.y = 100;
     node.x = node.x + (index % xNum) * horizontalWidth
     node.y = node.y + Math.floor(index / xNum) * verticalWidth
-    allNodeById[node.id] = node;
-    return node
   })
 }
 
-function createLinkCoordinate (edges) {
-  return edges.map((d, index) => {
-    const link = new Link(d);
-
-    return link
-  })
-}
 
 function createGridGraph (data, canvas, callFunSelectNode) {
   var curSelectedNode = null;
@@ -51,15 +30,10 @@ function createGridGraph (data, canvas, callFunSelectNode) {
   const height = canvas.height;
 
   const nodes = createNodeCoordinate(data.nodes, 5, 5);
-  const links = createLinkCoordinate(data.edges)
+  const links = createEdges(data.edges)
 
   console.log(nodes)
 
-  const scale = d3.scaleOrdinal(d3.schemeCategory10);
-  function colorNode (node) {
-    const nodeColor = scale(node.group);
-    return nodeColor;
-  }
 
   simulationUpdate();
 
@@ -155,14 +129,14 @@ function createGridGraph (data, canvas, callFunSelectNode) {
       // console.log(d)
       context.beginPath(); // 起始一条路径，或重置当前路径
       context.strokeStyle = 'grey';
-      context.moveTo(d.source.x, d.source.y); // 把路径移动到画布中的指定点，不创建线条
-      context.lineTo(d.target.x, d.target.y); // 添加一个新点，然后在画布中创建从该点到最后指定点的线条
+      context.moveTo(d.sourceNode.x, d.sourceNode.y); // 把路径移动到画布中的指定点，不创建线条
+      context.lineTo(d.targetNode.x, d.targetNode.y); // 添加一个新点，然后在画布中创建从该点到最后指定点的线条
       context.stroke(); // 绘制已定义的路径
     });
 
     nodes.forEach((d, i) => {
       context.beginPath();
-      context.fillStyle = colorNode(d) // 设置或返回用于填充绘画的颜色、渐变或模式。
+      context.fillStyle = setColor(d.group) // 设置或返回用于填充绘画的颜色、渐变或模式。
       context.arc(d.x, d.y, radius, 0, 2 * Math.PI, true); // 方法创建弧/曲线（用于创建圆或部分圆）
       context.fill(); // 填充当前绘图（路径）
       context.beginPath();
@@ -176,7 +150,7 @@ function createGridGraph (data, canvas, callFunSelectNode) {
     if (curSelectedNode) {
       context.beginPath();
       context.arc(curSelectedNode.x, curSelectedNode.y, radius, 0, 2 * Math.PI, true); // 方法创建弧/曲线（用于创建圆或部分圆）
-      context.fillStyle = colorNode(curSelectedNode) // 设置或返回用于填充绘画的颜色、渐变或模式。
+      context.fillStyle = setColor(curSelectedNode.group) // 设置或返回用于填充绘画的颜色、渐变或模式。
       context.lineWidth = 2;
       context.stroke();
       context.fill(); // 填充当前绘图（路径）

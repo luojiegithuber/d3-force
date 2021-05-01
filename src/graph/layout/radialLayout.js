@@ -64,7 +64,7 @@ function handelData (data) {
     })
   }
 
-  console.log('【层级】',hierarchys)
+  // console.log('【层级】',hierarchys)
 
   // link是不可能跨越两级的，根据这个可以过滤边
   // 同时不需要自转边
@@ -94,8 +94,8 @@ function handelData (data) {
   })
 
 
-  console.log('【过滤多余的边后】',newEdges)
-  console.log('【最终版本的结点】',nodes)
+  // console.log('【过滤多余的边后】',newEdges)
+  // console.log('【最终版本的结点】',nodes)
 
   return nodes
 }
@@ -154,7 +154,11 @@ function createRadialLayout (data, svg, callFunSelectNode) {
           translate(${d.y},0)
         `)
         .attr("fill", d => d.children ? "black" : "green")
-        .attr("r", 5);
+        .attr("r", 5)
+        .on('click', (e, d) => {
+          console.log('在辐射径向布局中选择了节点', d.data);
+          callFunSelectNode(d.data);
+        })
   
     svg.append("g")
         .attr("font-family", "sans-serif")

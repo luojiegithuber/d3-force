@@ -14,7 +14,7 @@ function createCircularLayout (data, svg, beta = 0.85, callFunSelectNode) {
     .angle(d => d.x) // 设置或返回角度访问器。如果提供了角度，则它必须是数字或返回表示弧度角的数字的函数。
 
   const color = d3.scaleOrdinal(data.nodes.map(d => d.group).sort(d3.ascending), d3.schemeCategory10)
-  data = hierarchyData(data)
+  data = handelData(data)
 
   const root = tree(createIncomingAndOutgoing(d3.hierarchy(data)
     .sort((a, b) => d3.ascending(b.data.pathNum, a.data.pathNum))));
@@ -48,9 +48,9 @@ function createCircularLayout (data, svg, beta = 0.85, callFunSelectNode) {
   g
     .attr('transform', d => `rotate(${d.x * 180 / Math.PI - 90}) translate(${d.y + 20},0) rotate(${-d.x * 180 / Math.PI + 90})`)
     .append('circle')
-    .style('fill', d => color(d.data.data.group))
+    .style('fill', d => '#ff9e6d')
     .style('stroke', '#000')
-    .attr('r', 10)
+    .attr('r', 20)
 
   g
     .append('text')
@@ -59,7 +59,7 @@ function createCircularLayout (data, svg, beta = 0.85, callFunSelectNode) {
     .style('font-size', '30px')
     .style('text-anchor', 'middle')
     .text(function (d) {
-      // return (d.data.id)
+       return (d.data.id)
     })
     .each(function (d) { d.text = this; })
     // .on('mouseover', overed)
@@ -98,25 +98,18 @@ function createCircularLayout (data, svg, beta = 0.85, callFunSelectNode) {
   }
 
   // 数据分层，使其变成d3.hierarchy能处理的格式
-  function hierarchyData (data) {
-    const nodes = data.nodes;
-    const edges = data.edges;
+  function handelData (data) {
 
     const root = new Node({id: 'root'});
     root.children = [];
-    const nodeMap = new Map(nodes.map(d => {
-      const node = new Node(d)
+
+    const nodes = createNodes(data.nodes,node => {
       root.children.push(node)
-      return [node.id, node]
-    }))
-
-    edges.forEach(edge => {
-      const sourceNode = nodeMap.get(edge.source);
-      const targetNode = nodeMap.get(edge.target);
-
-      sourceNode.pathNum++;
-      targetNode.pathNum++;
-    })
+    });
+    const edges = createEdges(data.edges,edge => {
+      edge.sourceNode.pathNum++;
+      edge.targetNode.pathNum++;
+    });
 
     root.edges = edges;
 
@@ -124,27 +117,27 @@ function createCircularLayout (data, svg, beta = 0.85, callFunSelectNode) {
   }
 
   // 这一步根据import生成incoming
+  // 在这里的时候结点已经是二次封装了
   function createIncomingAndOutgoing (root) {
-    const nodes = root.leaves();
-    const nodeMap = new Map(nodes.map(d => [d.data.id, d]));
+    const treenodes = root.leaves();
+    const allTreeNodeByIdMap = new Map(treenodes.map(d => [d.data.id, d]));
 
-    nodes.forEach(curNode => {
-      curNode.incoming = []
-      curNode.outgoing = []
+    treenodes.forEach(treenode => {
+      treenode.incoming = [];
+      treenode.outgoing = [];
+      treenode.pathNum = treenode.pathNum;
     })
+
     const edges = root.data.edges;
+
     edges.forEach(edge => {
-      const sourceNode = nodeMap.get(edge.source);
-      const targetNode = nodeMap.get(edge.target);
+      const sourceTreeNode = allTreeNodeByIdMap.get(edge.source);
+      const targetTreeNode = allTreeNodeByIdMap.get(edge.target);
 
-      const path = [sourceNode, targetNode]
+      const path = [sourceTreeNode, targetTreeNode]
 
-      sourceNode.outgoing.push(path);
-      targetNode.incoming.push(path)
-    })
-
-    nodes.forEach(curNode => {
-      curNode.pathNum = curNode.incoming.length + curNode.outgoing.length;
+      sourceTreeNode.outgoing.push(path);
+      targetTreeNode.incoming.push(path)
     })
 
     return root;

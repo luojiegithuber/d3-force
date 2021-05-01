@@ -1,31 +1,16 @@
 
 import * as d3 from '../../../static/d3/d3.v6-6-0.min.js';
-function Link (edge) {
-  this.source = edge.source;
-  this.target = edge.target;
-  // this.weight = edge.weight;
-  this.data = edge;
-}
-
-/* function Node (node) {
-  this.id = node.id;
-  this.group = node.group;
-  this.label = node.label;
-  this.data = node;
-} */
-
-function Node (node) {
-  this.id = node.guid;
-  this.group = node.type_name;
-  this.label = 'D';
-  this.data = node;
+import {Node, Edge, createNodes, createEdges, colorin, colorout, colornone} from './object.js';
+const colors = d3.scaleOrdinal(d3.schemeCategory10);
+export function setColor (x) {
+  return colors(x);
 }
 
 function createForceDirectedGraph (data, canvas, callFunSelectNode) {
   var curSelectedNode = null;
 
-  const nodes = data.nodes.map(d => new Node(d));
-  const links = data.edges.map(d => new Link(d));
+  const nodes = createNodes(data.nodes);
+  const links = createEdges(data.edges);
 
   var radius = 10;
   var transform = d3.zoomIdentity;
@@ -34,11 +19,6 @@ function createForceDirectedGraph (data, canvas, callFunSelectNode) {
   const width = canvas.width;
   const height = canvas.height;
 
-  const scale = d3.scaleOrdinal(d3.schemeCategory10);
-  function colorNode (node) {
-    const nodeColor = scale(node.group);
-    return nodeColor;
-  }
 
   const simulation = d3.forceSimulation(nodes) // 创建一个新的力学仿真.
     .force('link', d3.forceLink(links).id(function (d) { return d.id })) // 添加或移除一个力模型.
@@ -135,7 +115,7 @@ function createForceDirectedGraph (data, canvas, callFunSelectNode) {
 
     nodes.forEach((d, i) => {
       context.beginPath();
-      context.fillStyle = colorNode(d) // 设置或返回用于填充绘画的颜色、渐变或模式。
+      context.fillStyle = setColor(d.group) // 设置或返回用于填充绘画的颜色、渐变或模式。
       context.arc(d.x, d.y, radius, 0, 2 * Math.PI, true); // 方法创建弧/曲线（用于创建圆或部分圆）
       context.fill(); // 填充当前绘图（路径）
       context.beginPath();
@@ -149,7 +129,7 @@ function createForceDirectedGraph (data, canvas, callFunSelectNode) {
     if (curSelectedNode) {
       context.beginPath();
       context.arc(curSelectedNode.x, curSelectedNode.y, radius, 0, 2 * Math.PI, true); // 方法创建弧/曲线（用于创建圆或部分圆）
-      context.fillStyle = colorNode(curSelectedNode) // 设置或返回用于填充绘画的颜色、渐变或模式。
+      context.fillStyle = setColor(curSelectedNode.group) // 设置或返回用于填充绘画的颜色、渐变或模式。
       context.lineWidth = 2;
       context.stroke();
       context.fill(); // 填充当前绘图（路径）

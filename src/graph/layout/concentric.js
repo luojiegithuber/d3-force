@@ -1,7 +1,10 @@
 
 import * as d3 from '../../../static/d3/d3.v6-6-0.min.js';
-import {Node, Edge, createNodes, createEdges, setColor, colorin, colorout, colornone} from './object.js';
-
+import {Node, Edge, createNodes, createEdges, colorin, colorout, colornone} from './object.js';
+const colors = d3.scaleOrdinal(d3.schemeCategory10);
+export function setColor (x) {
+  return colors(x);
+}
 // const width = 1000
 
 // const allNodes = [];

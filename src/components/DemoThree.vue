@@ -174,22 +174,22 @@ export default {
 }
 
 .expend-div{
-  width: 98vw;
+  width: 97vw;
   animation: extend 1s ;
 }
 
 .no-expend-div{
-  width: calc(98vw - 350px);
+  width: calc(97vw - 350px);
   animation: shrink 1s ;
 }
 
 @keyframes shrink {
-    0% {width: 98vw;}
-    100% {width: calc(98vw - 350px);}
+    0% {width: 97vw;}
+    100% {width: calc(97vw - 350px);}
 }
 
 @keyframes extend {
-    0% {width: calc(98vw - 350px);}
-    100% {width: 98vw;}
+    0% {width: calc(97vw - 350px);}
+    100% {width: 97vw;}
 }
 </style>

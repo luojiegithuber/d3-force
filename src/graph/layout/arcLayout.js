@@ -10,16 +10,15 @@ const orderFun = {
 
 function createGraph (data) {
   const nodes = createNodes(data.nodes, node => {
-    allNodeByIdMap.set(node.id, node)
+    // allNodeByIdMap.set(node.id, node)
   })
 
   const edges = createEdges(data.edges, edge => {
-    const sourceNode = allNodeByIdMap.get(edge.source);
-    const targetNode = allNodeByIdMap.get(edge.target);
-    sourceNode.pathNum++;
-    targetNode.pathNum++;
-    sourceNode.incoming.push(edge);
-    targetNode.outgoing.push(edge);
+
+    edge.sourceNode.pathNum++;
+    edge.targetNode.pathNum++;
+    edge.sourceNode.incoming.push(edge);
+    edge.targetNode.outgoing.push(edge);
   })
 
   return {nodes, edges};
@@ -88,7 +87,7 @@ function createArcLayout (data, svg, callFunSelectNode) {
       .attr('x', -6)
       .attr('dy', '0.35em')
       .attr('fill', d => d3.lab(color(d.group)).darker(2))
-      .text(d => d.data.label))
+      .text(d => d.label))
     .call(g => g.append('circle')
       .attr('r', 5)
       .attr('fill', d => color(d.group)));

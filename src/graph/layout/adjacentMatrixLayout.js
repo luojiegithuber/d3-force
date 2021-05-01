@@ -2,19 +2,20 @@
 import * as d3 from '../../../static/d3/d3.v6-6-0.min.js';
 import {Node, Edge, createNodes, createEdges, setColor, colorin, colorout, colornone, allNodeByIdMap, setAllNodeByIdMap} from './object.js';
 
-const height = 15;
+const rectHeight = 15;
 const margin = ({top: 20, right: 1, bottom: 40, left: 50});
-const width = 800;
+
 
 function createAdjacentMatrixLayout (data, svg) {
-  // const colorGroup = d3.scaleOrdinal(nodes.map(d => d.group).sort(d3.ascending), d3.schemeCategory10)
+  const height = svg.style("height");
+  const width = svg.style("width");
 
   data = dataMatrix(data);
-  console.log('矩阵数据结束')
+  // console.log('矩阵数据结束')
 
   const color = d3.scaleSequentialSqrt([0, d3.max(data.values, d => d3.max(d))], d3.interpolateOrRd)
 
-  const innerHeight = height * data.names.length;
+  const innerHeight = rectHeight * data.names.length;
 
   const y = d3.scaleBand()
     .domain(data.names)
@@ -41,8 +42,9 @@ function createAdjacentMatrixLayout (data, svg) {
 
   console.log('轴渲染结束')
 
+
   svg
-    .attr('viewBox', [-50, -50, width, innerHeight + margin.top + margin.bottom])
+    .attr('viewBox', [-width/2, -height/2, width, height])
     .attr('font-family', 'sans-serif')
     .attr('font-size', 10);
 
