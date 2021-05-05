@@ -11,8 +11,8 @@ const store = new Vuex.Store({
   state: {
     layoutId: 1,
     layoutOrderId: 1,
-    nodeData: null,
-    edgeData: null
+    nodeData: {},
+    edgeData: {}
   },
 
   mutations: {

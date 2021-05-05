@@ -126,8 +126,8 @@ function createArcLayout (data, svg, callFunSelectNode) {
     .on('click', nodeSelectChange);
 
   function nodeSelectChange (e, d) {
-    console.log('在弧线布局中选择了节点', d.data);
-    callFunSelectNode(d.data)
+    console.log('在弧线布局中选择了节点', d);
+    callFunSelectNode(d)
   }
 
   // 暴露给外界自行调用更新函数

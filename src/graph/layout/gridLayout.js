@@ -85,8 +85,8 @@ function createGridGraph (data, canvas, callFunSelectNode) {
   }
 
   function nodeSelectChange (d) {
-    console.log('在网格布局中选择了节点', d.data);
-    callFunSelectNode(d.data)
+    console.log('在网格布局中选择了节点', d);
+    callFunSelectNode(d)
   }
 
   function dragstarted (e) {

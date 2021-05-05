@@ -39,8 +39,8 @@ function createCircularLayout (data, svg, beta = 0.85, callFunSelectNode) {
 
   var g = node.enter().append('g')
     .on('click', (e, d) => {
-      console.log('在 圆形/捆图 布局中选择了节点', d.data.data);
-      callFunSelectNode(d.data.data);
+      console.log('在 圆形/捆图 布局中选择了节点', d.data);
+      callFunSelectNode(d.data);
     })
     .on('mouseover', overed)
     .on('mouseout', outed)

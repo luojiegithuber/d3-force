@@ -1,21 +1,38 @@
 
 import * as d3 from '../../../static/d3/d3.v6-6-0.min.js';
 import {Node, Edge, createNodes, createEdges, setColor, colorin, colorout, colornone} from './object.js';
-var allNodeById = new Map();
+var allNodeByIdMap = new Map();
 
-function handelData (data) {
+function dfs(node){
+  if(node.isRootDFS){
+    return  
+  }
 
-  const nodes = createNodes(data.nodes,node =>{
+  node.isRootDFS = true;
+  node.outgoing.forEach(edge => {
+    const childrenNode = edge.targetNode;
+    edge.isRootDFS = true;
+    dfs(childrenNode)
+  })
+}
+
+
+function handelData (data,rootId) {
+
+  var nodes = createNodes(data.nodes,node =>{
     
     //新增三个新属性，在这里会派上用场
     node.parentId = undefined;
     node.hierarchyNum = 0;
     node.indegree = 0;
+    node.isRootDFS = false;
 
-    allNodeById.set(node.id,node)
-
+    allNodeByIdMap.set(node.id,node)
   });
-  var edges = createEdges(data.edges);
+  var edges = createEdges(data.edges,edge =>{
+    //新增1个新属性，指能被根通过dfs访问到的边
+    edge.isRootDFS = false;
+  });
 
 
   const hierarchys = []; // 层级金字塔数组（二维数组）
@@ -30,20 +47,61 @@ function handelData (data) {
     }else{
       d.sourceNode.outgoing.push(d);
       d.targetNode.incoming.push(d);
-      d.targetNode.indegree++;
+      //d.targetNode.indegree++;
       return true;
     }
     
   })
 
+  console.log(nodes)
+
   //选取根，并放在第一层级
   //默认选取方式是选择数组中第一个入度为0的结点
-  nodes.forEach(d => {
-    if(d.incoming.length === 0){
-      queue.push(d);
-      hierarchys.push(new Array());
+  if(rootId){
+    const root = allNodeByIdMap.get(rootId);
+    queue.push(root);
+  }else{
+    nodes.forEach(d => {
+      if(d.incoming.length === 0){
+        queue.push(d);
+      }
+    })
+  }
+
+  if(queue[0]){
+    console.log('根结点是',queue[0])
+  }else{
+    console.log('没有合适的根结点')
+    return
+  }
+  
+
+  hierarchys.push(new Array());
+
+  dfs(queue[0]);
+
+  // 结点的outgoing 和 incoming 全都变成空数组
+  // 我只要dfs能访问到的结点
+  // 因为要二次过滤边
+  nodes = nodes.filter(node => {
+    if(node.isRootDFS){
+      node.outgoing = [];
+      node.incoming = [];
+      return true
     }
+
   })
+
+  //第二遍过滤
+  edges = edges.filter(d => {
+      if(d.isRootDFS){
+        d.sourceNode.outgoing.push(d);
+        d.targetNode.incoming.push(d);
+        d.targetNode.indegree++;
+        return true;
+      }
+    })
+
 
   //拓扑排序操作
   while(queue.length!==0){
@@ -56,6 +114,7 @@ function handelData (data) {
     //console.log(tempNode.id,tempNode.hierarchyNum)
     tempNode.outgoing.forEach(edge => {
       const targetNode = edge.targetNode;
+      // console.log('此时out结点',targetNode)
       targetNode.indegree--;
       if(targetNode.indegree === 0){
         targetNode.hierarchyNum = tempNode.hierarchyNum + 1
@@ -64,7 +123,7 @@ function handelData (data) {
     })
   }
 
-  // console.log('【层级】',hierarchys)
+   console.log('【层级】',hierarchys)
 
   // link是不可能跨越两级的，根据这个可以过滤边
   // 同时不需要自转边
@@ -72,6 +131,7 @@ function handelData (data) {
   function copyNode(node){
     return new Node(node.data)
   }
+
 
   var newEdges = edges.filter(d => {
     const sourceNode = d.sourceNode;
@@ -93,14 +153,18 @@ function handelData (data) {
     
   })
 
+  
 
-  // console.log('【过滤多余的边后】',newEdges)
-  // console.log('【最终版本的结点】',nodes)
+
+   console.log('【过滤多余的边后】',newEdges)
+   console.log('【最终版本的结点】',nodes)
 
   return nodes
 }
 
-function createRadialLayout (data, svg, callFunSelectNode) {
+function createRadialLayout (data, svg, callFunSelectNode,layoutOption = {}) {
+  //不指定rootId的话默认使用入度为0的结点为根
+  console.log('layoutOption',layoutOption)
   // ——————————【数据预处理阶段】————————-
   
   var width = 800
@@ -109,7 +173,7 @@ function createRadialLayout (data, svg, callFunSelectNode) {
   const tree = d3.tree()
       .size([2 * Math.PI, radius])
       .separation((a, b) => (a.parent == b.parent ? 1 : 2) / a.depth)
-  const nodes = handelData(data)
+  const nodes = handelData(data,layoutOption.rootId)
   
   var data2 = d3.stratify()
       .id(function(d) { return d.id; })

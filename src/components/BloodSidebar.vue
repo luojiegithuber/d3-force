@@ -24,6 +24,10 @@
           <OrderNodesInLayout></OrderNodesInLayout>
         </sidebar-card>
 
+        <sidebar-card card-title="径向布局 中心选择" v-if="this.$store.state.layoutId === 10">
+          <RadialLayoutRootSelection></RadialLayoutRootSelection>
+        </sidebar-card>
+
         <!-------------------------------------------------------------->
 
     </div>
@@ -32,12 +36,15 @@
 <script>
 import SidebarCard from './SidebarCard'
 import OrderNodesInLayout from './LayoutOperation/OrderNodesInLayout'
+import RadialLayoutRootSelection from './LayoutOperation/RadialLayoutRootSelection'
+
 
 export default {
 
   components: {
     SidebarCard,
-    OrderNodesInLayout
+    OrderNodesInLayout,
+    RadialLayoutRootSelection
   },
 
   watch: {

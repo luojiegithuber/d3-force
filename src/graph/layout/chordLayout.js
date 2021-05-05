@@ -51,8 +51,8 @@ function createChordLayout (data, svg, callFunSelectNode) {
     .data(chords.groups)
     .join('g')
     .on('click', (e, d) => {
-      console.log('在 弦图 布局中选择了节点', data.nodes[d.index]);
-      callFunSelectNode(data.nodes[d.index]);
+      console.log('在 弦图 布局中选择了节点', d);
+      callFunSelectNode(d);
     });
 
   group.append('path')

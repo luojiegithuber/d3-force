@@ -1,7 +1,10 @@
 <template>
   <div class="toolbar-justify">
-      <a-radio-group v-model="layoutId" :options="options" :default-value="layoutId" @change="onChangeSelectLayout" />
-
+      <div>
+        <span style="font-weight:bold">● 布局选择：</span>
+        <a-select :options="options" v-model="layoutId" :default-value="layoutId" style="width: 200px" @change="onChangeSelectLayout">
+        </a-select>
+      </div>
       <div class="diagram-icons-list">
           <a-icon v-show="!isFullScreen" type="fullscreen" @click="canvasFullScreen" />
           <a-icon v-show="isFullScreen" type="fullscreen-exit" @click="canvasFullScreen"/>
@@ -43,9 +46,9 @@ export default {
   },
 
   methods: {
-    onChangeSelectLayout (e) {
+    onChangeSelectLayout (layoutId) {
       // this.bus.$emit('changeGraphLayout', e.target.value)
-      this.$store.dispatch('changeLayoutIdFun', e.target.value)
+      this.$store.dispatch('changeLayoutIdFun', layoutId)
     },
 
     canvasFullScreen () {

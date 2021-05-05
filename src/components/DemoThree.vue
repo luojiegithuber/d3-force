@@ -81,8 +81,9 @@ export default {
       mainData: null,
       scale: null,
 
-      arcObj: null,
-      curSelectedNode: null
+      layoutObj: null,
+      curSelectedNode: null,
+      layoutoption:null, //关于对一些特定布局的设置，例如径向布局的结点根
     }
   },
 
@@ -98,7 +99,10 @@ export default {
     this.width = this.d3showDIV.clientWidth
     // this.svg.attr('height', this.height)
     // this.svg.attr('width', this.width)
-    this.changeLayout(10)
+    const defaultLayoutId = 10;
+    this.$store.dispatch('changeLayoutIdFun', defaultLayoutId)
+    
+
     // console.log(this.$store.state.layoutId)
   },
   beforeCreate () {
@@ -107,6 +111,11 @@ export default {
     this.bus.$on('toDiagramForArea', isExtend => {
       this.isExtend = isExtend
       // this.upDateDiagramAnimationFrame(0)
+    })
+
+    this.bus.$on('changeLayoutOption', layoutOption => {
+      this.layoutOption = layoutOption;
+      this.changeLayout(this.$store.state.layoutId,layoutOption);
     })
   },
 
@@ -118,7 +127,7 @@ export default {
     },
     '$store.state.layoutOrderId': function (val) {
       console.log('当前的布局排序ID:', val);
-      this.arcObj.update(this.arcObj.orderFun[val])
+      this.layoutObj.update(this.layoutObj.orderFun[val])
     }
 
   },
@@ -137,17 +146,23 @@ export default {
       })
     }, */
 
-    changeLayout (layoutId) {
+    changeLayout (layoutId,layoutOption) {
+      this.$store.dispatch('changeNodeFun', {})
       this.isClearD3Content = true;
       this.$nextTick(() => {
         this.isClearD3Content = false;
-        this.isCanvas = (layoutId === 7 || layoutId === 8);
+        this.isCanvas = this.isCanvasLayout(layoutId);
         this.$nextTick(() => {
-          const htmlDomSelection = (layoutId === 7 || layoutId === 8) ? document.querySelector('canvas') : d3.select('#mainsvg')
-          this.arcObj = selectGraphLayout(layoutId, this.originData, htmlDomSelection, this.selectedNodeChange)
+          const htmlDomSelection = this.isCanvasLayout(layoutId) ? document.querySelector('canvas') : d3.select('#mainsvg')
+          console.log('111',layoutOption)
+          this.layoutObj = selectGraphLayout(layoutId, this.originData, htmlDomSelection, this.selectedNodeChange,layoutOption)
         })
       })
       ;
+    },
+
+    isCanvasLayout(layoutId){
+      return layoutId === 7 || layoutId === 8
     }
 
   }

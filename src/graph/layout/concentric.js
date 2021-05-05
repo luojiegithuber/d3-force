@@ -59,8 +59,8 @@ function createContric (data, svg, callFunSelectNode) {
     .on('mouseover', overed)
     .on('mouseout', outed)
     .on('click', (e, d) => {
-      console.log('在同心圆布局中选择了节点', d.data);
-      callFunSelectNode(d.data);
+      console.log('在同心圆布局中选择了节点', d);
+      callFunSelectNode(d);
     })
 
   nodeG
