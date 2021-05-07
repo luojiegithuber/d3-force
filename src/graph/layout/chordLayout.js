@@ -1,7 +1,6 @@
 import * as d3 from '../../../static/d3/d3.v6-6-0.min.js';
 import {Node, Edge, createNodes, createEdges, setColor, colorin, colorout, colornone} from './object.js';
 
-
 var allNodeByIdMap = new Map()
 
 function createChordLayout (data, svg, callFunSelectNode) {
@@ -112,10 +111,9 @@ function createChordLayout (data, svg, callFunSelectNode) {
 }
 
 function dataMatrix (data) {
-
   const nodes = createNodes(data.nodes, (node, index) => {
     node.matrixIndex = index;
-    allNodeByIdMap.set(node.id ,node )
+    allNodeByIdMap.set(node.id, node)
   });
 
   const n = nodes.length;

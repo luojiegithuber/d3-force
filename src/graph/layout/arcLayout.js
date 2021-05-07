@@ -14,7 +14,6 @@ function createGraph (data) {
   })
 
   const edges = createEdges(data.edges, edge => {
-
     edge.sourceNode.pathNum++;
     edge.targetNode.pathNum++;
     edge.sourceNode.incoming.push(edge);

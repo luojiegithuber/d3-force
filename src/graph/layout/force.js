@@ -19,7 +19,6 @@ function createForceDirectedGraph (data, canvas, callFunSelectNode) {
   const width = canvas.width;
   const height = canvas.height;
 
-
   const simulation = d3.forceSimulation(nodes) // 创建一个新的力学仿真.
     .force('link', d3.forceLink(links).id(function (d) { return d.id })) // 添加或移除一个力模型.
     .force('charge', d3.forceManyBody().strength(d => -80))
@@ -75,9 +74,10 @@ function createForceDirectedGraph (data, canvas, callFunSelectNode) {
 
   function dragstarted (e) {
     // d3.select(that).attr('stroke', 'black');
-    if (!e.active) simulation.alphaTarget(0.3).restart();
+
     e.subject.fx = transform.invertX(e.x);
     e.subject.fy = transform.invertY(e.y);
+    if (!e.active) simulation.alphaTarget(0.3).restart();
   }
 
   function dragged (e) {

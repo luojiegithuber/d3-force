@@ -10,14 +10,13 @@ export function setColor (x) {
 function createNodeCoordinate (nodes, xNum, yNum) {
   const horizontalWidth = 80;
   const verticalWidth = 80;
-  return createNodes(nodes,(node,index) => {
+  return createNodes(nodes, (node, index) => {
     node.x = 100;
     node.y = 100;
     node.x = node.x + (index % xNum) * horizontalWidth
     node.y = node.y + Math.floor(index / xNum) * verticalWidth
   })
 }
-
 
 function createGridGraph (data, canvas, callFunSelectNode) {
   var curSelectedNode = null;
@@ -33,7 +32,6 @@ function createGridGraph (data, canvas, callFunSelectNode) {
   const links = createEdges(data.edges)
 
   console.log(nodes)
-
 
   simulationUpdate();
 

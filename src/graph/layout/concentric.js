@@ -11,12 +11,11 @@ export function setColor (x) {
 const nodeRadius = 10;
 const ringRadius = 50;
 
-
 function createContric (data, svg, callFunSelectNode) {
   // ——————————【数据预处理阶段】————————-
-  
-  const {allNodes,nodes,edges} = handelData(data)
-  //createIncomingAndOutgoing(allNodes, edges)
+
+  const {allNodes, nodes, edges} = handelData(data)
+  // createIncomingAndOutgoing(allNodes, edges)
   console.log(allNodes)
   // ——————————【绘图阶段】————————-
 
@@ -93,7 +92,7 @@ function createContric (data, svg, callFunSelectNode) {
 
   var simulation = d3.forceSimulation(allNodes)
     .force('charge', d3.forceCollide().radius(0))
-    //.force('link', linksFun)
+    // .force('link', linksFun)
     .force('r', d3.forceRadial(function (d) { return d.degree * ringRadius; }))
     .on('tick', ticked);
 
@@ -154,29 +153,27 @@ function createContric (data, svg, callFunSelectNode) {
 function handelData (data) {
   const allNodes = [];
 
-  const nodes = createNodes(data.nodes,node => {
+  const nodes = createNodes(data.nodes, node => {
     allNodes.push(node);
   });
 
-  const edges = createEdges(data.edges,edge => {
-    //排除自指向的结点干扰pathNum
-    if(edge.sourceNode !== edge.targetNode ){
+  const edges = createEdges(data.edges, edge => {
+    // 排除自指向的结点干扰pathNum
+    if (edge.sourceNode !== edge.targetNode) {
       edge.sourceNode.pathNum++;
       edge.targetNode.pathNum++;
-  
+
       const path = [edge.sourceNode, edge.targetNode]
-  
+
       edge.sourceNode.outgoing.push(path);
       edge.targetNode.incoming.push(path)
     }
-
   });
 
-
   return {
-    allNodes:allNodes.sort((a, b) => b.pathNum - a.pathNum),
+    allNodes: allNodes.sort((a, b) => b.pathNum - a.pathNum),
     nodes,
-    edges,
+    edges
   };
 }
 
@@ -207,6 +204,5 @@ function hierarchyNodeByDegree (nodes) {
 
   return allArr
 }
-
 
 export default createContric

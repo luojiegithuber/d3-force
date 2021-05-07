@@ -5,10 +5,9 @@ import {Node, Edge, createNodes, createEdges, setColor, colorin, colorout, color
 const rectHeight = 15;
 const margin = ({top: 20, right: 1, bottom: 40, left: 50});
 
-
 function createAdjacentMatrixLayout (data, svg) {
-  const height = svg.style("height");
-  const width = svg.style("width");
+  const height = svg.style('height');
+  const width = svg.style('width');
 
   data = dataMatrix(data);
   // console.log('矩阵数据结束')
@@ -42,9 +41,8 @@ function createAdjacentMatrixLayout (data, svg) {
 
   console.log('轴渲染结束')
 
-
   svg
-    .attr('viewBox', [-width/2, -height/2, width, height])
+    .attr('viewBox', [-width / 2, -height / 2, width, height])
     .attr('font-family', 'sans-serif')
     .attr('font-size', 10);
 

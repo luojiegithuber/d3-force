@@ -59,7 +59,7 @@ function createCircularLayout (data, svg, beta = 0.85, callFunSelectNode) {
     .style('font-size', '30px')
     .style('text-anchor', 'middle')
     .text(function (d) {
-       return (d.data.id)
+      return (d.data.id)
     })
     .each(function (d) { d.text = this; })
     // .on('mouseover', overed)
@@ -99,14 +99,13 @@ function createCircularLayout (data, svg, beta = 0.85, callFunSelectNode) {
 
   // 数据分层，使其变成d3.hierarchy能处理的格式
   function handelData (data) {
-
     const root = new Node({id: 'root'});
     root.children = [];
 
-    const nodes = createNodes(data.nodes,node => {
+    const nodes = createNodes(data.nodes, node => {
       root.children.push(node)
     });
-    const edges = createEdges(data.edges,edge => {
+    const edges = createEdges(data.edges, edge => {
       edge.sourceNode.pathNum++;
       edge.targetNode.pathNum++;
     });
