@@ -43,6 +43,11 @@ function createForceDirectedGraph (data, canvas, callFunSelectNode) {
       .scaleExtent([1 / 10, 8])
       .on('zoom', zoomed))
 
+  nodes.forEach((d, i) => {
+    d.x = 0;
+    d.y = 0;
+  });
+
   function dragsubject (e) {
     // return simulation.find(e.x, e.y); //找最近的节点
     let i;

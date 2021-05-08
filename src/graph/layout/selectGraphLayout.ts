@@ -6,7 +6,7 @@ import createArcLayout from './arcLayout'
 import createAdjacentMatrixLayout from './adjacentMatrixLayout'
 import createCircularLayout from './circularLayout'
 
-import createForceDirectedGraph from './force'
+import createForceDirectedGraph from './forceLayout'
 import createGridGraph from './gridLayout'
 import createDagreLayout from './dagreLayout'
 import createRadialLayout from './radialLayout'

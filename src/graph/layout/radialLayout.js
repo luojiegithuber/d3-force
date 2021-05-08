@@ -148,7 +148,7 @@ function handelData (data, rootId) {
   return nodes
 }
 
-function createRadialLayout (data, svg, callFunSelectNode, layoutOption = {}) {
+function createRadialLayout (data, svgDom, callFunSelectNode, layoutOption = {}) {
   // 不指定rootId的话默认使用入度为0的结点为根
   console.log('layoutOption', layoutOption)
   // ——————————【数据预处理阶段】————————-
@@ -173,14 +173,14 @@ function createRadialLayout (data, svg, callFunSelectNode, layoutOption = {}) {
 
   const root = tree(data2);
 
-  svg.attr('viewBox', [-800 / 2, -500 / 2, 800, 500]);
+  svgDom.attr('viewBox', [-800 / 2, -500 / 2, 800, 500]);
 
-  svg = svg.call(d3.zoom()
+  var svg = svgDom/* .call(d3.zoom()
     .scaleExtent([1 / 50, 4])
     .on('zoom', e => {
       svg.attr('transform', e.transform);
     }))
-    .append('g')
+    .append('g') */
 
   svg.append('g')
     .attr('fill', 'none')
@@ -192,22 +192,74 @@ function createRadialLayout (data, svg, callFunSelectNode, layoutOption = {}) {
     .join('path')
     .attr('d', d3.linkRadial()
       .angle(d => d.x)
-      .radius(d => d.y));
+      .radius(d => d.y))
+    .attr('opacity', 0)
+    .transition()
+    .duration(1000)
+    .delay(2000)
+    .attr('opacity', 1)
 
-  svg.append('g')
+  const nodesSvg = svg.append('g')
     .selectAll('circle')
     .data(root.descendants())
     .join('circle')
-    .attr('transform', d => `
-          rotate(${d.x * 180 / Math.PI - 90})
-          translate(${d.y},0)
-        `)
-    .attr('fill', d => d.children ? 'black' : 'green')
     .attr('r', 5)
+    .attr('transform', d => `translate(0,0)`) // 这里可以模拟上一次布局的坐标
     .on('click', (e, d) => {
       console.log('在辐射径向布局中选择了节点', d.data);
       callFunSelectNode(d.data);
     })
+    .attr('fill', d => d.children ? 'black' : 'green')
+    .attr('x', d => d.x)
+    .attr('y', d => d.y)
+    .transition()
+    .duration(2000)
+    .attr('transform', d => `
+      rotate(${d.x * 180 / Math.PI - 90})
+      translate(${d.y},0) `)
+    .on('end', () => {
+      nodesSvg.each(function (d) {
+        var circle = d3.select(this)
+        var point = svgDom.node().createSVGPoint();// here roor is the svg's id
+        point.x = circle.attr('x');// get the circle cx
+        point.y = circle.attr('y');// get the circle cy
+        var newPoint = point.matrixTransform(circle.node().getCTM());
+        svg.append('circle')
+          .attr('r', 5)
+          .attr('fill', 'red')
+          .attr('cx', newPoint.x - 800 / 2) // 减法操作排除viewBox影响
+          .attr('cy', newPoint.y - 500 / 2) //
+      })
+    })
+
+  function getElementCoords (element, coords) {
+    var ctm = element.getCTM();
+    var x = ctm.e + coords.x * ctm.a + coords.y * ctm.c;
+    var y = ctm.f + coords.x * ctm.b + coords.y * ctm.d;
+    return {x: x, y: y};
+  };
+
+  /*     .each(function (d) {
+      var circle = d3.select(this)
+      console.log(circle)
+      var point = svgDom.node().createSVGPoint();// here roor is the svg's id
+      point.x = circle.attr('x');// get the circle cx
+      point.y = circle.attr('y');// get the circle cy
+      var newPoint = point.matrixTransform(circle.node().getCTM());// new point after the transform
+      console.log(circle.attr('transform'));
+      console.log(newPoint);
+    }); */
+
+  // Pass in the element and its pre-transform coords
+  /*   function getElementCoords (element, coords) {
+    var ctm = element.getCTM();
+    console.log('原始的', coords.x, coords.y, element.getCTM())
+    var x = ctm.e + coords.x * ctm.a + coords.y * ctm.c;
+    var y = ctm.f + coords.x * ctm.b + coords.y * ctm.d;
+    console.log('转化后', x, y)
+    return {x: x, y: y};
+  }; */
+  // Get post-transform coords from the element.
 
   svg.append('g')
     .attr('font-family', 'sans-serif')
@@ -225,9 +277,16 @@ function createRadialLayout (data, svg, callFunSelectNode, layoutOption = {}) {
     .attr('dy', '0.31em')
     .attr('x', d => d.x < Math.PI === !d.children ? 6 : -6)
     .attr('text-anchor', d => d.x < Math.PI === !d.children ? 'start' : 'end')
-    .text(d => d.data.id)
-    .clone(true).lower()
-    .attr('stroke', 'white');
+    .text(d => {
+      return d.data.id
+    })
+    .attr('opacity', 0)
+    .transition()
+    .duration(1000)
+    .delay(2000)
+    .attr('opacity', 1)
+/*     .clone(true).lower()
+    .attr('stroke', 'white') */
 }
 
 export default createRadialLayout

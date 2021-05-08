@@ -38,7 +38,6 @@ import SidebarCard from './SidebarCard'
 import OrderNodesInLayout from './LayoutOperation/OrderNodesInLayout'
 import RadialLayoutRootSelection from './LayoutOperation/RadialLayoutRootSelection'
 
-
 export default {
 
   components: {

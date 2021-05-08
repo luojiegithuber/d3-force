@@ -1,5 +1,6 @@
 <template>
     <div id="canvas-container">
+      <!-- <CaseList></CaseList> -->
 <!--       <node-context-menu v-show="isShowContextMenu" ref="contextMenu"></node-context-menu>
  -->
 <!-- <button @click="go">123</button> -->
@@ -14,6 +15,7 @@
 <script>
 
 import NodeContextMenu from './NodeContextMenu'
+import CaseList from './SearchSelectCase/CaseList'
 import originDataNode from '../../static/data/huaweinode.json'
 import originDataEdge from '../../static/data/huaweiedge.json'
 import originData from '../../static/data/huawei.json'
@@ -40,7 +42,7 @@ console.log(d3Selection); */
 export default {
   name: 'demo3',
   components: {
-
+    CaseList,
     NodeContextMenu
 
   },
@@ -83,7 +85,7 @@ export default {
 
       layoutObj: null,
       curSelectedNode: null,
-      layoutoption:null, //关于对一些特定布局的设置，例如径向布局的结点根
+      layoutoption: null // 关于对一些特定布局的设置，例如径向布局的结点根
     }
   },
 
@@ -95,13 +97,14 @@ export default {
     console.log(createForceDirectedGraph(this.originData, canvas)) */
 
     this.d3showDIV = document.getElementById('d3show');
-    this.height = this.d3showDIV.clientHeight
-    this.width = this.d3showDIV.clientWidth
+    /*     this.height = this.d3showDIV.clientHeight
+    this.width = this.d3showDIV.clientWidth */
+    this.height = 500
+    this.width = 800
     // this.svg.attr('height', this.height)
     // this.svg.attr('width', this.width)
     const defaultLayoutId = 10;
     this.$store.dispatch('changeLayoutIdFun', defaultLayoutId)
-    
 
     // console.log(this.$store.state.layoutId)
   },
@@ -115,7 +118,7 @@ export default {
 
     this.bus.$on('changeLayoutOption', layoutOption => {
       this.layoutOption = layoutOption;
-      this.changeLayout(this.$store.state.layoutId,layoutOption);
+      this.changeLayout(this.$store.state.layoutId, layoutOption);
     })
   },
 
@@ -146,7 +149,7 @@ export default {
       })
     }, */
 
-    changeLayout (layoutId,layoutOption) {
+    changeLayout (layoutId, layoutOption) {
       this.$store.dispatch('changeNodeFun', {})
       this.isClearD3Content = true;
       this.$nextTick(() => {
@@ -154,14 +157,14 @@ export default {
         this.isCanvas = this.isCanvasLayout(layoutId);
         this.$nextTick(() => {
           const htmlDomSelection = this.isCanvasLayout(layoutId) ? document.querySelector('canvas') : d3.select('#mainsvg')
-          console.log('111',layoutOption)
-          this.layoutObj = selectGraphLayout(layoutId, this.originData, htmlDomSelection, this.selectedNodeChange,layoutOption)
+          console.log('111', layoutOption)
+          this.layoutObj = selectGraphLayout(layoutId, this.originData, htmlDomSelection, this.selectedNodeChange, layoutOption)
         })
       })
       ;
     },
 
-    isCanvasLayout(layoutId){
+    isCanvasLayout (layoutId) {
       return layoutId === 7 || layoutId === 8
     }
 
