@@ -1,6 +1,9 @@
 <template>
     <div id="canvas-container">
-      <!-- <CaseList></CaseList> -->
+      <CaseList
+       @onSelectCase="selectCase"
+        ref="CaseList"
+      />
 <!--       <node-context-menu v-show="isShowContextMenu" ref="contextMenu"></node-context-menu>
  -->
 <!-- <button @click="go">123</button> -->
@@ -9,6 +12,11 @@
         <svg v-else id="mainsvg" :width="width" :height="height" ></svg>
 <!-- viewBox="-480 -250 960 500" -->
       </div>
+
+      <div class="caselist-button" @click="open">
+          <a-icon type="caret-left" />
+      </div>
+
     </div>
 </template>
 
@@ -97,12 +105,12 @@ export default {
     console.log(createForceDirectedGraph(this.originData, canvas)) */
 
     this.d3showDIV = document.getElementById('d3show');
-    /*     this.height = this.d3showDIV.clientHeight
-    this.width = this.d3showDIV.clientWidth */
-    this.height = 500
-    this.width = 800
-    // this.svg.attr('height', this.height)
-    // this.svg.attr('width', this.width)
+    this.height = this.d3showDIV.clientHeight
+    this.width = this.d3showDIV.clientWidth
+    /* this.height = 500
+    this.width = 800 */
+    this.svg.attr('height', this.height)
+    this.svg.attr('width', this.width)
     const defaultLayoutId = 10;
     this.$store.dispatch('changeLayoutIdFun', defaultLayoutId)
 
@@ -124,9 +132,9 @@ export default {
 
   watch: {
 
-    '$store.state.layoutId': function (val) {
-      console.log('当前的布局ID:', val);
-      this.changeLayout(val)
+    '$store.state.layoutId': function (layoutId) {
+      console.log('当前的布局ID:', layoutId);
+      this.changeLayout(layoutId)
     },
     '$store.state.layoutOrderId': function (val) {
       console.log('当前的布局排序ID:', val);
@@ -136,6 +144,16 @@ export default {
   },
 
   methods: {
+    open () {
+      this.$refs.CaseList.visible = true
+    },
+
+    selectCase (caseItem) {
+      console.log('你选择了案例：', caseItem)
+      /* 访问接口，返回了数据之后 */
+      this.originData = originData // 更新数据
+      this.changeLayout(this.$store.state.layoutId);
+    },
 
     selectedNodeChange (node) {
       this.$store.dispatch('changeNodeFun', node)
@@ -209,5 +227,26 @@ export default {
 @keyframes extend {
     0% {width: calc(97vw - 350px);}
     100% {width: 97vw;}
+}
+
+.caselist-button{
+  color:#fff;
+
+  /*垂直居中*/
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  width: 20px;
+  height: 8%;
+  background-color: #d3d3d3;
+
+  position: absolute;
+  top:46%;
+  left:0;
+
+  z-index:100;
+
+  cursor:pointer;
 }
 </style>

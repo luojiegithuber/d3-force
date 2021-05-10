@@ -175,12 +175,12 @@ function createRadialLayout (data, svgDom, callFunSelectNode, layoutOption = {})
 
   svgDom.attr('viewBox', [-800 / 2, -500 / 2, 800, 500]);
 
-  var svg = svgDom/* .call(d3.zoom()
+  var svg = svgDom.call(d3.zoom()
     .scaleExtent([1 / 50, 4])
     .on('zoom', e => {
       svg.attr('transform', e.transform);
     }))
-    .append('g') */
+    .append('g')
 
   svg.append('g')
     .attr('fill', 'none')
@@ -193,11 +193,11 @@ function createRadialLayout (data, svgDom, callFunSelectNode, layoutOption = {})
     .attr('d', d3.linkRadial()
       .angle(d => d.x)
       .radius(d => d.y))
-    .attr('opacity', 0)
+  /*     .attr('opacity', 0)
     .transition()
     .duration(1000)
     .delay(2000)
-    .attr('opacity', 1)
+    .attr('opacity', 1) */
 
   const nodesSvg = svg.append('g')
     .selectAll('circle')
@@ -212,12 +212,12 @@ function createRadialLayout (data, svgDom, callFunSelectNode, layoutOption = {})
     .attr('fill', d => d.children ? 'black' : 'green')
     .attr('x', d => d.x)
     .attr('y', d => d.y)
-    .transition()
-    .duration(2000)
+  /*     .transition()
+    .duration(2000) */
     .attr('transform', d => `
       rotate(${d.x * 180 / Math.PI - 90})
       translate(${d.y},0) `)
-    .on('end', () => {
+  /*     .on('end', () => {
       nodesSvg.each(function (d) {
         var circle = d3.select(this)
         var point = svgDom.node().createSVGPoint();// here roor is the svg's id
@@ -230,14 +230,14 @@ function createRadialLayout (data, svgDom, callFunSelectNode, layoutOption = {})
           .attr('cx', newPoint.x - 800 / 2) // 减法操作排除viewBox影响
           .attr('cy', newPoint.y - 500 / 2) //
       })
-    })
+    }) */
 
-  function getElementCoords (element, coords) {
+  /*   function getElementCoords (element, coords) {
     var ctm = element.getCTM();
     var x = ctm.e + coords.x * ctm.a + coords.y * ctm.c;
     var y = ctm.f + coords.x * ctm.b + coords.y * ctm.d;
     return {x: x, y: y};
-  };
+  }; */
 
   /*     .each(function (d) {
       var circle = d3.select(this)
@@ -280,11 +280,11 @@ function createRadialLayout (data, svgDom, callFunSelectNode, layoutOption = {})
     .text(d => {
       return d.data.id
     })
-    .attr('opacity', 0)
+/*     .attr('opacity', 0)
     .transition()
     .duration(1000)
     .delay(2000)
-    .attr('opacity', 1)
+    .attr('opacity', 1) */
 /*     .clone(true).lower()
     .attr('stroke', 'white') */
 }
