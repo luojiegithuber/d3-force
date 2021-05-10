@@ -1,26 +1,37 @@
-
 import * as d3 from '../../../static/d3/d3.v6-6-0.min.js';
-import {Node, Edge, createNodes, createEdges, colorin, colorout, colornone} from './object.js';
+import {createNodes, createEdges, colorin, colorout, colornone} from './object.js';
+
 const colors = d3.scaleOrdinal(d3.schemeCategory10);
+
 export function setColor (x) {
   return colors(x);
 }
-// const width = 1000
 
-// const allNodes = [];
-const nodeRadius = 10;
-const ringRadius = 50;
+function createContric (original_data, svg, callFunSelectNode) {
 
-function createContric (data, svg, callFunSelectNode) {
+  let width = svg.attr('width');
+  let height = svg.attr('height');
+
+  let data = original_data;
+
+  // 可视化容器边距参数
+  const margin = ({
+    top: height / 9,
+    right: width / 12,
+    bottom: height / 9,
+    left: width / 12
+  });
+
+  // 获取最大半径，并由此设置节点大小
+  const max_graph_radius = d3.min([width - margin.left - margin.right, height - margin.top - margin.bottom]) / 2;
+  let nodeSize = ((2 * Math.PI * max_graph_radius / data.nodes.length) * 0.3 / 2);
+
   // ——————————【数据预处理阶段】————————-
+  const {allNodes, nodes, edges} = handelData(data);
 
-  const {allNodes, nodes, edges} = handelData(data)
-  // createIncomingAndOutgoing(allNodes, edges)
-  console.log(allNodes)
   // ——————————【绘图阶段】————————-
-
   svg
-    .attr('viewBox', [-960 / 2, -500 / 2, 960, 500]);
+    .attr('viewBox', [-width / 2, -height / 2, width, height]);
 
   svg = svg
     .call(d3.zoom()
@@ -28,13 +39,10 @@ function createContric (data, svg, callFunSelectNode) {
       .on('zoom', e => {
         svg.attr('transform', e.transform);
       }))
-    .append('g')
+    .append('g');
 
-  const rings = hierarchyNodeByDegree(allNodes).map((d, index) => {
-    return {degree: index}
-  });
-  // console.log(rings)
-
+  // 同心圆分层
+  const rings = hierarchyNodeByDegree(allNodes).map((d, index) => ({degree: index}));
   svg
     .append('g')
     .selectAll('circle')
@@ -43,13 +51,9 @@ function createContric (data, svg, callFunSelectNode) {
     .style('fill', 'none')
     .style('stroke-opacity', '0.5')
     .style('stroke', d => setColor(d.degree))
-    .attr('r', function (d) {
-      return d.degree * ringRadius
-    })
+    .attr('r', d => d.degree * max_graph_radius / rings.length);
 
-  // console.log('所有的节点', allNodes)
-
-  var nodeG = svg
+  let nodeG = svg
     .append('g')
     .selectAll('circle')
     .data(allNodes)
@@ -60,54 +64,65 @@ function createContric (data, svg, callFunSelectNode) {
     .on('click', (e, d) => {
       console.log('在同心圆布局中选择了节点', d);
       callFunSelectNode(d);
-    })
+    });
 
   nodeG
     .append('circle')
-    .attr('r', nodeRadius)
+    .attr('r', nodeSize)
     .attr('fill', d => setColor(d.degree))
     .append('title')
-    .text(function (d) { return `${d.id}` })
+    .text(d => d.id);
 
   nodeG
     .append('text')
     .style('fill', '#000')
     .style('font-size', '15px')
     .style('text-anchor', 'middle')
-    .text(function (d) {
-      return (d.label)
-    })
-    .each(function (d) { d.text = this; })
+    .text(d => d.label)
+    .each(function (d) {
+      d.text = this;
+    });
 
-  var node = nodeG.selectAll('circle')
-  var text = nodeG.selectAll('text')
-  // console.log(node)
+  let node = nodeG.selectAll('circle');
+  let text = nodeG.selectAll('text');
 
-  var linksFun = d3
+  let linksFun = d3
     .forceLink(edges)
-    .id(function (d) {
-      return d.id;
-    })
-    .distance(d => 50)
+    .id(d => d.id)
+    .distance(d => max_graph_radius / rings.length);
 
-  var simulation = d3.forceSimulation(allNodes)
+  let simulation = d3.forceSimulation(allNodes)
     .force('charge', d3.forceCollide().radius(0))
-    // .force('link', linksFun)
-    .force('r', d3.forceRadial(function (d) { return d.degree * ringRadius; }))
+    .force('r', d3.forceRadial(d => d.degree * max_graph_radius / rings.length))
     .on('tick', ticked);
 
-    /* simulation.force("link") // 绘制边
-        .links(edges); */
-
-  var edge = svg
+  // // 设置箭头样式
+  // let defs = svg.append("defs");
+  // let arrowMarker = defs.append("marker")
+  //   .attr("id", "arrow")
+  //   .attr("markerUnits", "strokeWidth")
+  //   .attr("markerWidth", nodeSize+20)
+  //   .attr("markerHeight", nodeSize+20)
+  //   .attr("viewBox", `0 0 ${nodeSize} ${nodeSize}`)
+  //   .attr("refX", `${1.1 * nodeSize}`)
+  //   .attr("refY", `6`)
+  //   .attr("orient", "auto");
+  // let arrow_path = "M2,2 L10,6 L2,10 L6,6 L2,2";
+  // arrowMarker.append("path")
+  //   .attr("d", arrow_path)
+  //   .attr("fill", "#999");
+  let edge = svg
     .append('g')
     .lower()
     .attr('stroke', colornone)
     .attr('fill', 'none')
     .selectAll('path')
     .data(simulation.nodes().flatMap(leaf => leaf.outgoing))
-    .enter().append('path')
+    .enter()
+    .append('path')
+  // .attr('marker-end','#url(arrow)')
 
+  // 鼠标节点交互事件1
   function overed (event, d) {
     edge.style('mix-blend-mode', null);
     d3.select(this).attr('font-weight', 'bold');
@@ -117,6 +132,7 @@ function createContric (data, svg, callFunSelectNode) {
     d3.selectAll(d.outgoing.map(([, d]) => d.text)).attr('fill', colorout).attr('font-weight', 'bold');
   }
 
+  // 鼠标节点交互事件2
   function outed (event, d) {
     edge.style('mix-blend-mode', 'multiply');
     d3.select(this).attr('font-weight', null);
@@ -128,13 +144,9 @@ function createContric (data, svg, callFunSelectNode) {
 
   function ticked () {
     node
-      .attr('cx', function (d) { return d.x; })
-      .attr('cy', function (d) { return d.y; });
-
-    text.attr('transform', function (d) {
-      return 'translate(' + d.x + ',' + (d.y + 5) + ')';
-    });
-
+      .attr('cx', d => d.x)
+      .attr('cy', d => d.y);
+    text.attr('transform', d => `translate(${d.x},${d.y + 5})`);
     edge
       .data(simulation.nodes().flatMap(leaf => leaf.outgoing))
       .style('mix-blend-mode', 'multiply')
@@ -145,7 +157,9 @@ function createContric (data, svg, callFunSelectNode) {
         path.closePath();
         return path
       })
-      .each(function (d) { d.path = this; });
+      .each(function (d) {
+        d.path = this;
+      });
   }
 }
 
@@ -162,9 +176,7 @@ function handelData (data) {
     if (edge.sourceNode !== edge.targetNode) {
       edge.sourceNode.pathNum++;
       edge.targetNode.pathNum++;
-
       const path = [edge.sourceNode, edge.targetNode]
-
       edge.sourceNode.outgoing.push(path);
       edge.targetNode.incoming.push(path)
     }
@@ -181,7 +193,6 @@ function hierarchyNodeByDegree (nodes) {
   const allArr = [];
   let curPathNum = -1;
   let samePathNumArr = [];
-  // let headNode;
   let degree = -1;
 
   nodes.forEach(d => {
@@ -190,17 +201,16 @@ function hierarchyNodeByDegree (nodes) {
       samePathNumArr = [];
       degree++;
       d.degree = degree;
-      samePathNumArr.push(d)
+      samePathNumArr.push(d);
       curPathNum = d.pathNum;
     } else {
       d.degree = degree;
       samePathNumArr.push(d)
     }
-  })
+  });
 
-  allArr.push(samePathNumArr)
-  allArr.shift()
-  console.log('allArr', allArr);
+  allArr.push(samePathNumArr);
+  allArr.shift();
 
   return allArr
 }

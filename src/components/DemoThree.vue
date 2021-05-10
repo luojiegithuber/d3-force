@@ -99,8 +99,9 @@ export default {
     this.d3showDIV = document.getElementById('d3show');
     /*     this.height = this.d3showDIV.clientHeight
     this.width = this.d3showDIV.clientWidth */
-    this.height = 500
-    this.width = 800
+
+    this.height = this.d3showDIV.offsetHeight;
+    this.width = this.d3showDIV.offsetWidth;
     // this.svg.attr('height', this.height)
     // this.svg.attr('width', this.width)
     const defaultLayoutId = 10;
@@ -125,11 +126,11 @@ export default {
   watch: {
 
     '$store.state.layoutId': function (val) {
-      console.log('当前的布局ID:', val);
+      // console.log('当前的布局ID:', val);
       this.changeLayout(val)
     },
     '$store.state.layoutOrderId': function (val) {
-      console.log('当前的布局排序ID:', val);
+      // console.log('当前的布局排序ID:', val);
       this.layoutObj.update(this.layoutObj.orderFun[val])
     }
 
@@ -157,8 +158,9 @@ export default {
         this.isCanvas = this.isCanvasLayout(layoutId);
         this.$nextTick(() => {
           const htmlDomSelection = this.isCanvasLayout(layoutId) ? document.querySelector('canvas') : d3.select('#mainsvg')
-          console.log('111', layoutOption)
-          this.layoutObj = selectGraphLayout(layoutId, this.originData, htmlDomSelection, this.selectedNodeChange, layoutOption)
+          // console.log('111', layoutOption)
+          let data = this.originData
+          this.layoutObj = selectGraphLayout(layoutId,data, htmlDomSelection, this.selectedNodeChange, layoutOption)
         })
       })
       ;

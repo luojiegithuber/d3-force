@@ -7,6 +7,7 @@ import createAdjacentMatrixLayout from './adjacentMatrixLayout'
 import createCircularLayout from './circularLayout'
 
 import createForceDirectedGraph from './forceLayout'
+import createForceDirectedGraph_SVG from './forceLayout_new'
 import createGridGraph from './gridLayout'
 import createDagreLayout from './dagreLayout'
 import createRadialLayout from './radialLayout'
@@ -45,12 +46,13 @@ const createGraphLayoutFun = {
   7: createForceDirectedGraph,
   8: createGridGraph,
   9: createDagreLayout,
-  10:createRadialLayout
+  10:createRadialLayout,
+  11:createForceDirectedGraph_SVG
 }
 
 // LayoutObj 应该有一个基类
 function selectGraphLayout (layoutId, data, htmlDom, cbFunSelectNode,layoutOption) {
-  console.log('【——————————————】',layoutOption)
+  // console.log('【——————————————】',layoutOption)
   const LayoutObj = createGraphLayoutFun[layoutId](data, htmlDom, cbFunSelectNode,layoutOption);
   return LayoutObj;
 }
