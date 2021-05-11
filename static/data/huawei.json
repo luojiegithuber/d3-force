@@ -676,46 +676,6 @@
     },
     {
       "guid": "30",
-      "source": "10",
-      "target": "10",
-      "display_text": "e18-19",
-      "weight": 1.6,
-      "type_name": "Edge-AAAAAA"
-    },
-    {
-      "guid": "31",
-      "source": "10",
-      "target": "10",
-      "display_text": "e18-19",
-      "weight": 1.6,
-      "type_name": "Edge-AAAAAA"
-    },
-    {
-      "guid": "32",
-      "source": "10",
-      "target": "10",
-      "display_text": "e18-19",
-      "weight": 1.6,
-      "type_name": "Edge-AAAAAA"
-    },
-    {
-      "guid": "33",
-      "source": "10",
-      "target": "10",
-      "display_text": "e18-19",
-      "weight": 1.6,
-      "type_name": "Edge-AAAAAA"
-    },
-    {
-      "guid": "34",
-      "source": "10",
-      "target": "10",
-      "display_text": "e18-19",
-      "weight": 1.6,
-      "type_name": "Edge-AAAAAA"
-    },
-    {
-      "guid": "35",
       "source": "14",
       "target": "13",
       "display_text": "e18-19",

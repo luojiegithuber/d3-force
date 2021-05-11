@@ -16,6 +16,7 @@
   "dependencies": {
     "ant-design-vue": "^1.6.2",
     "d3-canvas-transition": "^0.3.7",
+    "dagre": "^0.8.5",
     "gojs": "^2.1.18",
     "vue": "^2.5.2",
     "vue-router": "^3.0.1",

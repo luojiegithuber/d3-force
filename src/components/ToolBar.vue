@@ -28,6 +28,7 @@ const options = [
   { label: '网格', value: 8 },
   { label: '有向分层', value: 9 },
   { label: '径向布局', value: 10 },
+  { label: '新的力引导布局', value: 11 },
 ];
 
 export default {
