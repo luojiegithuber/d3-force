@@ -1,5 +1,5 @@
 import * as d3 from '../../../static/d3/d3.v6-6-0.min.js';
-import {createNodes, createEdges, colorin, colorout, colornone} from './object.js';
+import {createNodes, createEdges, colorin, colorout, colornone, drawNodeSvg, drawLinkSvg} from './object.js';
 
 const colors = d3.scaleOrdinal(d3.schemeCategory10);
 
@@ -8,7 +8,6 @@ export function setColor (x) {
 }
 
 function createContric (original_data, svg, callFunSelectNode) {
-
   let width = svg.attr('width');
   let height = svg.attr('height');
 
@@ -41,7 +40,7 @@ function createContric (original_data, svg, callFunSelectNode) {
       }))
     .append('g');
 
-  // 同心圆分层
+  // 同心圆分层,画环
   const rings = hierarchyNodeByDegree(allNodes).map((d, index) => ({degree: index}));
   svg
     .append('g')
@@ -53,12 +52,16 @@ function createContric (original_data, svg, callFunSelectNode) {
     .style('stroke', d => setColor(d.degree))
     .attr('r', d => d.degree * max_graph_radius / rings.length);
 
-  let nodeG = svg
-    .append('g')
-    .selectAll('circle')
-    .data(allNodes)
-    .enter()
-    .append('g')
+  // 仿真器
+  let simulation = d3.forceSimulation(allNodes)
+    .force('charge', d3.forceCollide().radius(0))
+    .force('r', d3.forceRadial(d => d.degree * max_graph_radius / rings.length))
+    .on('tick', ticked);
+
+  // 节点绘画
+  const nodeDrawOption = {nodeSize: 10, setColorByKey: 'degree'}
+  const nodeG = drawNodeSvg(svg, allNodes, nodeDrawOption)
+  nodeG
     .on('mouseover', overed)
     .on('mouseout', outed)
     .on('click', (e, d) => {
@@ -66,35 +69,14 @@ function createContric (original_data, svg, callFunSelectNode) {
       callFunSelectNode(d);
     });
 
-  nodeG
-    .append('circle')
-    .attr('r', nodeSize)
-    .attr('fill', d => setColor(d.degree))
-    .append('title')
-    .text(d => d.id);
+  // 边绘画
+  const linkData = simulation.nodes().flatMap(leaf => leaf.outgoing);
+  const linkDrawOption = {linkType: 'path'}
+  const linkG = drawLinkSvg(svg, linkData, linkDrawOption)
 
-  nodeG
-    .append('text')
-    .style('fill', '#000')
-    .style('font-size', '15px')
-    .style('text-anchor', 'middle')
-    .text(d => d.label)
-    .each(function (d) {
-      d.text = this;
-    });
-
-  let node = nodeG.selectAll('circle');
-  let text = nodeG.selectAll('text');
-
-  let linksFun = d3
-    .forceLink(edges)
-    .id(d => d.id)
-    .distance(d => max_graph_radius / rings.length);
-
-  let simulation = d3.forceSimulation(allNodes)
-    .force('charge', d3.forceCollide().radius(0))
-    .force('r', d3.forceRadial(d => d.degree * max_graph_radius / rings.length))
-    .on('tick', ticked);
+  // 选择
+  const nodeCircle = nodeG.selectAll('circle');
+  const nodeText = nodeG.selectAll('text');
 
   // // 设置箭头样式
   // let defs = svg.append("defs");
@@ -111,20 +93,10 @@ function createContric (original_data, svg, callFunSelectNode) {
   // arrowMarker.append("path")
   //   .attr("d", arrow_path)
   //   .attr("fill", "#999");
-  let edge = svg
-    .append('g')
-    .lower()
-    .attr('stroke', colornone)
-    .attr('fill', 'none')
-    .selectAll('path')
-    .data(simulation.nodes().flatMap(leaf => leaf.outgoing))
-    .enter()
-    .append('path')
-  // .attr('marker-end','#url(arrow)')
 
   // 鼠标节点交互事件1
   function overed (event, d) {
-    edge.style('mix-blend-mode', null);
+    linkG.style('mix-blend-mode', null);
     d3.select(this).attr('font-weight', 'bold');
     d3.selectAll(d.incoming.map(d => d.path)).attr('stroke', colorin).raise();
     d3.selectAll(d.incoming.map(([d]) => d.text)).attr('fill', colorin).attr('font-weight', 'bold');
@@ -134,7 +106,7 @@ function createContric (original_data, svg, callFunSelectNode) {
 
   // 鼠标节点交互事件2
   function outed (event, d) {
-    edge.style('mix-blend-mode', 'multiply');
+    linkG.style('mix-blend-mode', 'multiply');
     d3.select(this).attr('font-weight', null);
     d3.selectAll(d.incoming.map(d => d.path)).attr('stroke', null);
     d3.selectAll(d.incoming.map(([d]) => d.text)).attr('fill', null).attr('font-weight', null);
@@ -142,12 +114,46 @@ function createContric (original_data, svg, callFunSelectNode) {
     d3.selectAll(d.outgoing.map(([, d]) => d.text)).attr('fill', null).attr('font-weight', null);
   }
 
+  /*   // 绘画节点
+  function drawNodeSvg (svg, nodes, option = {ndoeSize: 10}) {
+    const nodesG = svg
+      .append('g')
+      .selectAll('circle')
+      .data(nodes)
+      .enter()
+      .append('g')
+
+    const nodesCircle = nodesG
+      .append('circle')
+      .attr('stroke', 'grey')
+      .style('stroke-opacity', 0.3)
+      .attr('stroke-width', '1px')
+      .attr('r', option.nodeSize)
+      .attr('fill', d => setColor(d.degree))
+      .append('title')
+      .text(d => d.id);
+
+    const nodesText = nodesG
+      .append('text')
+      .style('fill', '#000')
+      .style('font-size', '15px')
+      .style('text-anchor', 'middle')
+      .style('cursor', 'default')
+      .attr('pointer-events', 'none')
+      .text(d => d.label)
+      .each(function (d) {
+        d.text = this;
+      });
+
+    return nodesG
+  } */
+
   function ticked () {
-    node
+    nodeCircle
       .attr('cx', d => d.x)
       .attr('cy', d => d.y);
-    text.attr('transform', d => `translate(${d.x},${d.y + 5})`);
-    edge
+    nodeText.attr('transform', d => `translate(${d.x},${d.y + 5})`);
+    linkG
       .data(simulation.nodes().flatMap(leaf => leaf.outgoing))
       .style('mix-blend-mode', 'multiply')
       .attr('d', ([i, o]) => {

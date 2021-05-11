@@ -52,6 +52,70 @@ export function setAllNodeByIdMap (arr) {
   return true
 }
 
+// 绘画节点的配置
+export function NodeDrawOption (option) {
+  this.nodeSize = option.nodeSize; // 节点大小 number
+  this.setColorByKey = option.setColorByKey; // 节点颜色应用的区别属性 string
+  this.isEncapsulation = option.isEncapsulation; // 布尔值 ，表示是否封装，如果节点被二次封装就要取节点的data属性
+}
+
+// 绘画节点
+export function drawNodeSvg (svg, nodes, nodeDrawOption = {
+  nodeSize: 10,
+  setColorByKey: 'group',
+  isPackage: false
+}) {
+  const setColor = d3.scaleOrdinal(d3.schemeCategory10);
+
+  const nodesG = svg
+    .append('g')
+    .selectAll('circle')
+    .data(nodes)
+    .enter()
+    .append('g')
+
+  const nodesCircle = nodesG
+    .append('circle')
+    .attr('stroke', 'grey')
+    .style('stroke-opacity', 0.3)
+    .attr('stroke-width', '1px')
+    .attr('r', nodeDrawOption.nodeSize)
+    .attr('fill', d => nodeDrawOption.isPackage ? setColor(d.data[nodeDrawOption.setColorByKey]) : setColor(d[nodeDrawOption.setColorByKey]))
+    .append('title')
+    .text(d => nodeDrawOption.isPackage ? d.data.id : d.id);
+
+  const nodesText = nodesG
+    .append('text')
+    .style('fill', '#fff')
+    .style('font-size', `${nodeDrawOption.nodeSize}px`)
+    .style('text-anchor', 'middle')
+    .style('cursor', 'default')
+    .attr('pointer-events', 'none')
+    .attr('transform', d => `translate(0,${nodeDrawOption.nodeSize / 2})`)
+    .text(d => nodeDrawOption.isPackage ? d.data.id : d.id)
+    .each(function (d) {
+      d.text = this;
+    });
+
+  return nodesG
+}
+
+// 绘画边
+export function drawLinkSvg (svg, links, linkDrawOption) {
+  const linkG = svg
+    .append('g')
+    .lower()
+    .attr('stroke', colornone)
+    .attr('fill', 'none')
+    .selectAll('path')
+    .data(links)
+    .enter()
+    .append('path')
+    .attr('marker-end', '#url(arrow)')
+
+  return linkG
+}
+
 export const colorin = '#00f';
 export const colorout = '#f00';
 export const colornone = '#ccc';

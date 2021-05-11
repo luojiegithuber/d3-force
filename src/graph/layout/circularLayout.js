@@ -1,5 +1,5 @@
 import * as d3 from '../../../static/d3/d3.v6-6-0.min.js';
-import {Node, Edge, createNodes, createEdges, setColor, colorin, colorout, colornone} from './object.js';
+import {Node, Edge, createNodes, createEdges, setColor, colorin, colorout, colornone, drawNodeSvg, drawLinkSvg} from './object.js';
 
 const width = 960
 const radius = 500
@@ -20,7 +20,7 @@ function createCircularLayout (data, svg, beta = 0.85, callFunSelectNode) {
     .sort((a, b) => d3.ascending(b.data.pathNum, a.data.pathNum))));
     // ascending计算两个值的自然顺序
 
-  console.log('rootTree', root)
+  // console.log('rootTree', root)
 
   svg = svg
     .attr('viewBox', [-width / 2, -width / 2, width, width])
@@ -37,15 +37,28 @@ function createCircularLayout (data, svg, beta = 0.85, callFunSelectNode) {
     .selectAll('g')
     .data(root.leaves())
 
-  var g = node.enter().append('g')
+  // 节点绘画
+  const nodesData = root.leaves();
+  const nodeDrawOption = {nodeSize: 15, setColorByKey: 'group', isPackage: true}
+  const nodeG = drawNodeSvg(svg, nodesData, nodeDrawOption)
+  nodeG
+    .attr('transform', d => `rotate(${d.x * 180 / Math.PI - 90}) translate(${d.y + 20},0) rotate(${-d.x * 180 / Math.PI + 90})`)
+    .on('mouseover', overed)
+    .on('mouseout', outed)
+    .on('click', (e, d) => {
+      console.log('在 圆形/捆图 布局中选择了节点', d.data);
+      callFunSelectNode(d.data);
+    })
+
+  /*   var g = node.enter().append('g')
     .on('click', (e, d) => {
       console.log('在 圆形/捆图 布局中选择了节点', d.data);
       callFunSelectNode(d.data);
     })
     .on('mouseover', overed)
-    .on('mouseout', outed)
+    .on('mouseout', outed) */
 
-  g
+  /*   g
     .attr('transform', d => `rotate(${d.x * 180 / Math.PI - 90}) translate(${d.y + 20},0) rotate(${-d.x * 180 / Math.PI + 90})`)
     .append('circle')
     .style('fill', d => '#ff9e6d')
@@ -61,7 +74,7 @@ function createCircularLayout (data, svg, beta = 0.85, callFunSelectNode) {
     .text(function (d) {
       return (d.data.id)
     })
-    .each(function (d) { d.text = this; })
+    .each(function (d) { d.text = this; }) */
     // .on('mouseover', overed)
     // .on('mouseout', outed)
 

@@ -1,5 +1,5 @@
 import * as d3 from '../../../static/d3/d3.v6-6-0.min.js';
-import {Node, Edge, createNodes, createEdges, setColor, colorin, colorout, colornone} from './object.js';
+import {Node, Edge, createNodes, createEdges, setColor, colorin, colorout, colornone, drawNodeSvg, drawLinkSvg} from './object.js';
 
 function dfs (node) {
   if (node.isRootDFS) {
@@ -211,14 +211,28 @@ function createRadialLayout (data, svg, callFunSelectNode, layoutOption = {}) {
     .attr('d', d3.linkRadial()
       .angle(d => d.x)
       .radius(d => d.y))
-    .attr('opacity', 0)
+  /*     .attr('opacity', 0)
     .transition()
     .duration(1000)
     .delay(2000)
-    .attr('opacity', 1)
+    .attr('opacity', 1) */
     .attr('marker-end', 'url(#arrow)');
 
-  const nodesSvg = svg.append('g')
+  // 节点绘画
+  const nodesData = root.descendants();
+  const nodeDrawOption = {nodeSize: 10, setColorByKey: 'group', isPackage: true}
+  const nodeG = drawNodeSvg(svg, nodesData, nodeDrawOption)
+  nodeG
+    .attr('transform', d => `
+      rotate(${d.x * 180 / Math.PI - 90})
+      translate(${d.y},0)
+      rotate(${-d.x * 180 / Math.PI + 90}) `) // 最后这里是逆向转回来
+    .on('click', (e, d) => {
+      console.log('在辐射径向布局中选择了节点', d.data);
+      callFunSelectNode(d.data);
+    })
+
+/*   const nodesSvg = svg.append('g')
     .selectAll('circle')
     .data(root.descendants())
     .join('circle')
@@ -256,7 +270,7 @@ function createRadialLayout (data, svg, callFunSelectNode, layoutOption = {}) {
     let x = ctm.e + coords.x * ctm.a + coords.y * ctm.c;
     let y = ctm.f + coords.x * ctm.b + coords.y * ctm.d;
     return {x: x, y: y};
-  }
+  } */
 
   /*     .each(function (d) {
       let circle = d3.select(this)
@@ -280,7 +294,7 @@ function createRadialLayout (data, svg, callFunSelectNode, layoutOption = {}) {
   }; */
   // Get post-transform coords from the element.
 
-  svg.append('g')
+/*   svg.append('g')
     .attr('font-family', 'sans-serif')
     .attr('font-size', 10)
     .attr('stroke-linejoin', 'round')
@@ -301,7 +315,7 @@ function createRadialLayout (data, svg, callFunSelectNode, layoutOption = {}) {
     .transition()
     .duration(1000)
     .delay(2000)
-    .attr('opacity', 1)
+    .attr('opacity', 1) */
   /*     .clone(true).lower()
       .attr('stroke', 'white') */
 }

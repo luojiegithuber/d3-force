@@ -1,5 +1,5 @@
 import * as d3 from '../../../static/d3/d3.v6-6-0.min.js';
-import {Node, Edge, createNodes, createEdges, setColor, colorin, colorout, colornone, allNodeByIdMap, setAllNodeByIdMap} from './object.js';
+import {Node, Edge, createNodes, createEdges, setColor, colorin, colorout, colornone, allNodeByIdMap, setAllNodeByIdMap, drawNodeSvg} from './object.js';
 
 const orderFun = {
   byId: (a, b) => d3.ascending(a.id, b.id),
@@ -74,7 +74,7 @@ function createArcLayout (data, svg, callFunSelectNode) {
 
   `);
 
-  const label = svg.append('g')
+  /*   const label = svg.append('g')
     .attr('font-family', 'sans-serif')
     .attr('font-size', 10)
     .attr('text-anchor', 'end')
@@ -89,7 +89,18 @@ function createArcLayout (data, svg, callFunSelectNode) {
       .text(d => d.label))
     .call(g => g.append('circle')
       .attr('r', 5)
-      .attr('fill', d => color(d.group)));
+      .attr('fill', d => color(d.group))); */
+
+  // 节点绘画
+  const nodesData = graph.nodes;
+  const nodeDrawOption = {nodeSize: 8, setColorByKey: 'group', isPackage: false}
+  const nodeG = drawNodeSvg(svg, nodesData, nodeDrawOption)
+  nodeG
+    .attr('transform', d => `translate(${margin.left},${d.y = y(d.id)})`)
+    .on('click', (e, d) => {
+      console.log('在弧线布局中选择了节点', d.data);
+      callFunSelectNode(d.data);
+    })
 
   const path = svg.insert('g', '*')
     .attr('fill', 'none')
@@ -112,14 +123,14 @@ function createArcLayout (data, svg, callFunSelectNode) {
     .attr('y', d => y(d.id) - step / 2)
     .on('mouseover', (e, d) => {
       svg.classed('hover', true);
-      label.classed('primary', n => n === d);
-      label.classed('secondary', n => n.incoming.some(l => l.targetNode === d) || n.outgoing.some(l => l.sourceNode === d));
+      nodeG.classed('primary', n => n === d);
+      nodeG.classed('secondary', n => n.incoming.some(l => l.targetNode === d) || n.outgoing.some(l => l.sourceNode === d));
       path.classed('primary', l => l.sourceNode === d || l.targetNode === d).filter('.primary').raise();
     })
     .on('mouseout', (e, d) => {
       svg.classed('hover', false);
-      label.classed('primary', false);
-      label.classed('secondary', false);
+      nodeG.classed('primary', false);
+      nodeG.classed('secondary', false);
       path.classed('primary', false).order();
     })
     .on('click', nodeSelectChange);
@@ -138,7 +149,7 @@ function createArcLayout (data, svg, callFunSelectNode) {
     const t = svg.transition()
       .duration(750);
 
-    label.transition(t)
+    nodeG.transition(t)
       .delay((d, i) => i * 20)
       .attrTween('transform', d => {
         const i = d3.interpolateNumber(d.y, y(d.id));
