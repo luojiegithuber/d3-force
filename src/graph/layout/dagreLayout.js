@@ -1,21 +1,8 @@
 import * as d3 from '../../../static/d3/d3.v6-6-0.min.js';
-
+import {createNodes, createEdges, colorin, colorout, colornone, drawNodeSvg, drawLinkSvg} from './object.js';
 import dagre from 'dagre';
-import {
-  Node,
-  Edge,
-  createNodes,
-  createEdges,
-  setColor,
-  colorin,
-  colorout,
-  colornone,
-  allNodeByIdMap,
-  setAllNodeByIdMap
-} from './object.js';
 
 function createDagreLayout (original_data, svg, callFunSelectNode) {
-
   let width = svg.attr('width'),
     height = svg.attr('height');
 
@@ -27,33 +14,47 @@ function createDagreLayout (original_data, svg, callFunSelectNode) {
     left: width / 12
   });
 
-  let nodes = original_data['nodes'],
-    edges = original_data['edges'],
-    nodeSize = d3.min([width / nodes.length, height / nodes.length]) / 2.5;
+  svg = svg
+    .call(d3.zoom()
+      .scaleExtent([1 / 50, 4])
+      .on('zoom', e => {
+        svg.attr('transform', e.transform);
+      }))
+    .append('g');
+
+  const nodes = createNodes(original_data.nodes, node => {
+    // allNodeByIdMap.set(node.id, node)
+  })
+
+  const edges = createEdges(original_data.edges, edge => {
+
+  })
+
+  const nodeSize = d3.min([width / nodes.length, height / nodes.length]) / 2.5;
 
   if (!nodes) return;
 
   const g = new dagre.graphlib.Graph({
     multigraph: true,
-    compound: true,
+    compound: true
   });
   g.setDefaultEdgeLabel(() => ({}));
   g.setGraph(() => ({}));
 
   // 设置节点
   nodes.forEach((node) => {
-    //可任意设置，只用于计算节点相对坐标
+    // 可任意设置，只用于计算节点相对坐标
     const verti = 0.00001;
     const hori = 0.00001;
     const width = nodeSize + 2 * hori;
     const height = nodeSize + 2 * verti;
-    g.setNode(node.guid, {width, height});
+    g.setNode(node.id, {width, height});
   });
 
   // 设置边
   edges.forEach((edge) => {
     g.setEdge(edge.source, edge.target, {
-      weight: edge.weight || 1,
+      weight: edge.weight || 1
     });
   });
   dagre.layout(g);
@@ -61,7 +62,7 @@ function createDagreLayout (original_data, svg, callFunSelectNode) {
   let coord;
   g.nodes().forEach(node => {
     coord = g.node(node);
-    const i = nodes.findIndex((it) => it.guid === node);
+    const i = nodes.findIndex((it) => it.id === node);
     if (!nodes[i]) return;
     nodes[i].x = coord.x;
     nodes[i].y = coord.y;
@@ -80,11 +81,11 @@ function createDagreLayout (original_data, svg, callFunSelectNode) {
   nodes.forEach(node => {
     node.x = margin.left + Xscale(node.x);
     node.y = margin.top + Yscale(node.y);
-    node_hash.set(node.guid, node)
+    node_hash.set(node.id, node)
   });
 
-  //绘制边
-  //设置箭头样式
+  // 绘制边
+  // 设置箭头样式
   let defs = svg.append('defs');
   let arrowMarker = defs.append('marker')
     .attr('id', 'arrow')
@@ -107,7 +108,18 @@ function createDagreLayout (original_data, svg, callFunSelectNode) {
     .attr('d', d => `M ${node_hash.get(d.source).x},${node_hash.get(d.source).y} L ${node_hash.get(d.target).x},${node_hash.get(d.target).y}`)
     .attr('stroke-width', 2);
 
-  // 绘制节点
+  // 节点绘画
+  const nodesData = nodes;
+  const nodeDrawOption = {nodeSize: nodeSize, setColorByKey: 'group', isPackage: false}
+  const nodeG = drawNodeSvg(svg, nodesData, nodeDrawOption)
+  nodeG
+    .attr('transform', d => `translate(${d.x},${d.y})`)
+    .on('click', (e, d) => {
+      console.log('在有向分层布局中选择了节点', d.data);
+      callFunSelectNode(d.data);
+    })
+
+/*   // 绘制节点
   svg.append('g')
     .attr('stroke', '#fff')
     .attr('stroke-width', 1.5)
@@ -134,7 +146,7 @@ function createDagreLayout (original_data, svg, callFunSelectNode) {
     .style('alignment-baseline', 'middle')
     .style('cursor', 'default')
     .attr('pointer-events', 'none')
-    .text(d => 'L');
+    .text(d => 'L'); */
 }
 
 export default createDagreLayout;
