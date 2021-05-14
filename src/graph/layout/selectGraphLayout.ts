@@ -51,9 +51,9 @@ const createGraphLayoutFun = {
 }
 
 // LayoutObj 应该有一个基类
-function selectGraphLayout (layoutId, data, htmlDom, cbFunSelectNode,layoutOption) {
+function selectGraphLayout (layoutId, data, htmlDom, cbFunSelectNode,layoutOption,callFunShowNodeContextMenu) {
   // console.log('【——————————————】',layoutOption)
-  const LayoutObj = createGraphLayoutFun[layoutId](data, htmlDom, cbFunSelectNode,layoutOption);
+  const LayoutObj = createGraphLayoutFun[layoutId](data, htmlDom, cbFunSelectNode,layoutOption,callFunShowNodeContextMenu);
   return LayoutObj;
 }
 

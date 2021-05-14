@@ -1,6 +1,24 @@
 import * as d3 from '../../../static/d3/d3.v6-6-0.min.js';
 import {Node, Edge, createNodes, createEdges, setColor, colorin, colorout, colornone, drawNodeSvg, drawLinkSvg} from './object.js';
 
+var menu = [
+  {
+    title: 'Item #1',
+    action: function (d) {
+      console.log('Item #1 clicked!');
+      console.log('The data for this circle is: ' + d);
+    },
+    disabled: false // optional, defaults to false
+  },
+  {
+    title: 'Item #2',
+    action: function (d) {
+      console.log('You have clicked the second item!');
+      console.log('The data for this circle is: ' + d);
+    }
+  }
+]
+
 function dfs (node) {
   if (node.isRootDFS) {
     return
@@ -142,7 +160,7 @@ function handelData (data, rootId, allNodeByIdMap) {
   return nodes
 }
 
-function createRadialLayout (data, svg, callFunSelectNode, layoutOption = {}) {
+function createRadialLayout (data, svg, callFunSelectNode, layoutOption = {}, callFunShowNodeContextMenu) {
   let width = svg.attr('width'),
     height = svg.attr('height');
 
@@ -231,6 +249,13 @@ function createRadialLayout (data, svg, callFunSelectNode, layoutOption = {}) {
       console.log('在辐射径向布局中选择了节点', d.data);
       callFunSelectNode(d.data);
     })
+    .on('contextmenu', (e, d) => {
+      callFunShowNodeContextMenu({
+        node: d.data,
+        position: [e.clientX, e.clientY]
+      })
+      e.preventDefault();
+    });
 
 /*   const nodesSvg = svg.append('g')
     .selectAll('circle')

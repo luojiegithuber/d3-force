@@ -86,7 +86,7 @@ export function drawNodeSvg (svg, nodes, nodeDrawOption = {
 
   const nodesText = nodesG
     .append('text')
-    .style('fill', '#fff')
+    .style('fill', '#000')
     .style('font-size', `${nodeDrawOption.nodeSize}px`)
     .style('text-anchor', 'middle')
     .style('cursor', 'default')

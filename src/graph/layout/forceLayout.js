@@ -2,7 +2,6 @@ import * as d3 from '../../../static/d3/d3.v6-6-0.min.js';
 import {createNodes, createEdges} from './object.js';
 
 function createForceDirectedGraph (original_data, canvas, callFunSelectNode) {
-
   let curSelectedNode = null;
   const colors = d3.scaleOrdinal(d3.schemeCategory10);
   const width = canvas.width;
@@ -18,7 +17,6 @@ function createForceDirectedGraph (original_data, canvas, callFunSelectNode) {
 
   const max_radius = d3.min([width - margin.left - margin.right, height - margin.top - margin.bottom]) / 2;
   let nodeSize = ((2 * Math.PI * max_radius / original_data.nodes.length) * 0.3 / 2);
-
   const nodes = createNodes(original_data.nodes);
   const links = createEdges(original_data.edges);
 
@@ -28,7 +26,8 @@ function createForceDirectedGraph (original_data, canvas, callFunSelectNode) {
   const simulation = d3.forceSimulation(nodes) // 创建一个新的力学仿真.
     .force('link', d3.forceLink(links).id(d => d.id)) // 添加或移除一个力模型.
     .force('charge', d3.forceManyBody().strength(d => -max_radius * 1.5))
-    .force('center', d3.forceCenter(width / 2, height / 2));
+    .force('center', d3.forceCenter(width / 2, height / 2))
+    .alphaTarget(1)
 
   simulation
     .nodes(nodes)
@@ -119,7 +118,7 @@ function createForceDirectedGraph (original_data, canvas, callFunSelectNode) {
       context.fill(); // 填充当前绘图（路径）
       context.beginPath();
       context.font = '12px Arial';
-      context.fillStyle = 'white';
+      context.fillStyle = 'black';
       context.textAlign = 'center';
       context.fillText(d.label, d.x, d.y + 2.5);
       context.fill(); // 填充当前绘图（路径）
@@ -133,7 +132,7 @@ function createForceDirectedGraph (original_data, canvas, callFunSelectNode) {
       context.fill(); // 填充当前绘图（路径）
       context.beginPath();
       context.font = '10px Arial';
-      context.fillStyle = 'white';
+      context.fillStyle = 'black';
       context.textAlign = 'center';
       context.fillText(curSelectedNode.label, curSelectedNode.x, curSelectedNode.y + 2.5);
       context.fill(); // 填充当前绘图（路径）

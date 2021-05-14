@@ -56,6 +56,7 @@ function createContric (original_data, svg, callFunSelectNode) {
   let simulation = d3.forceSimulation(allNodes)
     .force('charge', d3.forceCollide().radius(0))
     .force('r', d3.forceRadial(d => d.degree * max_graph_radius / rings.length))
+    .alphaTarget(1)
     .on('tick', ticked);
 
   // 节点绘画

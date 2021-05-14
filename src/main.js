@@ -8,6 +8,8 @@ import Antd from 'ant-design-vue'
 import 'ant-design-vue/dist/antd.css'
 
 import store from './vuex/store.js'
+import VueContextMenu from 'vue-contextmenu'
+Vue.use(VueContextMenu)
 
 Vue.use(Antd)
 

@@ -1,139 +1,83 @@
 <template>
-  <div class="node-context-menu" :style="{ left: x + 'px', top: y + 'px' }">
-      <ul class="context-menu" @click="liEntrust" >
-          <li >查看血缘</li>
-          <li >查看元数据</li>
-          <li >复制表名</li>
-          <li >添加上游</li>
-          <li >添加下游</li>
-          <li >删除节点</li>
-      </ul>
-  </div>
+      <vue-context-menu :contextMenuData="contextMenuData"
+        @savedata="savedata"
+        @newdata="newdata"></vue-context-menu>
 </template>
-
 <script>
-
 export default {
-
-  components: {
-
-  },
+  name: 'app',
   data () {
     return {
-      isShow: false,
-      x: 0,
-      y: 0
+      // contextmenu data (菜单数据)
+      contextMenuData: {
+        // the contextmenu name(@1.4.1 updated)
+        menuName: 'demo',
+        // The coordinates of the display(菜单显示的位置)
+        axis: {
+          x: null,
+          y: null
+        },
+        // Menu options (菜单选项)
+        menulists: [{
+          fnHandler: 'savedata', // Binding events(绑定事件)
+          btnName: '控制台打印节点信息' // The name of the menu option (菜单名称)
+        }, {
+          btnName: '扩展',
+          children: [
+            {
+              btnName: '全部类型',
+              fnHandler: 'newdata'
+            },
+            {
+              btnName: 'A类型',
+              fnHandler: 'newdata'
+            },
+            {
+              btnName: 'B类型',
+              fnHandler: 'newdata'
+            }
+          ]
+
+        }]
+      }
     }
-  },
-
-  computed: {
-
-  },
-  mounted () {
-    // 阻止浏览器默认右键的行为
-    this.$el.oncontextmenu = () => false
   },
   methods: {
-
-    // 事件委托
-    liEntrust (e) {
-      this.$parent.isShowContextMenu = false
-
-      let ev = e || window.e
-      let target = ev.target || ev.srcElement
-
-      ev.stopPropagation() || (ev.cancelBubble = true)// 阻止事件冒泡
-      ev.preventDefault()// 阻止默认事件
-
-      switch (target.innerText) {
-        case '查看血缘' :
-          this.viewBlood()
-          break
-        case '查看元数据' :
-          this.viewMetadata()
-          break
-        case '复制表名' :
-          this.copyTableName()
-          break
-        case '添加上游' :
-          this.addUpstream()
-          break
-        case '添加下游' :
-          this.addDownstream()
-          break
-        case '删除节点' :
-          this.removeNode()
-          break
+    setNodeContextMenu (nodeContextData) {
+      var x = nodeContextData.position[0];
+      var y = nodeContextData.position[1];
+      // Get the current location
+      this.contextMenuData.axis = {
+        x, y
       }
     },
-
-    // 根据坐标定位
-    positioning (x, y) {
-      this.x = x
-      this.y = y
+    savedata () {
+      alert(1)
     },
-
-    viewBlood () {
-      console.log('函数——查看血缘')
-    },
-
-    viewMetadata () {
-      console.log('函数——查看元数据')
-    },
-
-    copyTableName () {
-      console.log('函数——复制表名')
-    },
-
-    addUpstream () {
-      console.log('函数——添加上游')
-    },
-
-    addDownstream () {
-      console.log('函数——添加下游')
-    },
-
-    removeNode () {
-      console.log('函数——删除节点')
+    newdata () {
+      console.log('newdata!')
     }
-
   }
 }
 </script>
 
-<style scoped lang='scss'>
-@import '../assets/css/common.scss';
-
-.node-context-menu{
-    //@include box-border(#D3D3D3);
-    width:100px;
-    position:absolute;
-
-    z-index: 1000;
-    box-shadow: 0px 0px 5px 5px rgba($color: #000000, $alpha: 0.1);
+<style>
+.vue-contextmenu-listWrapper {
+  padding: 0;
 }
 
-.context-menu {
-    margin:0;
-    padding:0;
+ul{
+  display: block;
+  padding: 0;
 }
 
-.context-menu li {
-    height: 30px;
-    width: 100%;
-    padding:6px 10px;
-
-    display: block;
-    color: #606266;
-    background-color: white;
-    list-style: none;
-
-    cursor: pointer;
+.btn-wrapper-simple{
+  height: 25px;
 }
 
-.context-menu li:hover {
-    background: #e6f6ff;
-    color: #00C1DE;
+.no-child-btn{
+  display: block;
+  height: 25px !important;
 }
 
 </style>
