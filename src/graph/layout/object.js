@@ -3,7 +3,7 @@ import * as d3 from '../../../static/d3/d3.v6-6-0.min.js';
 export function Node (node) {
   this.id = node.guid;
   this.group = node.type_name; // 类
-  this.label = node.guid; // 先固定文本避免卡顿
+  this.label = node.type_name ? node.type_name.split('')[0] : node.type_name; // 先固定文本避免卡顿
   this.pathNum = 0; // 出入度总数
   this.x = undefined; // 自定义
   this.y = undefined; // 自定义
@@ -82,7 +82,7 @@ export function drawNodeSvg (svg, nodes, nodeDrawOption = {
     .attr('r', nodeDrawOption.nodeSize)
     .attr('fill', d => nodeDrawOption.isPackage ? setColor(d.data[nodeDrawOption.setColorByKey]) : setColor(d[nodeDrawOption.setColorByKey]))
     .append('title')
-    .text(d => nodeDrawOption.isPackage ? d.data.id : d.id);
+    .text(d => nodeDrawOption.isPackage ? d.data.label : d.label);
 
   const nodesText = nodesG
     .append('text')
@@ -92,7 +92,7 @@ export function drawNodeSvg (svg, nodes, nodeDrawOption = {
     .style('cursor', 'default')
     .attr('pointer-events', 'none')
     .attr('transform', d => `translate(0,${nodeDrawOption.nodeSize / 2})`)
-    .text(d => nodeDrawOption.isPackage ? d.data.id : d.id)
+    .text(d => nodeDrawOption.isPackage ? d.data.label : d.label)
     .each(function (d) {
       d.text = this;
     });

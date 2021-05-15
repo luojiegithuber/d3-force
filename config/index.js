@@ -11,7 +11,7 @@ module.exports = {
     assetsPublicPath: '/',
     proxyTable: {
       '/api': {
-        target: 'https://tcc.taobao.com',
+        target: 'http://121.199.37.142:8888',
         changeOrigin: true,
         pathRewrite: {
           '^/api': ''

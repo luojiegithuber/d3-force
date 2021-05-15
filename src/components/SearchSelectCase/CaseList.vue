@@ -13,12 +13,12 @@
       <hr/>
     </div> -->
     <div class="caselist-content">
-      <a-list item-layout="horizontal" :data-source="caseData" itemLayout='vertical' style="padding:5px">
+      <a-list item-layout="horizontal" :data-source="caseNodes" itemLayout='vertical' style="padding:5px">
         <a-list-item slot="renderItem" slot-scope="item, index">
           <a-list-item-meta
-            :description="descriptionByItem(item)"
+            :description="item.guid"
           >
-            <a slot="title" href="#" @click="selectCase(item)"><b>{{ item.case_id }}</b></a>
+            <a slot="title" href="#" @click="selectNode(item)"><b>{{ item.display_text }}</b></a>
             <a-avatar
               shape="square"
               slot="avatar"
@@ -27,11 +27,14 @@
           </a-list-item-meta>
 
           <div class="case-content">
-              <span style="width: 35px;color:#A9A9A9">评分</span>
+              <span style="width: 35px;color:#A9A9A9">评分&nbsp;</span>
+              <span v-if="item.classifications">
+                <a-tag :key="index" v-for="(classification,index) in item.classifications" :color="tagColor[classification]">{{classification}}</a-tag>
+              </span>
               <a-rate :default-value="5" disabled />
             <div class="case-description">
-              <span style="width: 35px;color:#A9A9A9">描述</span>
-              <span style="width: 85%">可视化技术使人能够在三维图形世界中直接对具有形体的信息进行操作，和计算机直接交流。这种技术已经把人和机器的力量以一种直觉而自然的方式加以统一，这种革命性的变化无疑将极大地提高人们的工作效率。</span>
+              <span style="width: 35px;color:#A9A9A9">描述&nbsp;</span>
+              <span style="width: 85%">描述文字 描述文字 描述文字</span>
             </div>
           </div>
 
@@ -48,13 +51,21 @@ import caseData from '../../../static/data/casedata.json'
 export default {
   data () {
     return {
-      caseData: [],
+      caseData: [], // 搜索到的所有案例
+      caseItem: {}, // 单个案例
+      caseNodes: [], // 展示框用
       visible: true,
-      placement: 'left'
+      placement: 'left',
+      tagColor: {
+        'L1': 'purple',
+        'L2': 'orange',
+        'L3': 'green'
+      }
     };
   },
 
   methods: {
+
     showDrawer () {
       this.visible = true;
     },
@@ -62,20 +73,22 @@ export default {
       this.visible = false;
     },
 
-    descriptionByItem (caseItem) {
+    /*     descriptionByItem (caseItem) {
       return `节点规模：${caseItem.relative_nodes_number}  |  类型统计
       ：${Object.keys(caseItem.relative_nodes_entity_type).length}
       `;
     },
-
-    selectCase (caseItem) {
-      this.$emit('onSelectCase', caseItem)
+ */
+    selectNode (node) {
+      this.$emit('onSelectNode', node)
     }
   },
 
   created () {
-    this.caseData = Object.values(caseData)
-    console.log(this.caseData)
+    this.caseData = Object.values(caseData);
+    this.caseItem = this.caseData[0];
+    this.caseNodes = this.caseItem.relative_nodes_details
+    // console.log(this.caseData)
   }
 };
 </script>

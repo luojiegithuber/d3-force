@@ -5,7 +5,7 @@
       />
 
       <CaseList
-       @onSelectCase="selectCase"
+       @onSelectNode="selectNodeInCase"
         ref="CaseList"
       />
 <!--       <node-context-menu v-show="isShowContextMenu" ref="contextMenu"></node-context-menu>
@@ -34,7 +34,7 @@ import originData from '../../static/data/huawei.json'
 // import '../../static/d3/d3-canvas-transition.min.js'
 import * as d3 from '../../static/d3/d3.v6-6-0.min.js'
 import selectGraphLayout from '../graph/layout/selectGraphLayout.ts'
-import { getDemo } from '@/request/api';// 导入我们的api接口
+import { getNodeNextJump } from '@/request/api';// 导入我们的api接口
 // import * as d3 from '../../static/d3/d3.min.js'
 
 // var d31 = require('d3')
@@ -169,9 +169,7 @@ export default {
     const canvas = document.querySelector('canvas');
     console.log(canvas)
     console.log(createForceDirectedGraph(this.originData, canvas)) */
-    getDemo().then(res => {
-      console.log(res)
-    })
+
     this.d3showDIV = document.getElementById('d3show');
     /*     this.height = this.d3showDIV.clientHeight
     this.width = this.d3showDIV.clientWidth */
@@ -258,11 +256,18 @@ export default {
       this.$refs.CaseList.visible = true
     },
 
-    selectCase (caseItem) {
-      console.log('你选择了案例：', caseItem)
+    selectNodeInCase (node) {
+      console.log('你选择了节点：', node)
+      getNodeNextJump(node).then(res => {
+        if (res.message === 'success') {
+          this.originData = res.content;
+          this.changeLayout(this.$store.state.layoutId);
+        }
+      })
+
       /* 访问接口，返回了数据之后 */
-      this.originData = originData // 更新数据
-      this.changeLayout(this.$store.state.layoutId);
+      // this.originData = originData // 更新数据
+      // this.changeLayout(this.$store.state.layoutId);
     },
 
     selectedNodeChange (node) {
