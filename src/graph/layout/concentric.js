@@ -1,6 +1,8 @@
 import * as d3 from '../../../static/d3/d3.v6-6-0.min.js';
 import {createNodes, createEdges, colorin, colorout, colornone, drawNodeSvg, drawLinkSvg} from './object.js';
 
+//fix me： 同心圆布局调用drawLinkSvg绘制边时，由于边的数据格式被二次封装，drawLinkSvg不适用
+
 const colors = d3.scaleOrdinal(d3.schemeCategory10);
 
 export function setColor (x) {
