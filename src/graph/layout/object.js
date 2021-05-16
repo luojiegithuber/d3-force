@@ -16,7 +16,9 @@ export function Node (node) {
 export function createNodes (arr, callback) {
   return arr.map((d, index) => {
     const node = new Node(d);
+
     allNodeByIdMap.set(node.id, node)
+
     if (callback)callback(node, index);
     return node;
   });
@@ -59,43 +61,105 @@ export function NodeDrawOption (option) {
   this.isEncapsulation = option.isEncapsulation; // 布尔值 ，表示是否封装，如果节点被二次封装就要取节点的data属性
 }
 
-// 绘画节点
-export function drawNodeSvg (svg, nodes, nodeDrawOption = {
+// 更新绘画节点
+export function updateNodeSvg (nodeRootG, nodes, nodeDrawOption = {
   nodeSize: 10,
   setColorByKey: 'group',
   isPackage: false
 }) {
   const setColor = d3.scaleOrdinal(d3.schemeCategory10);
 
-  const nodesG = svg
-    .append('g')
-    .selectAll('circle')
-    .data(nodes)
-    .enter()
-    .append('g')
+  var g = nodeRootG.selectAll('g')
+  g = g.data(nodes, function (d) { return d.id; });
+  g.exit().remove();
+  g = g.enter().append('g').attr('class', 'node').append('circle').attr('fill', 'red').attr('r', 8).merge(g);
+  g = nodeRootG.selectAll('g');
+  drawCircle(g);
+  drawText(g);
 
-  const nodesCircle = nodesG
-    .append('circle')
-    .attr('stroke', 'grey')
-    .style('stroke-opacity', 0.3)
-    .attr('stroke-width', '1px')
-    .attr('r', nodeDrawOption.nodeSize)
-    .attr('fill', d => nodeDrawOption.isPackage ? setColor(d.data[nodeDrawOption.setColorByKey]) : setColor(d[nodeDrawOption.setColorByKey]))
-    .append('title')
-    .text(d => nodeDrawOption.isPackage ? d.data.label : d.label);
+  function drawCircle (g) {
+    g
+      .append('circle')
+      .attr('stroke', 'grey')
+      .style('stroke-opacity', 0.3)
+      .attr('stroke-width', '1px')
+      .attr('r', nodeDrawOption.nodeSize)
+      .attr('fill', d => nodeDrawOption.isPackage ? setColor(d.data[nodeDrawOption.setColorByKey]) : setColor(d[nodeDrawOption.setColorByKey]))
+      .append('title')
+      .text(d => nodeDrawOption.isPackage ? d.data.label : d.label);
+  }
 
-  const nodesText = nodesG
-    .append('text')
-    .style('fill', '#000')
-    .style('font-size', `${nodeDrawOption.nodeSize}px`)
-    .style('text-anchor', 'middle')
-    .style('cursor', 'default')
-    .attr('pointer-events', 'none')
-    .attr('transform', d => `translate(0,${nodeDrawOption.nodeSize / 2})`)
-    .text(d => nodeDrawOption.isPackage ? d.data.label : d.label)
-    .each(function (d) {
-      d.text = this;
-    });
+  function drawText (g) {
+    g
+      .append('text')
+      .style('fill', '#000')
+      .style('font-size', `${nodeDrawOption.nodeSize}px`)
+      .style('text-anchor', 'middle')
+      .style('cursor', 'default')
+      .attr('pointer-events', 'none')
+      .attr('transform', d => `translate(0,${nodeDrawOption.nodeSize / 2})`)
+      .text(d => nodeDrawOption.isPackage ? d.data.label : d.label)
+      .each(function (d) {
+        d.text = this;
+      });
+  }
+
+  return g
+}
+
+// 绘画节点
+export function drawNodeSvg (g, nodes, nodeDrawOption = {
+  nodeSize: 10,
+  setColorByKey: 'group',
+  isPackage: false,
+  isUpdate: false
+}) {
+  const setColor = d3.scaleOrdinal(d3.schemeCategory10);
+  var nodesG;
+  if (nodeDrawOption.isUpdate) {
+    nodesG = g
+      .enter()
+      .append('g')
+    drawCircle(nodesG);
+    drawText(nodesG);
+    nodesG.merge(nodesG);
+  } else {
+    nodesG = g
+      .append('g')
+      .selectAll('g')
+      .data(nodes)
+      .enter()
+      .append('g');
+    drawCircle(nodesG);
+    drawText(nodesG);
+  }
+
+  function drawCircle (nodesG) {
+    nodesG
+      .append('circle')
+      .attr('stroke', 'grey')
+      .style('stroke-opacity', 0.3)
+      .attr('stroke-width', '1px')
+      .attr('r', nodeDrawOption.nodeSize)
+      .attr('fill', d => nodeDrawOption.isPackage ? setColor(d.data[nodeDrawOption.setColorByKey]) : setColor(d[nodeDrawOption.setColorByKey]))
+      .append('title')
+      .text(d => nodeDrawOption.isPackage ? d.data.label : d.label);
+  }
+
+  function drawText (nodesG) {
+    nodesG
+      .append('text')
+      .style('fill', '#000')
+      .style('font-size', `${nodeDrawOption.nodeSize}px`)
+      .style('text-anchor', 'middle')
+      .style('cursor', 'default')
+      .attr('pointer-events', 'none')
+      .attr('transform', d => `translate(0,${nodeDrawOption.nodeSize / 2})`)
+      .text(d => nodeDrawOption.isPackage ? d.data.label : d.label)
+      .each(function (d) {
+        d.text = this;
+      });
+  }
 
   return nodesG
 }

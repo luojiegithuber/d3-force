@@ -1,13 +1,15 @@
 <template>
       <vue-context-menu :contextMenuData="contextMenuData"
         @savedata="savedata"
-        @newdata="newdata"></vue-context-menu>
+        @getNodeNextJump="getNodeNextJump"></vue-context-menu>
 </template>
 <script>
+import { getNodeNextJump } from '@/request/api';// 导入我们的api接口
 export default {
   name: 'app',
   data () {
     return {
+      node: null,
       // contextmenu data (菜单数据)
       contextMenuData: {
         // the contextmenu name(@1.4.1 updated)
@@ -26,7 +28,7 @@ export default {
           children: [
             {
               btnName: '全部类型',
-              fnHandler: 'newdata'
+              fnHandler: 'getNodeNextJump'
             },
             {
               btnName: 'A类型',
@@ -43,7 +45,20 @@ export default {
     }
   },
   methods: {
+    getNodeNextJump () {
+      getNodeNextJump(this.node.data).then(res => {
+        if (res.message === 'success') {
+          console.log('新取得的数据', res.content)
+          this.bus.$emit('addNewGraph', {
+            node: this.node,
+            newGraph: res.content
+          })
+        }
+      })
+    },
+
     setNodeContextMenu (nodeContextData) {
+      this.node = nodeContextData.node;
       var x = nodeContextData.position[0];
       var y = nodeContextData.position[1];
       // Get the current location

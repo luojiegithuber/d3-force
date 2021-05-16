@@ -8,6 +8,7 @@ import createCircularLayout from './circularLayout'
 
 import createForceDirectedGraph from './forceLayout'
 import createForceDirectedGraph_SVG from './forceLayout_new'
+import createForceDirectedGraph_SVG2 from './forceDirectedLayout'
 import createGridGraph from './gridLayout'
 import createDagreLayout from './dagreLayout'
 import createRadialLayout from './radialLayout'
@@ -47,7 +48,7 @@ const createGraphLayoutFun = {
   8: createGridGraph,
   9: createDagreLayout,
   10:createRadialLayout,
-  11:createForceDirectedGraph_SVG
+  11:createForceDirectedGraph_SVG2
 }
 
 // LayoutObj 应该有一个基类

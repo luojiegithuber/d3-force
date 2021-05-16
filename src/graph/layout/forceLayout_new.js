@@ -118,10 +118,6 @@ function createForceDirectedGraph_SVG (original_data, svg, callFunSelectNode) {
     .style('stroke-opacity', 0.3)
     .attr('stroke-width', '1px')
     .style('fill', d => nodeColorScale(d.type_name))
-    .on('mouseover', d => {
-    })
-    .on('mouseout', d => {
-    })
     .on('click', d => {
       console.log('点击了', d)
     });

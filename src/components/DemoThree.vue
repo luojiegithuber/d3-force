@@ -201,6 +201,11 @@ export default {
       this.layoutOption = layoutOption;
       this.changeLayout(this.$store.state.layoutId, layoutOption);
     })
+
+    // 新的数据加入后
+    this.bus.$on('addNewGraph', obj => {
+      this.layoutObj.addNewGraph(obj)
+    })
   },
 
   watch: {
@@ -217,40 +222,6 @@ export default {
   },
 
   methods: {
-
-    createNewData (myData) {
-      const str = myData;
-      const result = str.split('\n').map(item => {
-        return item.split(' ')
-      })
-      console.log(result)
-
-      const obj = {
-        nodes: [],
-        edges: []
-      }
-
-      const nodeMap = {}
-      result.forEach((edge, index) => {
-        obj.edges.push({
-          guid: index,
-          source: edge[0],
-          target: edge[1]
-        })
-
-        if (!nodeMap[edge[0]]) {
-          nodeMap[edge[0]] = {guid: edge[0]}
-          obj.nodes.push(nodeMap[edge[0]])
-        }
-
-        if (!nodeMap[edge[1]]) {
-          nodeMap[edge[1]] = {guid: edge[1]}
-          obj.nodes.push(nodeMap[edge[1]])
-        }
-      })
-
-      return obj
-    },
 
     open () {
       this.$refs.CaseList.visible = true
