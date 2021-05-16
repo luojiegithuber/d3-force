@@ -1,7 +1,7 @@
 import * as d3 from '../../../static/d3/d3.v6-6-0.min.js';
 import {createNodes, createEdges, colorin, colorout, colornone, drawNodeSvg, drawLinkSvg} from './object.js';
 
-//fix me： 同心圆布局调用drawLinkSvg绘制边时，由于边的数据格式被二次封装，drawLinkSvg不适用
+// fix me： 同心圆布局调用drawLinkSvg绘制边时，由于边的数据格式被二次封装，drawLinkSvg不适用
 
 const colors = d3.scaleOrdinal(d3.schemeCategory10);
 
@@ -58,11 +58,10 @@ function createContric (original_data, svg, callFunSelectNode) {
   let simulation = d3.forceSimulation(allNodes)
     .force('charge', d3.forceCollide().radius(0))
     .force('r', d3.forceRadial(d => d.degree * max_graph_radius / rings.length))
-    .alphaTarget(1)
     .on('tick', ticked);
 
   // 节点绘画
-  const nodeDrawOption = {nodeSize: 10, setColorByKey: 'degree'}
+  const nodeDrawOption = {nodeSize: 10, setColorByKey: 'group'}
   const nodeG = drawNodeSvg(svg, allNodes, nodeDrawOption)
   nodeG
     .on('mouseover', overed)
@@ -73,9 +72,22 @@ function createContric (original_data, svg, callFunSelectNode) {
     });
 
   // 边绘画
-  const linkData = simulation.nodes().flatMap(leaf => leaf.outgoing);
+  /*   const linkData = simulation.nodes().flatMap(leaf => leaf.outgoing);
   const linkDrawOption = {linkType: 'path'}
-  const linkG = drawLinkSvg(svg, linkData, linkDrawOption)
+  const linkGs = drawLinkSvg(svg, linkData, linkDrawOption)
+  console.log(linkGs.selectAll('path').data()) */
+  const linkG = svg
+    .append('g')
+    .lower()
+    .attr('stroke', colornone)
+    .attr('fill', 'none')
+    .selectAll('path')
+    .data(simulation.nodes().flatMap(leaf => leaf.outgoing))
+    .enter()
+    .append('path')
+    .each(function (d) {
+      d.path = this;
+    });
 
   // 选择
   const nodeCircle = nodeG.selectAll('circle');
@@ -152,23 +164,13 @@ function createContric (original_data, svg, callFunSelectNode) {
   } */
 
   function ticked () {
-    nodeCircle
-      .attr('cx', d => d.x)
-      .attr('cy', d => d.y);
-    nodeText.attr('transform', d => `translate(${d.x},${d.y + 5})`);
-    linkG
-      .data(simulation.nodes().flatMap(leaf => leaf.outgoing))
-      .style('mix-blend-mode', 'multiply')
-      .attr('d', ([i, o]) => {
-        const path = d3.path();
-        path.moveTo(i.x, i.y);
-        path.lineTo(o.x, o.y);
-        path.closePath();
-        return path
-      })
-      .each(function (d) {
-        d.path = this;
-      });
+    if (isNaN(nodeG.data()[0].x)) {
+      console.log(nodeG.data())
+      return
+    }
+    console.log('更新')
+    nodeG.attr('transform', d => `translate(${d.x},${d.y})`);
+    linkG.attr('d', ([i, o]) => `M ${i.x} ${i.y} L ${o.x} ${o.y}`)
   }
 }
 

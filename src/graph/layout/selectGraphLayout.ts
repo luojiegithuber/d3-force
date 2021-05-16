@@ -48,7 +48,8 @@ const createGraphLayoutFun = {
   8: createGridGraph,
   9: createDagreLayout,
   10:createRadialLayout,
-  11:createForceDirectedGraph_SVG2
+  11:createForceDirectedGraph_SVG2,
+  12:createForceDirectedGraph_SVG
 }
 
 // LayoutObj 应该有一个基类

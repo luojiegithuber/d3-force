@@ -24,11 +24,12 @@ const options = [
   { label: '邻接矩阵', value: 4 },
   { label: '圆形布局', value: 5 },
   { label: '捆图布局', value: 6 },
-  { label: '力导向', value: 7 },
+  { label: '初始力导向', value: 7 },
   { label: '网格', value: 8 },
   { label: '有向分层', value: 9 },
   { label: '径向布局', value: 10 },
-  { label: '新的力引导布局', value: 11 },
+  { label: '增量的的力引导布局', value: 11 },
+  { label: '学长的的力引导布局', value: 12 }
 ];
 
 export default {
