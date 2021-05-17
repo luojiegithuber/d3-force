@@ -78,7 +78,9 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
       );
 
     // 边绘制/更新
-    linkG = updateLinkSvg(linkRootG, links).selectAll('path')
+    linkG = updateLinkSvg(linkRootG, links).on('click', (e, d) => {
+      console.log('在力导向布局中选择了边', d);
+    }).selectAll('path')
 
     // 仿真器更新
     simulation.nodes(nodes);
@@ -108,6 +110,17 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
     event.subject.fy = null;
   }
 
+  // 已经扩展过得的节点再次扩展
+  function expandGraph (node) {
+    if (node.isExpandChildren) {
+      nodes.push(...node.expandChildrenNode);
+      links.push(...node.expandChildrenLink);
+      node.expandChildrenNode.forEach(childNode => {
+        expandGraph(childNode)
+      })
+    }
+  }
+
   // 增量函数
   /* obj {
   *    node: 发出请求的单个节点
@@ -115,25 +128,89 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
   *  }
   */
   function addNewGraph (obj) {
+    const rootNode = obj.node;
     const newGraph = obj.newGraph;
 
+    if (rootNode.isExpandChildren) {
+      expandGraph(rootNode)
+    } else {
     // 过滤原本存在的节点
-    const newNodes = newGraph.nodes.filter(node => {
-      return !allNodeByIdMap.has(node.guid);
-    });
+      const newNodes = newGraph.nodes.filter(node => {
+        if (allNodeByIdMap.has(node.guid)) {
+        // 如果已经存在，过滤
+          return false;
+        } else {
+          allNodeByIdMap.set(node.guid, node);
+          return true
+        }
+      });
 
-    // 同上
-    const newLinks = newGraph.edges.filter(link => {
-      return !allLinkByIdMap.has(link.guid);
-    });
+      // 同上
+      const newLinks = newGraph.edges.filter(link => {
+        if (allLinkByIdMap.has(link.guid)) {
+        // 如果已经存在，过滤
+          return false;
+        } else {
+          allLinkByIdMap.set(link.guid, link);
+          return true
+        }
+      });
 
-    nodes.push(...createNodes(newNodes));
-    links.push(...createEdges(newLinks));
+      const newChildrenNodes = createNodes(newNodes);
+      rootNode.expandChildrenNode = newChildrenNodes;
+      rootNode.isExpandChildNodeMap = {}; // 根据id判断是不是子节点
+      rootNode.expandChildrenNode.forEach(d => {
+        rootNode.isExpandChildNodeMap[d.id] = d;
+      });
+
+      const newChildrenLinks = createEdges(newLinks);
+      rootNode.expandChildrenLink = newChildrenLinks;
+      rootNode.isExpandChildLinkMap = {}; // 根据id判断是不是子线
+      rootNode.expandChildrenLink.forEach(d => {
+        rootNode.isExpandChildLinkMap[d.id] = d;
+      });
+
+      nodes.push(...newChildrenNodes);
+      links.push(...newChildrenLinks);
+
+      rootNode.isExpandChildren = true; // 表明扩展过了
+    }
+
+    restart();
+  }
+
+  function shrinkNode (rootNode) {
+    if (!rootNode.isExpandChildren) {
+      return
+    }
+    nodes = nodes.filter(node => {
+      if (rootNode.isExpandChildNodeMap[node.id]) {
+        node.isShrink = true;
+        return false;
+      } else {
+        return true;
+      }
+    })
+    links = links.filter(link => {
+      if (rootNode.isExpandChildLinkMap[link.id]) {
+        link.isShrink = true;
+        return false;
+      } else {
+        return true;
+      }
+    })
+    // dfs 收缩
+    rootNode.expandChildrenNode.forEach(childNode => {
+      shrinkNode(childNode);
+    }
+
+    )
     restart();
   }
 
   return {
-    addNewGraph
+    addNewGraph,
+    shrinkNode
   }
 }
 export default createForceDirectedGraph

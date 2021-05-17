@@ -6,6 +6,11 @@ const linkColor = {
   DATA_FLOW: '#009966'
 }
 
+function setLinkColor (link) {
+  const color = linkColor[link.group];
+  return color || 'black'
+}
+
 const nodeColor = {
   BusinessCatalog: '#ff9e6d',
   BusinessLogicEntity: '#86cbff',
@@ -41,6 +46,20 @@ export function Node (node) {
   this.incoming = []; // 高亮显示线的时候会用到
   this.outgoing = []; // 高亮显示线的时候会用到
   this.matrixIndex = 0; // 矩阵轴中的位置
+
+  // ****************以下是增量布局测试用的数据结构
+  this.isExpandChildren = false; // 是否曾经扩展过
+  this.expandChildrenNode = []; // 增量后子节点Node类型放里面 ; 判断有没有子节点就要根据其数组长度来
+  this.isExpandChildNodeMap = undefined; // 对象，保存扩散节点 id——node对象
+  this.expandChildrenLink = []; // 增量后子节点Node类型放里面 ; 判断有没有子节点就要根据其数组长度来
+  this.isExpandChildLinkMap = undefined; // 对象，保存扩散节点 id——node对象
+  this.show = node.show; // 是否展示
+  this.isShrink = false; // 是否处于收缩状态
+  this.shrink = () => {
+    this.expandChildren.forEach(node => {
+      node.isShrink = true;
+    })
+  }
 }
 
 export function createNodes (arr, callback) {
@@ -55,6 +74,7 @@ export function createNodes (arr, callback) {
 }
 
 export function Edge (edge) {
+  this.data = edge;
   this.id = edge.guid;
   this.group = edge.relationship_type; // 类
   this.label = edge.guid; // 先固定文本避免卡顿
@@ -62,6 +82,10 @@ export function Edge (edge) {
   this.target = edge.target;
   this.sourceNode = allNodeByIdMap.get(edge.source); // 上面的Node类型
   this.targetNode = allNodeByIdMap.get(edge.target);
+
+  // ****************以下是增量布局测试用的数据结构
+  this.show = edge.show; // 是否展示
+  this.isShrink = false; // 是否处于收缩状态
 }
 
 export function createEdges (arr, callback) {
@@ -106,6 +130,7 @@ export function updateNodeSvg (nodeRootG, nodes, nodeDrawOption = {
   g.exit().remove();
   g = g.enter().append('g').attr('class', 'node').append('circle').attr('fill', 'red').attr('r', 8).merge(g);
   g = nodeRootG.selectAll('g');
+  // setNodeVisibility(g)
   drawCircle(g);
   drawText(g);
 
@@ -139,6 +164,10 @@ export function updateNodeSvg (nodeRootG, nodes, nodeDrawOption = {
   return g
 }
 
+function setNodeVisibility (g) {
+  g.style('display', d => (!d.isShrink && d.show) ? 'inherit' : 'none');
+}
+
 export function updateLinkSvg (linkRootG, links, linkDrawOption = {}) {
   var g = linkRootG.selectAll('g')
   g = g.data(links, function (d) { return d.id; });
@@ -146,13 +175,15 @@ export function updateLinkSvg (linkRootG, links, linkDrawOption = {}) {
 
   g = g.enter().append('g').attr('class', 'link')
     .append('path')
-    .attr('stroke', d => linkColor[d.group])
+    .attr('stroke', d => setLinkColor(d))
     .attr('id', (d, i) => 'edgepath' + i)
     .style('pointer-events', 'none')
     .attr('marker-end', 'url(#arrow)')
     .merge(g);
 
   g = linkRootG.selectAll('g');
+
+  // setNodeVisibility(g)
   return g
 }
 

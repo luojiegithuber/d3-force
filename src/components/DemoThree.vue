@@ -97,67 +97,7 @@ export default {
 
       layoutObj: null,
       curSelectedNode: null,
-      layoutoption: null, // 关于对一些特定布局的设置，例如径向布局的结点根
-
-      myData: `46 43 1
-47 0 1
-47 10 1
-47 20 1
-47 28 1
-47 30 1
-47 42 1
-49 34 1
-49 46 1
-50 14 1
-50 16 1
-50 20 1
-50 33 1
-50 42 1
-50 45 1
-51 4 1
-51 11 1
-51 18 1
-51 21 1
-51 23 1
-51 24 1
-51 29 1
-51 45 1
-51 50 1
-52 14 1
-52 29 1
-52 38 1
-52 40 1
-53 43 1
-54 1 1
-54 6 1
-54 7 1
-54 13 1
-54 19 1
-54 41 1
-55 15 1
-55 51 1
-56 5 1
-56 6 1
-57 5 1
-57 6 1
-57 9 1
-57 13 1
-57 17 1
-57 39 1
-57 41 1
-57 48 1
-57 54 1
-58 38 1
-59 3 1
-59 8 1
-59 15 1
-59 36 1
-59 45 1
-60 32 1
-61 2 1
-61 37 1
-61 53 1
-100 101 1`
+      layoutoption: null // 关于对一些特定布局的设置，例如径向布局的结点根
     }
   },
 
@@ -184,7 +124,7 @@ export default {
 
     // this.svg.attr('height', this.height)
     // this.svg.attr('width', this.width)
-    const defaultLayoutId = 10;
+    const defaultLayoutId = 11;
     this.$store.dispatch('changeLayoutIdFun', defaultLayoutId)
 
     // console.log(this.$store.state.layoutId)
@@ -205,6 +145,11 @@ export default {
     // 新的数据加入后
     this.bus.$on('addNewGraph', obj => {
       this.layoutObj.addNewGraph(obj)
+    })
+
+    // 收缩节点
+    this.bus.$on('shrinkNode', node => {
+      this.layoutObj.shrinkNode(node)
     })
   },
 
