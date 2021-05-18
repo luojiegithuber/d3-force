@@ -1,6 +1,16 @@
 
 import * as d3 from '../../../static/d3/d3.v6-6-0.min.js';
-import {createNodes, createEdges, drawNodeSvg, updateNodeSvg, updateLinkSvg, moveNode, moveLink} from './object.js';
+import {
+  createNodes,
+  createEdges,
+  drawNodeSvg,
+  updateNodeSvg,
+  updateLinkSvg,
+  moveNode,
+  moveLink,
+  heightlightNode
+
+} from './object.js';
 
 function createForceDirectedGraph (originalData, svg, callFunSelectNode, option, callFunShowNodeContextMenu) {
   const width = svg.attr('width');
@@ -16,6 +26,8 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
 
   var allNodeByIdMap = new Map();
   var allLinkByIdMap = new Map();
+
+  var curNodeSelection = null; // d3格式的节点
 
   const maxRadius = d3.min([width - margin.left - margin.right, height - margin.top - margin.bottom]) / 2;
   let nodeSize = ((2 * Math.PI * maxRadius / originalData.nodes.length) * 0.3 / 2);
@@ -40,7 +52,10 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
       .on('zoom', e => {
         svg.attr('transform', e.transform);
       }))
-    .append('g');
+    .on('click', function (e, d) {
+      callFunShowNodeContextMenu(null)
+    })
+    .append('g')
 
   // 点和边的骨架设置
   var linkRootG = svg.append('g').attr('class', 'links')
@@ -59,16 +74,23 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
       setColorByKey: 'group',
       isPackage: false
     })
-      .on('click', (e, d) => {
+      .on('click', function (e, d) {
         console.log('在力导向布局中选择了节点', d);
+        // 要向让this有效别用箭头函数
+        heightlightNode(curNodeSelection, d3.select(this))
+        curNodeSelection = d3.select(this);
         callFunSelectNode(d)
+        e.stopPropagation(); // 停止冒泡
       })
-      .on('contextmenu', (e, d) => {
+      .on('contextmenu', function (e, d) {
+        heightlightNode(curNodeSelection, d3.select(this))
+        curNodeSelection = d3.select(this);
         callFunShowNodeContextMenu({
           node: d,
           position: [e.clientX, e.clientY]
         })
-        e.preventDefault();
+        e.stopPropagation(); // 停止冒泡
+        e.preventDefault(); // 阻止默认事件
       })
       .call(
         d3.drag()
@@ -80,6 +102,7 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
     // 边绘制/更新
     linkG = updateLinkSvg(linkRootG, links).on('click', (e, d) => {
       console.log('在力导向布局中选择了边', d);
+      e.stopPropagation(); // 停止冒泡
     }).selectAll('path')
 
     // 仿真器更新
@@ -110,14 +133,28 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
     event.subject.fy = null;
   }
 
-  // 已经扩展过得的节点再次扩展
-  function expandGraph (node) {
-    if (node.isExpandChildren) {
-      nodes.push(...node.expandChildrenNode);
-      links.push(...node.expandChildrenLink);
-      node.expandChildrenNode.forEach(childNode => {
-        expandGraph(childNode)
-      })
+  // 已经扩展过得的节点再次扩展——利用缓存
+  function expandNode (rootNode) {
+    if (!rootNode.isShrink) {
+      console.log('节点已经是扩展状态')
+    } else {
+      rootNode.isShrink = false;
+      expandChildNode(rootNode)
+
+      restart();
+    }
+
+    function expandChildNode (childNode) {
+      // 根据记忆需求，被动扩展的时候，如果原本节点是收缩状态就不要扩展
+      if (!childNode.isShrink) {
+        childNode.expandChildrenLink.forEach(childLink => {
+          links.push(childLink);
+        })
+        childNode.expandChildrenNode.forEach(childNode => {
+          nodes.push(childNode);
+          expandChildNode(childNode)
+        })
+      }
     }
   }
 
@@ -132,7 +169,7 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
     const newGraph = obj.newGraph;
 
     if (rootNode.isExpandChildren) {
-      expandGraph(rootNode)
+      expandNode(rootNode)
     } else {
     // 过滤原本存在的节点
       const newNodes = newGraph.nodes.filter(node => {
@@ -174,38 +211,44 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
       links.push(...newChildrenLinks);
 
       rootNode.isExpandChildren = true; // 表明扩展过了
-    }
 
-    restart();
+      restart();
+    }
   }
 
   function shrinkNode (rootNode) {
-    if (!rootNode.isExpandChildren) {
-      return
-    }
-    nodes = nodes.filter(node => {
-      if (rootNode.isExpandChildNodeMap[node.id]) {
-        node.isShrink = true;
-        return false;
-      } else {
-        return true;
-      }
-    })
-    links = links.filter(link => {
-      if (rootNode.isExpandChildLinkMap[link.id]) {
-        link.isShrink = true;
-        return false;
-      } else {
-        return true;
-      }
-    })
-    // dfs 收缩
-    rootNode.expandChildrenNode.forEach(childNode => {
-      shrinkNode(childNode);
+    if (rootNode.isShrink) {
+      console.log('节点已经是收缩状态')
+    } else {
+      rootNode.isShrink = true;
+      shrinkChildNode(rootNode)
+
+      restart();
     }
 
-    )
-    restart();
+    function shrinkChildNode (childNode) {
+      if (!childNode.isExpandChildren) {
+      // 没有请求过节点，不配收缩
+        return
+      }
+      nodes = nodes.filter(node => {
+        if (childNode.isExpandChildNodeMap[node.id]) {
+          return false;
+        } else {
+          return true;
+        }
+      })
+      links = links.filter(link => {
+        if (childNode.isExpandChildLinkMap[link.id]) {
+          return false;
+        } else {
+          return true;
+        }
+      })
+      childNode.expandChildrenNode.forEach(childNode => {
+        shrinkChildNode(childNode);
+      })
+    }
   }
 
   return {

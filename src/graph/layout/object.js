@@ -54,12 +54,7 @@ export function Node (node) {
   this.expandChildrenLink = []; // 增量后子节点Node类型放里面 ; 判断有没有子节点就要根据其数组长度来
   this.isExpandChildLinkMap = undefined; // 对象，保存扩散节点 id——node对象
   this.show = node.show; // 是否展示
-  this.isShrink = false; // 是否处于收缩状态
-  this.shrink = () => {
-    this.expandChildren.forEach(node => {
-      node.isShrink = true;
-    })
-  }
+  this.isShrink = false; // 是否处于收缩子节点状态
 }
 
 export function createNodes (arr, callback) {
@@ -128,7 +123,7 @@ export function updateNodeSvg (nodeRootG, nodes, nodeDrawOption = {
   var g = nodeRootG.selectAll('g')
   g = g.data(nodes, function (d) { return d.id; });
   g.exit().remove();
-  g = g.enter().append('g').attr('class', 'node').append('circle').attr('fill', 'red').attr('r', 8).merge(g);
+  g = g.enter().append('g').attr('class', 'node').merge(g);
   g = nodeRootG.selectAll('g');
   // setNodeVisibility(g)
   drawCircle(g);
@@ -176,8 +171,8 @@ export function updateLinkSvg (linkRootG, links, linkDrawOption = {}) {
   g = g.enter().append('g').attr('class', 'link')
     .append('path')
     .attr('stroke', d => setLinkColor(d))
+    .style('stroke-width', 1)
     .attr('id', (d, i) => 'edgepath' + i)
-    .style('pointer-events', 'none')
     .attr('marker-end', 'url(#arrow)')
     .merge(g);
 
@@ -280,6 +275,21 @@ export function moveLink (linkG) {
   linkG.attr('d', d => `M ${d.sourceNode.x} ${d.sourceNode.y} L ${d.targetNode.x} ${d.targetNode.y}`);
 }
 
+// 高亮节点 节点格式是d3.selection！！！
+export function heightlightNode (oldNodeG, newNodeG) {
+  // 旧的得去掉高亮
+  if (oldNodeG) {
+    oldNodeG.select('circle')
+      .attr('stroke', 'grey')
+      .style('stroke-opacity', 0.3)
+      .attr('stroke-width', '1px')
+  }
+
+  newNodeG.select('circle')
+    .attr('stroke', 'orange')
+    .style('stroke-opacity', 1)
+    .attr('stroke-width', '1.5px')
+}
 export const colorin = '#00f';
 export const colorout = '#f00';
 export const colornone = '#ccc';
