@@ -35,6 +35,10 @@ export default {
           fnHandler: 'shrinkNode',
           btnName: '收缩'
         }, {
+          btnName: '隐藏'
+        }, {
+          btnName: '固定'
+        },{
           btnName: '关系扩展',
           children: [
             {

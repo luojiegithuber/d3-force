@@ -83,14 +83,14 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
         e.stopPropagation(); // 停止冒泡
       })
       .on('contextmenu', function (e, d) {
-        heightlightNode(curNodeSelection, d3.select(this))
+        heightlightNode(curNodeSelection, d3.select(this)) // 高亮节点
         curNodeSelection = d3.select(this);
         callFunShowNodeContextMenu({
           node: d,
           position: [e.clientX, e.clientY]
-        })
-        e.stopPropagation(); // 停止冒泡
-        e.preventDefault(); // 阻止默认事件
+        }) // 传递节点数据和鼠标点击所在位置，在这个位置显示右键菜单栏
+        e.stopPropagation(); // 停止冒泡，避免被宏观监听到单击事件
+        e.preventDefault(); // 阻止浏览器默认右键单击事件
       })
       .call(
         d3.drag()
@@ -107,6 +107,7 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
 
     // 仿真器更新
     simulation.nodes(nodes);
+    console.logo(simulation.nodes())
     simulation.force('link').links(links);
     simulation.alpha(1).restart();
   }

@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "ant-design-vue": "^1.6.2",
+    "axios": "^0.21.1",
     "d3-canvas-transition": "^0.3.7",
     "dagre": "^0.8.5",
     "gojs": "^2.1.18",
