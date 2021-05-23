@@ -9,6 +9,8 @@ import {
   highlightNode
 } from './object.js';
 
+import {getNodeNextJump} from '@/request/api';// 导入我们的api接口
+
 function createForceDirectedGraph (originalData, svg, callFunSelectNode, option, callFunShowNodeContextMenu) {
   // 获取画布尺寸
   const width = svg.attr('width');
@@ -29,7 +31,7 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
   // 当前操作节点
   var curNodeSelection = null; // d3格式的节点
 
-  // 根据节点个数计算初始节点大小，最小半径为15
+  // 根据节点个数计算初始节点大小，最小半径为18
   const maxRadius = d3.min([width - margin.left - margin.right, height - margin.top - margin.bottom]) / 2;
   const nodeSize = d3.max([((2 * Math.PI * maxRadius / originalData.nodes.length) * 0.3 / 2), 18]);
 
@@ -37,32 +39,39 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
   var nodes = createNodes(originalData.nodes, node => {
     allNodeByIdMap.set(node.id, node)
   });
+
+  nodes.map(d => {
+    if (d.group === 'TABLE') {
+      d.isRemember = true;
+    }
+  });
   var links = createEdges(originalData.edges, link => {
     allLinkByIdMap.set(link.id, link)
   });
+  // links = links.filter(d=>d.show);
 
-  // // 连边距离编码
-  // const linkDistance = d3
-  //   .scaleOrdinal()
-  //   .domain([
-  //     'TABLE',
-  //     'BusinessCatalog',
-  //     'BusinessLogicEntity',
-  //     'BusinessLogicEntityColumn',
-  //     'DATABASE',
-  //     'COLUMN',
-  //     'JOB',
-  //     'NODE',
-  //     'ColumnLineage'])
-  //   .range(d3.range(maxRadius / 1.75, maxRadius * 9));
+  // 连边距离编码
+  const linkDistance = d3
+    .scaleOrdinal()
+    .domain([
+      'TABLE',
+      'BusinessCatalog',
+      'BusinessLogicEntity',
+      'BusinessLogicEntityColumn',
+      'DATABASE',
+      'COLUMN',
+      'JOB',
+      'NODE',
+      'ColumnLineage'])
+    .range(d3.range(100,100*9));
 
   // 力仿真器
   const simulation = d3.forceSimulation();
   simulation.nodes(nodes).on('tick', ticked);
   simulation
     // .force('link', d3.forceLink(links).id(d => d.id).distance(d => linkDistance(d.group)))
-    .force('link', d3.forceLink(links).id(d => d.id).distance(maxRadius/1.75))
-    .force('charge', d3.forceManyBody().strength(-maxRadius).distanceMax(maxRadius * 2))
+    .force('link', d3.forceLink(links).id(d => d.id).distance(maxRadius / 1.75))
+    .force('charge', d3.forceManyBody().strength(-maxRadius*0.5).distanceMax(maxRadius * 2))
     .force('center', d3.forceCenter().x(width / 2).y(height / 2))
     .force('collide', d3.forceCollide().strength(1).iterations(10))
 
@@ -106,20 +115,54 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
 
   // 增量重绘函数
   function restart () {
+
     // 节点绘制更新
     nodeG = updateNodeSvg(nodeRootG, nodes, {
       nodeSize: nodeSize,
       setColorByKey: 'group',
       isPackage: false
     })
-      // 绑定点击事件
+      // 绑定点击事件，点击后即可扩展默认关系
       .on('click', function (e, d) {
+
+        // 设置为路径记忆的节点
+        d.isRemember = true;
+        // 将非记忆路径的点边进行过滤
+        // nodes = nodes.filter(item => item.isRemember);
+        // nodes.forEach(item=>item.isShrink = true)
+        // links = links.filter(item => item.sourceNode.isRemember && item.targetNode.isRemember);
+
         console.log('在力导向布局中选择了节点', d);
         // 要让this有效别用箭头函数
         highlightNode(curNodeSelection, d3.select(this))
         curNodeSelection = d3.select(this);
         callFunSelectNode(d)
         e.stopPropagation(); // 停止冒泡
+
+        // 点击即扩展，获取默认的扩展节点
+        if (d.isExpandChildren) {
+          // 如果之前请求过节点了，那就不需要再请求，直接用现成的
+          console.log('已经请求过该节点，直接扩展');
+          addNewGraph({
+            node: d,
+            newGraph: {
+              nodes: d.isExpandChildNode,
+              edges: d.isExpandChildLink
+            }
+          });
+        } else {
+          // 否则，通过新的请求获取新数据
+          getNodeNextJump(d.data, 'ALL').then(res => {
+            if (res.message === 'success') {
+              console.log('新取得的数据', res.content);
+              addNewGraph({
+                node: d,
+                newGraph: res.content
+              })
+            }
+          })
+        }
+        // d.isShrink = false;
       })
       // 绑定右键菜单
       .on('contextmenu', function (e, d) {
@@ -148,7 +191,6 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
 
     // 仿真器更新
     simulation.nodes(nodes);
-    console.logo(simulation.nodes())
     simulation.force('link').links(links);
     // simulation.force('center', d3.forceCenter().x(width/2).y(height/2))
     simulation.alpha(1).restart();
@@ -293,11 +335,18 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
         shrinkChildNode(childNode);
       })
     }
+
+  }
+
+  // 钉住
+  function pinNode (rootNode) {
+    console.log('节点被钉住', rootNode);
   }
 
   return {
     addNewGraph,
-    shrinkNode
+    shrinkNode,
+    pinNode
   }
 }
 

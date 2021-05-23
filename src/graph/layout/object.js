@@ -18,11 +18,6 @@ const nodeColor = {
   COLUMN: '#8dd3c7',
   JOB: 'aquamarine',
   NODE: 'aqua',
-  ColumnLineage: 'pink',
-  AAAAAA: '#ff9e6d',
-  BBBBBB: '#86cbff',
-  CCCCCC: '#c2e5a0',
-  DDDDDD: '#fff686',
   ColumnLineage: 'crimson'
 }
 
@@ -46,7 +41,6 @@ export var allNodeByIdMap = new Map();
 export function Node (node) {
   this.id = node.guid;
   this.group = node.entity_type; // 类
-  // this.label = nodeLabel[node.entity_type]; // 先固定文本避免卡顿
   this.label = nodeLabel[node.entity_type]; // 先固定文本避免卡顿
   this.pathNum = 0; // 出入度总数
   this.x = undefined; // 自定义
@@ -64,6 +58,9 @@ export function Node (node) {
   this.isExpandChildLinkMap = undefined; // 对象，保存扩散节点 id——node对象
   this.show = node.show; // 是否展示
   this.isShrink = false; // 是否处于收缩子节点状态
+
+  // ****************以下是路径记忆用的数据结构
+  this.isRemember = false;
 }
 
 // 根据原始数据获取相应的节点，以放止污染原始数据
@@ -122,6 +119,9 @@ export function updateNodeSvg (nodeRootG, nodes, nodeDrawOption = {
   setColorByKey: 'group',
   isPackage: false
 }) {
+
+  // nodes = nodes.filter(d => d.show);
+
   var g = nodeRootG.selectAll('g')
   g = g.data(nodes, function (d) { return d.id; });
   g.exit().remove();
@@ -131,8 +131,6 @@ export function updateNodeSvg (nodeRootG, nodes, nodeDrawOption = {
   g = g.merge(g);
 
   g = nodeRootG.selectAll('g');
-  // setNodeVisibility(g)
-
 
   function drawCircle (g) {
     g
@@ -170,6 +168,9 @@ function setNodeVisibility (g) {
 
 // 更新连边绘图
 export function updateLinkSvg (linkRootG, links, linkDrawOption = {}) {
+
+  // links = links.filter(d => d.show);
+
   var g = linkRootG.selectAll('g')
   g = g.data(links, function (d) { return d.id; });
   g.exit().remove();
