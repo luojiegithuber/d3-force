@@ -205,9 +205,9 @@ export default {
       this.$store.dispatch('changeNodeFun', node)
     },
 
-    showNodeContextMenu (nodeContextData) {
+    showNodeContextMenu (nodeContextData, cbEnd) {
       console.log('右键', nodeContextData)
-      this.$refs.NodeContextMenu.setNodeContextMenu(nodeContextData)
+      this.$refs.NodeContextMenu.setNodeContextMenu(nodeContextData, cbEnd)
     },
 
     /* upDateDiagramAnimationFrame (count) {

@@ -97,7 +97,7 @@ export function Edge (edge) {
   this.show = edge.show; // 是否展示
   this.isShrink = false; // 是否处于收缩状态
 
-  this.isRemember = false;
+  this.isRemember = () => this.sourceNode.isRemember && this.targetNode.isRemember
 }
 
 // 根据原始数据获取相应的连边，以放止污染原始数据

@@ -25,8 +25,10 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
   });
 
   // 点边哈希记录
-  var allNodeByIdMap = new Map();
+  var allNodeByIdMap = new Map(); // 保存了所有请求过的节点 包括不可见的节点（无记忆、被收缩的）
+  var allCurNodeByIdMap = new Map(); // 仅仅保存当前可见节点,是上面的子集
   var allLinkByIdMap = new Map();
+  var allCurLinkByIdMap = new Map(); // 仅仅保存当前可见节点,是上面的子集
 
   // 当前操作节点
   var curNode = null;
@@ -184,8 +186,11 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
         callFunShowNodeContextMenu({
           node: d,
           position: [e.clientX, e.clientY]
+        }, () => {
+          console.log('右键事件执行结束')
+          filterNoRemember(d);
         }) // 传递节点数据和鼠标点击所在位置，在这个位置显示右键菜单栏
-        filterNoRemember(d);
+        // filterNoRemember(d);
         e.stopPropagation(); // 停止冒泡，避免被宏观监听到单击事件
         e.preventDefault(); // 阻止浏览器默认右键单击事件
       })
@@ -208,6 +213,8 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
 
     // 仿真器更新
     simulation.nodes(nodes);
+    allCurNodeByIdMap = new Map(nodes.map(node => [node.id, node]))
+    allCurLinkByIdMap = new Map(links.map(link => [link.id, link]))
     simulation.force('link').links(links)
     // 设置以下四个参数达到过渡动画效果
 
@@ -248,11 +255,50 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
   function expandNode (rootNode) {
     if (!rootNode.isShrink) {
       console.log('节点已经是扩展状态')
-    } else {
-      rootNode.isShrink = false;
-      expandChildNode(rootNode)
+      // 已经是扩展状态却还需要扩展的原因还有一个——————暴露无记忆子节点！！！！
+      expandChildNoRememberNode1(rootNode)
 
       restart();
+    } else {
+      rootNode.isShrink = false;
+      expandChildNoRememberNode2(rootNode)
+      restart();
+    }
+
+    function expandChildNoRememberNode1 (childNode) {
+      if (!childNode.isShrink) {
+        // 子节点没有收缩的话，仅仅可视化记忆点边
+        childNode.expandChildrenLink.forEach(childLink => {
+          if (!allCurLinkByIdMap.has(childLink.id)) {
+            // 假如当前界面不存在，但是母节点处于扩散态（不收缩态）
+            links.push(childLink);
+          }
+        })
+        childNode.expandChildrenNode.forEach(childNode => {
+          if (!allCurNodeByIdMap.has(childNode.id)) {
+            nodes.push(childNode);
+            expandChildNoRememberNode2(childNode)
+          }
+        })
+      }
+    }
+
+    function expandChildNoRememberNode2 (childNode) {
+      if (!childNode.isShrink) {
+        // 子节点没有收缩的话，仅仅可视化记忆点边
+        childNode.expandChildrenLink.forEach(childLink => {
+          if (childLink.isRemember()) {
+            // 假如当前界面不存在，但是母节点处于扩散态（不收缩态）
+            links.push(childLink);
+          }
+        })
+        childNode.expandChildrenNode.forEach(childNode => {
+          if (childNode.isRemember) {
+            nodes.push(childNode);
+            expandChildNoRememberNode2(childNode)
+          }
+        })
+      }
     }
 
     function expandChildNode (childNode) {
@@ -286,9 +332,16 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
       const newNodes = newGraph.nodes.filter(node => {
         if (allNodeByIdMap.has(node.guid)) {
           // 如果已经存在，过滤
+          // 如果此时又被隐藏着，应当可视化出来
+          if (!allCurNodeByIdMap.has(node.guid)) {
+            console.log('重复且隐藏节点', allNodeByIdMap.get(node.guid))
+            nodes.push(allNodeByIdMap.get(node.guid))
+            rootNode.expandChildrenNode.push(allNodeByIdMap.get(node.guid))
+          }
+
           return false;
         } else {
-          allNodeByIdMap.set(node.guid, node);
+          // allNodeByIdMap.set(node.guid, node);
           return true
         }
       });
@@ -299,23 +352,24 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
           // 如果已经存在，过滤
           return false;
         } else {
-          allLinkByIdMap.set(link.guid, link);
+          // allLinkByIdMap.set(link.guid, link);
           return true
         }
       });
 
       const newChildrenNodes = createNodes(newNodes, node => {
-        /*         node.x = rootNode.x;
-        node.y = rootNode.y; */
+        allNodeByIdMap.set(node.id, node);
       });
-      rootNode.expandChildrenNode = newChildrenNodes;
+      rootNode.expandChildrenNode.push(...newChildrenNodes);
       rootNode.isExpandChildNodeMap = {}; // 根据id判断是不是子节点
       rootNode.expandChildrenNode.forEach(d => {
         rootNode.isExpandChildNodeMap[d.id] = d;
       });
 
-      const newChildrenLinks = createEdges(newLinks);
-      rootNode.expandChildrenLink = newChildrenLinks;
+      const newChildrenLinks = createEdges(newLinks, link => {
+        allLinkByIdMap.set(link.id, link);
+      });
+      rootNode.expandChildrenLink.push(...newChildrenLinks);
       rootNode.isExpandChildLinkMap = {}; // 根据id判断是不是子线
       rootNode.expandChildrenLink.forEach(d => {
         rootNode.isExpandChildLinkMap[d.id] = d;
@@ -325,6 +379,7 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
       links.push(...newChildrenLinks);
 
       rootNode.isExpandChildren = true; // 表明扩展过了
+      // expandNode(rootNode)
 
       restart();
     }
@@ -371,9 +426,6 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
   // 记住一个节点和其相关节点
   function rememberNode (handelNode) {
     handelNode.isRemember = true;
-    handelNode.links.forEach(link => {
-      link.isRemember = true;
-    })
 
     // restart();
   }
@@ -382,7 +434,7 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
   // 入参：正在被操作的节点
   function filterNoRemember (handelNode) {
     nodes = nodes.filter(node => node.isRemember);
-    links = links.filter(link => link.isRemember);
+    links = links.filter(link => link.isRemember());
 
     restart();
   }

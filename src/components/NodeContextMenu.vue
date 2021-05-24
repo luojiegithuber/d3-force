@@ -19,6 +19,7 @@ export default {
   data () {
     return {
       node: null,
+      callBackEndHandle: null, // 右键事件结束回调函数
       // contextmenu data (菜单数据)
       contextMenuData: {
         // the contextmenu name(@1.4.1 updated)
@@ -177,6 +178,7 @@ export default {
     },
 
     expandNode (relationship_type = 'ALL') {
+      this.callBackEndHandle();
       if (this.node.isExpandChildren) {
         // 如果之前请求过节点了，那就不需要再请求，直接用现成的
         console.log('已经请求过该节点，直接扩展')
@@ -187,6 +189,7 @@ export default {
             edges: this.node.isExpandChildLink
           }
         })
+        // this.callBackEndHandle();
         return;
       }
       getNodeNextJump(this.node.data, relationship_type).then(res => {
@@ -198,6 +201,7 @@ export default {
             newGraph: res.content
           })
         }
+        // this.callBackEndHandle();
       })
     },
 
@@ -205,7 +209,7 @@ export default {
       this.bus.$emit('shrinkNode', this.node)
     },
 
-    setNodeContextMenu (nodeContextData) {
+    setNodeContextMenu (nodeContextData, cbEnd) {
       if (!nodeContextData) {
         this.node = null;
         let x = -1000;
@@ -223,10 +227,14 @@ export default {
         x, y
       };
       this.contextMenuData.menulists[3].children = this.expandDict[this.node.group];
+
+      this.callBackEndHandle = cbEnd;
     },
+
     checkNode () {
       console.log(this.node)
     },
+
     // 钉住
     pinNode () {
       this.bus.$emit('pinNode', this.node)
