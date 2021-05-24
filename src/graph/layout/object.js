@@ -20,7 +20,11 @@ const nodeColor = {
   COLUMN: '#8dd3c7',
   JOB: 'aquamarine',
   NODE: 'aqua',
-  ColumnLineage: 'pink'
+  ColumnLineage: 'pink',
+  AAAAAA: '#ff9e6d',
+  BBBBBB: '#86cbff',
+  CCCCCC: '#c2e5a0',
+  DDDDDD: '#fff686'
 }
 
 const nodeLabel = {
@@ -38,7 +42,7 @@ const nodeLabel = {
 export function Node (node) {
   this.id = node.guid;
   this.group = node.entity_type; // 类
-  this.label = nodeLabel[node.entity_type]; // 先固定文本避免卡顿
+  this.label = node.guid; // 先固定文本避免卡顿
   this.pathNum = 0; // 出入度总数
   this.x = undefined; // 自定义
   this.y = undefined; // 自定义
