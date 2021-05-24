@@ -13,113 +13,8 @@
     },
     "relative_nodes_details": [
       {
-        "guid": "1df77151-2262-4f02-a9c9-30c27e5d5847",
-        "display_text": "客户投诉分析——逻辑实体",
-        "type_name": "BusinessLogicEntity",
-        "entity_type": "BusinessLogicEntity",
-        "create_by": "user0",
-        "update_by": "user0",
-        "create_time": 1593419454996,
-        "update_time": 1593419454996,
-        "tags": [
-          "dli_cim"
-        ],
-        "classifications": null,
-        "attributes": null
-      },
-      {
-        "guid": "72919e34-17ef-4695-ae1b-36d25983744e",
-        "display_text": "客户分布分析——逻辑实体",
-        "type_name": "BusinessLogicEntity",
-        "entity_type": "BusinessLogicEntity",
-        "create_by": "user0",
-        "update_by": "user0",
-        "create_time": 1593419495640,
-        "update_time": 1593419495640,
-        "tags": [
-          "dli_cim"
-        ],
-        "classifications": null,
-        "attributes": null
-      },
-      {
-        "guid": "dac94e38-c6c4-4c8e-86db-e0fae8a7c73a",
-        "display_text": "客户满意度分析——逻辑实体",
-        "type_name": "BusinessLogicEntity",
-        "entity_type": "BusinessLogicEntity",
-        "create_by": "user0",
-        "update_by": "user0",
-        "create_time": 1593419603617,
-        "update_time": 1593419603617,
-        "tags": [
-          "dli_cim"
-        ],
-        "classifications": null,
-        "attributes": null
-      },
-      {
-        "guid": "6d05a4d0-ee58-4d84-a2df-b335f9b1cc98",
-        "display_text": "客户资产分析——逻辑实体",
-        "type_name": "BusinessLogicEntity",
-        "entity_type": "BusinessLogicEntity",
-        "create_by": "user0",
-        "update_by": "user0",
-        "create_time": 1591934020636,
-        "update_time": 1591934020636,
-        "tags": [
-          "dli_cim"
-        ],
-        "classifications": null,
-        "attributes": null
-      },
-      {
-        "guid": "46b25cb7-4743-4582-8c5f-02b619c685eb",
-        "display_text": "BusinessLogicEntity15",
-        "type_name": "BusinessLogicEntity",
-        "entity_type": "BusinessLogicEntity",
-        "create_by": "user0",
-        "update_by": "user0",
-        "create_time": 1591934015147,
-        "update_time": 1591934015147,
-        "tags": [
-          "dli_cim"
-        ],
-        "classifications": null,
-        "attributes": null
-      },
-      {
-        "guid": "479bc8ae-6c22-4631-9f1f-b99aae40f401",
-        "display_text": "BusinessLogicEntity22",
-        "type_name": "BusinessLogicEntity",
-        "entity_type": "BusinessLogicEntity",
-        "create_by": "user0",
-        "update_by": "user0",
-        "create_time": 1593419489411,
-        "update_time": 1593419489411,
-        "tags": [
-          "dli_cim"
-        ],
-        "classifications": null,
-        "attributes": null
-      },
-      {
-        "guid": "2453dc24-2cc9-4eca-a8d5-fa1e1d84c628",
-        "display_text": "BusinessLogicEntity29",
-        "type_name": "BusinessLogicEntity",
-        "entity_type": "BusinessLogicEntity",
-        "create_by": "user0",
-        "update_by": "user0",
-        "create_time": 1593419635059,
-        "update_time": 1593419635059,
-        "tags": [
-          "dli_ccm"
-        ],
-        "classifications": null,
-        "attributes": null
-      },
-      {
         "guid": "a6c952a5-a8b7-4d6a-b19d-2e5b0a9c9946",
-        "display_text": "客户投诉分析表",
+        "display_text": "TABLE0",
         "type_name": "dli_table_managed",
         "entity_type": "TABLE",
         "create_by": "user3",
@@ -134,7 +29,7 @@
       },
       {
         "guid": "690ebdde-e37b-498c-8b2d-9b0601a750ca",
-        "display_text": "客户呼叫分析表",
+        "display_text": "TABLE2",
         "type_name": "dli_table_managed",
         "entity_type": "TABLE",
         "create_by": "user3",
@@ -149,7 +44,7 @@
       },
       {
         "guid": "cd9078ff-f8c8-4db8-a619-d72300efa7c4",
-        "display_text": "客户分布分析表",
+        "display_text": "TABLE9",
         "type_name": "dli_table_managed",
         "entity_type": "TABLE",
         "create_by": "user3",
@@ -164,7 +59,7 @@
       },
       {
         "guid": "1b3387df-cd3c-491e-895e-1a9515c029c1",
-        "display_text": "客户满意分析表",
+        "display_text": "TABLE12",
         "type_name": "dli_table_managed",
         "entity_type": "TABLE",
         "create_by": "user3",

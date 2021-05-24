@@ -151,6 +151,11 @@ export default {
     this.bus.$on('shrinkNode', node => {
       this.layoutObj.shrinkNode(node)
     })
+
+    // 钉住节点
+    this.bus.$on('pinNode', node => {
+      this.layoutObj.pinNode(node)
+    })
   },
 
   watch: {
