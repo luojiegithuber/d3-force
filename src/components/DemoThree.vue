@@ -179,12 +179,22 @@ export default {
 
     selectNodeInCase (node) {
       console.log('你选择了节点：', node)
-      getNodeNextJump(node).then(res => {
+
+      // 传过去这个节点的图数据
+      /* getNodeNextJump(node).then(res => {
         if (res.message === 'success') {
           this.originData = res.content;
           this.changeLayout(this.$store.state.layoutId);
         }
-      })
+      }) */
+
+      // 只传一个节点
+
+      this.originData = {
+        nodes: [node],
+        edges: []
+      };
+      this.changeLayout(this.$store.state.layoutId);
 
       /* 访问接口，返回了数据之后 */
       // this.originData = originData // 更新数据

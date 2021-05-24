@@ -45,7 +45,7 @@ export var allNodeByIdMap = new Map();
 export function Node (node) {
   this.id = node.guid;
   this.group = node.entity_type; // 类
-  this.label = node.guid; // 先固定文本避免卡顿
+  this.label = nodeLabel[node.entity_type]; // 先固定文本避免卡顿
   this.pathNum = 0; // 出入度总数
   this.x = undefined; // 自定义
   this.y = undefined; // 自定义

@@ -29,22 +29,26 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
   var allLinkByIdMap = new Map();
 
   // 当前操作节点
+  var curNode = null;
   var curNodeSelection = null; // d3格式的节点
 
   // 根据节点个数计算初始节点大小，最小半径为18
   const maxRadius = d3.min([width - margin.left - margin.right, height - margin.top - margin.bottom]) / 2;
-  const nodeSize = d3.max([((2 * Math.PI * maxRadius / originalData.nodes.length) * 0.3 / 2), 18]);
+  let nodeSize = d3.max([((2 * Math.PI * maxRadius / originalData.nodes.length) * 0.3 / 2), 18]);
+  if (nodeSize >= 15) {
+    nodeSize = 15;
+  }
 
   // 获取节点及边数据，防止污染原始数据
   var nodes = createNodes(originalData.nodes, node => {
     allNodeByIdMap.set(node.id, node)
   });
 
-  nodes.map(d => {
+  /*   nodes.map(d => {
     if (d.group === 'TABLE') {
       d.isRemember = true;
     }
-  });
+  }); */
   var links = createEdges(originalData.edges, link => {
     allLinkByIdMap.set(link.id, link)
   });
@@ -63,15 +67,21 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
       'JOB',
       'NODE',
       'ColumnLineage'])
-    .range(d3.range(100,100*9));
+    .range(d3.range(100, 100 * 9));
 
   // 力仿真器
   const simulation = d3.forceSimulation();
-  simulation.nodes(nodes).on('tick', ticked);
+  simulation.nodes(nodes)
+    .on('tick', ticked)
+    .on('end', tickEnd);
+
+  function tickEnd () {
+
+  }
   simulation
     // .force('link', d3.forceLink(links).id(d => d.id).distance(d => linkDistance(d.group)))
     .force('link', d3.forceLink(links).id(d => d.id).distance(maxRadius / 1.75))
-    .force('charge', d3.forceManyBody().strength(-maxRadius*0.5).distanceMax(maxRadius * 2))
+    .force('charge', d3.forceManyBody().strength(-maxRadius * 0.5).distanceMax(maxRadius * 2))
     .force('center', d3.forceCenter().x(width / 2).y(height / 2))
     .force('collide', d3.forceCollide().strength(1).iterations(10))
 
@@ -115,7 +125,6 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
 
   // 增量重绘函数
   function restart () {
-
     // 节点绘制更新
     nodeG = updateNodeSvg(nodeRootG, nodes, {
       nodeSize: nodeSize,
@@ -124,25 +133,25 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
     })
       // 绑定点击事件，点击后即可扩展默认关系
       .on('click', function (e, d) {
-
         // 设置为路径记忆的节点
-        rememberNode (d)
+        rememberNode(d)
 
         // 将非记忆路径的点边进行过滤
         // nodes = nodes.filter(item => item.isRemember);
         // nodes.forEach(item=>item.isShrink = true)
         // links = links.filter(item => item.sourceNode.isRemember && item.targetNode.isRemember);
-        filterNoRemember(d)
+        // filterNoRemember(d)
 
         console.log('在力导向布局中选择了节点', d);
         // 要让this有效别用箭头函数
         highlightNode(curNodeSelection, d3.select(this))
+        curNode = d;
         curNodeSelection = d3.select(this);
         callFunSelectNode(d)
         e.stopPropagation(); // 停止冒泡
 
         // 点击即扩展，获取默认的扩展节点
-/*         if (d.isExpandChildren) {
+        /*         if (d.isExpandChildren) {
           // 如果之前请求过节点了，那就不需要再请求，直接用现成的
           console.log('已经请求过该节点，直接扩展');
           addNewGraph({
@@ -168,19 +177,21 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
       })
       // 绑定右键菜单
       .on('contextmenu', function (e, d) {
-        d.isRemember = true;
+        rememberNode(d)
         highlightNode(curNodeSelection, d3.select(this))
+        curNode = d;
         curNodeSelection = d3.select(this);
         callFunShowNodeContextMenu({
           node: d,
           position: [e.clientX, e.clientY]
         }) // 传递节点数据和鼠标点击所在位置，在这个位置显示右键菜单栏
+        filterNoRemember(d);
         e.stopPropagation(); // 停止冒泡，避免被宏观监听到单击事件
         e.preventDefault(); // 阻止浏览器默认右键单击事件
       })
-      .on("dblclick", function(e,d){
+    /*       .on('dblclick', function (e, d) {
         e.stopPropagation(); // 停止冒泡
-      })
+      }) */
       .call(
         d3.drag()
           .on('start', dragstart)
@@ -197,10 +208,14 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
 
     // 仿真器更新
     simulation.nodes(nodes);
-    simulation.force('link').links(links);
+    simulation.force('link').links(links)
+    // 设置以下四个参数达到过渡动画效果
+
+    simulation.force('collision', d3.forceCollide(0.5))
+    // simulation.alphaDecay(0.0005)
+    // simulation.velocityDecay(0.6)
     // simulation.force('center', d3.forceCenter().x(width/2).y(height/2))
     simulation.alpha(1).restart();
-
   }
 
   // 对点边位置进行移动更新
@@ -289,7 +304,10 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
         }
       });
 
-      const newChildrenNodes = createNodes(newNodes);
+      const newChildrenNodes = createNodes(newNodes, node => {
+        /*         node.x = rootNode.x;
+        node.y = rootNode.y; */
+      });
       rootNode.expandChildrenNode = newChildrenNodes;
       rootNode.isExpandChildNodeMap = {}; // 根据id判断是不是子节点
       rootNode.expandChildrenNode.forEach(d => {
@@ -341,29 +359,28 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
         shrinkChildNode(childNode);
       })
     }
-
   }
 
   // 钉住
-  function pinNode (rootNode) {
-    console.log('节点被钉住', rootNode);
+  function pinNode (handelNode) {
+    console.log('节点被钉住', handelNode);
+    handelNode.fx = handelNode.x;
+    handelNode.fy = handelNode.y;
   }
 
-  //记住一个节点和其相关节点
+  // 记住一个节点和其相关节点
   function rememberNode (handelNode) {
-
     handelNode.isRemember = true;
     handelNode.links.forEach(link => {
       link.isRemember = true;
     })
 
-    restart();
+    // restart();
   }
 
   // 操作某一个节点的时候，过滤掉不被记忆的节点和与之相互关联的边
   // 入参：正在被操作的节点
   function filterNoRemember (handelNode) {
-
     nodes = nodes.filter(node => node.isRemember);
     links = links.filter(link => link.isRemember);
 
