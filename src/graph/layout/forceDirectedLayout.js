@@ -114,6 +114,7 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
     })
       // 绑定点击事件
       .on('click', function (e, d) {
+        d.isRemember = true;
         console.log('在力导向布局中选择了节点', d);
         // 要让this有效别用箭头函数
         highlightNode(curNodeSelection, d3.select(this))
@@ -123,6 +124,7 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
       })
       // 绑定右键菜单
       .on('contextmenu', function (e, d) {
+        d.isRemember = true;
         highlightNode(curNodeSelection, d3.select(this))
         curNodeSelection = d3.select(this);
         callFunShowNodeContextMenu({
@@ -148,7 +150,7 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
 
     // 仿真器更新
     simulation.nodes(nodes);
-    console.logo(simulation.nodes())
+    console.log(simulation.nodes())
     simulation.force('link').links(links);
     // simulation.force('center', d3.forceCenter().x(width/2).y(height/2))
     simulation.alpha(1).restart();

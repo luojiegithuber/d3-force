@@ -64,6 +64,8 @@ export function Node (node) {
   this.isExpandChildLinkMap = undefined; // 对象，保存扩散节点 id——node对象
   this.show = node.show; // 是否展示
   this.isShrink = false; // 是否处于收缩子节点状态
+
+  this.isRemember = false; //是否被记忆
 }
 
 // 根据原始数据获取相应的节点，以放止污染原始数据
