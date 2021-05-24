@@ -126,11 +126,13 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
       .on('click', function (e, d) {
 
         // 设置为路径记忆的节点
-        d.isRemember = true;
+        rememberNode (d)
+
         // 将非记忆路径的点边进行过滤
         // nodes = nodes.filter(item => item.isRemember);
         // nodes.forEach(item=>item.isShrink = true)
         // links = links.filter(item => item.sourceNode.isRemember && item.targetNode.isRemember);
+        filterNoRemember(d)
 
         console.log('在力导向布局中选择了节点', d);
         // 要让this有效别用箭头函数
@@ -140,7 +142,7 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
         e.stopPropagation(); // 停止冒泡
 
         // 点击即扩展，获取默认的扩展节点
-        if (d.isExpandChildren) {
+/*         if (d.isExpandChildren) {
           // 如果之前请求过节点了，那就不需要再请求，直接用现成的
           console.log('已经请求过该节点，直接扩展');
           addNewGraph({
@@ -161,7 +163,7 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
               })
             }
           })
-        }
+        } */
         // d.isShrink = false;
       })
       // 绑定右键菜单
@@ -175,6 +177,9 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
         }) // 传递节点数据和鼠标点击所在位置，在这个位置显示右键菜单栏
         e.stopPropagation(); // 停止冒泡，避免被宏观监听到单击事件
         e.preventDefault(); // 阻止浏览器默认右键单击事件
+      })
+      .on("dblclick", function(e,d){
+        e.stopPropagation(); // 停止冒泡
       })
       .call(
         d3.drag()
@@ -342,6 +347,27 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
   // 钉住
   function pinNode (rootNode) {
     console.log('节点被钉住', rootNode);
+  }
+
+  //记住一个节点和其相关节点
+  function rememberNode (handelNode) {
+
+    handelNode.isRemember = true;
+    handelNode.links.forEach(link => {
+      link.isRemember = true;
+    })
+
+    restart();
+  }
+
+  // 操作某一个节点的时候，过滤掉不被记忆的节点和与之相互关联的边
+  // 入参：正在被操作的节点
+  function filterNoRemember (handelNode) {
+
+    nodes = nodes.filter(node => node.isRemember);
+    links = links.filter(link => link.isRemember);
+
+    restart();
   }
 
   return {

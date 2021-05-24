@@ -50,6 +50,8 @@ export function Node (node) {
   this.outgoing = []; // 高亮显示线的时候会用到
   this.matrixIndex = 0; // 矩阵轴中的位置
 
+  this.links = []; // Edge类型
+
   // ****************以下是增量布局测试用的数据结构
   this.isExpandChildren = false; // 是否曾经扩展过
   this.expandChildrenNode = []; // 增量后子节点Node类型放里面 ; 判断有没有子节点就要根据其数组长度来
@@ -61,6 +63,7 @@ export function Node (node) {
 
   // ****************以下是路径记忆用的数据结构
   this.isRemember = false;
+  //1.节点不被记忆不代表不能可视化，当处于被扩展状态的时候，不被记忆也是可以可视化的
 }
 
 // 根据原始数据获取相应的节点，以放止污染原始数据
@@ -89,12 +92,16 @@ export function Edge (edge) {
   // ****************以下是增量布局测试用的数据结构
   this.show = edge.show; // 是否展示
   this.isShrink = false; // 是否处于收缩状态
+
+  this.isRemember = false;
 }
 
 // 根据原始数据获取相应的连边，以放止污染原始数据
 export function createEdges (originalEdges, callback) {
   return originalEdges.map((d, index) => {
     const edge = new Edge(d);
+    edge.sourceNode.links.push(edge);
+    edge.targetNode.links.push(edge);
     if (callback) callback(edge, index);
     return edge
   });
@@ -190,102 +197,100 @@ export function updateLinkSvg (linkRootG, links, linkDrawOption = {}) {
   return g
 }
 
-// // 绘画节点
-// export function drawNodeSvg (svg, nodes, nodeDrawOption = {
-//   nodeSize: 10,
-//   setColorByKey: 'group',
-//   isPackage: false
-// }) {
-//   const nodeG = svg
-//     .selectAll('.nodeG')
-//     .data(nodes, d => nodeDrawOption.isPackage ? d.data.id : d.id)
-//     .enter()
-//     .append('g')
-//     .attr('class', 'nodeG')
-//     .attr('id', d => nodeDrawOption.isPackage ? d.data.id : d.id)
-//   nodeG
-//     .append('circle')
-//     .attr('r', nodeDrawOption.nodeSize)
-//     .attr('stroke', 'grey')
-//     .style('stroke-opacity', 0.3)
-//     .attr('stroke-width', '1px')
-//     .style('fill', d => nodeDrawOption.isPackage ? nodeColor[d.data[nodeDrawOption.setColorByKey]] : nodeColor[d[nodeDrawOption.setColorByKey]])
-//   nodeG
-//     .append('text')
-//     .style('cursor', 'default')
-//     .attr('pointer-events', 'none')
-//     .attr('dy', nodeDrawOption.nodeSize / 2)
-//     .attr('dx', -nodeDrawOption.nodeSize / 2)
-//     .text(d => nodeDrawOption.isPackage ? d.data.label : d.label)
-//   // .text(d => nodeLabelScale(d.entity_type));  // 针对业务案例
-//
-//   return nodeG
-// }
+ // 绘画节点
+ export function drawNodeSvg (svg, nodes, nodeDrawOption = {
+   nodeSize: 10,
+   setColorByKey: 'group',
+   isPackage: false
+ }) {
+   const nodeG = svg
+     .selectAll('.nodeG')
+     .data(nodes, d => nodeDrawOption.isPackage ? d.data.id : d.id)
+     .enter()
+     .append('g')
+     .attr('class', 'nodeG')
+     .attr('id', d => nodeDrawOption.isPackage ? d.data.id : d.id)
+   nodeG
+     .append('circle')
+     .attr('r', nodeDrawOption.nodeSize)
+     .attr('stroke', 'grey')
+     .style('stroke-opacity', 0.3)
+     .attr('stroke-width', '1px')
+     .style('fill', d => nodeDrawOption.isPackage ? nodeColor[d.data[nodeDrawOption.setColorByKey]] : nodeColor[d[nodeDrawOption.setColorByKey]])
+   nodeG
+     .append('text')
+     .style('cursor', 'default')
+     .attr('pointer-events', 'none')
+     .attr('dy', nodeDrawOption.nodeSize / 2)
+     .attr('dx', -nodeDrawOption.nodeSize / 2)
+     .text(d => nodeDrawOption.isPackage ? d.data.label : d.label)
+    .text(d => nodeLabelScale(d.entity_type));   针对业务案例
 
-// // 绘画边
-// export function drawLinkSvg (svg, links, linkDrawOption = {
-//   setColorByKey: 'group'
-//   // setColorByKey: 'relationship_type',
-// }) {
-//   // 之前的随机数据
-//
-//   // // 正式案例数据——根据 relationship_type 渲染不同的连边颜色
-//   const linkColorScale = d3
-//     .scaleOrdinal()
-//     .domain(['PARENT_CHILD', 'LOGICAL_PHYSICAL', 'DATA_FLOW'])
-//     .range([
-//       '#9e79db',
-//       '#8dd3c7',
-//       '#009966'
-//     ]);
-//
-//   const linkG = svg
-//     .selectAll('.linkG')
-//     .data(links, d => d.id)
-//     .enter()
-//     .append('g')
-//     .attr('class', 'linkG');
-//   linkG // 连边
-//     .append('path')
-//     .attr('class', 'edgepath')
-//     .attr('stroke', d => linkColorScale(d[linkDrawOption.setColorByKey]))
-//     .attr('id', (d, i) => 'edgepath' + i)
-//     .style('pointer-events', 'none')
-//     .attr('marker-end', 'url(#arrow)');
-//
-//   // // 设置箭头样式
-//   // let defs = svg.append('defs');
-//   // let arrowMarker = defs.append('marker')
-//   //   .attr('id', 'arrow')
-//   //   .attr('markerUnits', 'strokeWidth')
-//   //   .attr('markerWidth', nodeSize/2)
-//   //   .attr('markerHeight', nodeSize/2)
-//   //   .attr('viewBox', `-0 ${-nodeSize / 4} ${nodeSize/2} ${nodeSize/2}`)
-//   //   .attr('refX', `${nodeSize*1.5}`)
-//   //   .attr('refY', `0`)
-//   //   .attr('orient', 'auto');
-//   // arrowMarker.append('path')
-//   //   .attr('d', `M0,${-nodeSize / 4} L${nodeSize/2},0 L0,${nodeSize / 4}`)
-//   //   .attr('fill', '#999')
-//   //   .style('stroke', 'none');
-//
-//   // 连边的提示标签
-//   // let linkLabels = linkG  // 标签
-//   //   .append('text')
-//   //   .style('pointer-events', 'none')
-//   //   .attr('class', 'edgelabel')
-//   //   .attr('id', (d, i) => 'edgelabel' + i)
-//   //   .attr('font-size', 12)
-//   //   .attr('fill', d => linkColorScale(d[linkDrawOption.setColorByKey]));
-//   // linkLabels.append('textPath') // 要沿着<path>的形状呈现文本，请将文本包含在<textPath>元素中，该元素具有一个href属性，该属性具有对<path>元素的引用.
-//   //   .attr('xlink:href', (d, i) => '#edgepath' + i)
-//   //   .style('text-anchor', 'middle')
-//   //   .style('pointer-events', 'none')
-//   //   .attr('startOffset', '50%')
-//   //   .text(d => d.group);
-//
-//   return linkG
-// }
+   return nodeG
+ }
+
+// 绘画边
+ export function drawLinkSvg (svg, links, linkDrawOption = {
+   setColorByKey: 'group'
+ }) {
+    //之前的随机数据
+    //正式案例数据——根据 relationship_type 渲染不同的连边颜色
+   const linkColorScale = d3
+     .scaleOrdinal()
+     .domain(['PARENT_CHILD', 'LOGICAL_PHYSICAL', 'DATA_FLOW'])
+     .range([
+       '#9e79db',
+       '#8dd3c7',
+       '#009966'
+     ]);
+
+   const linkG = svg
+     .selectAll('.linkG')
+     .data(links, d => d.id)
+     .enter()
+     .append('g')
+     .attr('class', 'linkG');
+   linkG  //连边
+     .append('path')
+     .attr('class', 'edgepath')
+     .attr('stroke', d => linkColorScale(d[linkDrawOption.setColorByKey]))
+     .attr('id', (d, i) => 'edgepath' + i)
+     .style('pointer-events', 'none')
+     .attr('marker-end', 'url(#arrow)');
+
+     //设置箭头样式
+    let defs = svg.append('defs');
+    let arrowMarker = defs.append('marker')
+      .attr('id', 'arrow')
+      .attr('markerUnits', 'strokeWidth')
+      .attr('markerWidth', nodeSize/2)
+      .attr('markerHeight', nodeSize/2)
+      .attr('viewBox', `-0 ${-nodeSize / 4} ${nodeSize/2} ${nodeSize/2}`)
+      .attr('refX', `${nodeSize*1.5}`)
+      .attr('refY', `0`)
+      .attr('orient', 'auto');
+    arrowMarker.append('path')
+      .attr('d', `M0,${-nodeSize / 4} L${nodeSize/2},0 L0,${nodeSize / 4}`)
+      .attr('fill', '#999')
+      .style('stroke', 'none');
+
+    连边的提示标签
+    let linkLabels = linkG   //标签
+      .append('text')
+      .style('pointer-events', 'none')
+      .attr('class', 'edgelabel')
+      .attr('id', (d, i) => 'edgelabel' + i)
+      .attr('font-size', 12)
+      .attr('fill', d => linkColorScale(d[linkDrawOption.setColorByKey]));
+    linkLabels.append('textPath')  // 要沿着<path>的形状呈现文本，请将文本包含在<textPath>元素中，该元素具有一个href属性，该属性具有对<path>元素的引用.
+      .attr('xlink:href', (d, i) => '#edgepath' + i)
+      .style('text-anchor', 'middle')
+      .style('pointer-events', 'none')
+      .attr('startOffset', '50%')
+      .text(d => d.group);
+
+   return linkG
+ }
 
 // 用于节点的移动
 // 传入参数————是d3.选择器下的node g对象
