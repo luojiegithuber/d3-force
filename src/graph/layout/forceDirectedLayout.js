@@ -286,6 +286,18 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
       console.log('节点已经是扩展状态')
       // 已经是扩展状态却还需要扩展的原因还有一个——————暴露无记忆子节点！！！！
       // expandChildNoRememberNode1(rootNode)
+      rootNode.expandChildrenLink.forEach(childLink => {
+        if (!allCurLinkByIdMap.has(childLink.id)) {
+          links.push(childLink);
+        }
+      })
+      rootNode.expandChildrenNode.forEach(childNode => {
+        if (!allCurNodeByIdMap.has(childNode.id)) {
+          nodes.push(childNode);
+          expandChildNode(childNode)
+        }
+      })
+      restart();
 
       // restart();
     } else {
