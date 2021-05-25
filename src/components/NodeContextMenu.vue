@@ -4,9 +4,11 @@
                     @shrinkNode="shrinkNode"
                     @pinNode="pinNode"
                     @expandNodeAll="expandNode('ALL')"
+                    @expandNodeRECOMMEND="expandNode('RECOMMEND')"
+                    @expandNodeOTHERS="expandNode('OTHERS')"
                     @expandNodePK_FK="expandNode('PK_FK')"
                     @expandNodeDATA_FLOW="expandNode('DATA_FLOW')"
-                    @expandNodeLOGICAL_PHISICAL="expandNode('LOGICAL_PHISICAL')"
+                    @expandNodeLOGICAL_PHYSICAL="expandNode('LOGICAL_PHYSICAL')"
                     @expandNodeLAST_PARENT_CHILD="expandNode('LAST_PARENT_CHILD')"
                     @expandNodeNEXT_PARENT_CHILD="expandNode('NEXT_PARENT_CHILD')"
                     @linkRelationshipExpand="linkRelationshipExpand()"
@@ -38,10 +40,11 @@ export default {
       nodeMenulists: [{
         fnHandler: 'checkNode', // Binding events(绑定事件)
         btnName: '查看节点信息' // The name of the menu option (菜单名称)
-      }, {
-        fnHandler: 'shrinkNode',
-        btnName: '收缩'
       },
+      //   {
+      //   fnHandler: 'shrinkNode',
+      //   btnName: '收缩'
+      // },
         // {
         //   btnName: '隐藏'
         // },
@@ -66,120 +69,207 @@ export default {
       expandDict: {
         BusinessCatalog: [
           {
-            btnName: '所有',
+            btnName: '+所有',
             fnHandler: 'expandNodeAll'
-          }, {
-            btnName: '上游父子关系',
+          },
+          {
+            btnName: '+其他关系',
+            fnHandler: 'expandNodeOTHERS'
+          },
+          {
+            btnName: ' 上游父子关系',
             fnHandler: 'expandNodeLAST_PARENT_CHILD'
-          }, {
-            btnName: '下游父子关系',
+          },
+          {
+            btnName: ' 下游父子关系',
             fnHandler: 'expandNodeNEXT_PARENT_CHILD'
           }
         ],
         BusinessLogicEntity: [
           {
-            btnName: '所有',
-            fnHandler: 'expandNodeAll'
-          },
-
-          {
-            btnName: '逻辑物理关系',
-            fnHandler: 'expandNodeLOGICAL_PHISICAL'
-          }
-
-        ],
-        BusinessLogicEntityColumn: [
-          {
-            btnName: '所有',
+            btnName: '+所有',
             fnHandler: 'expandNodeAll'
           },
           {
-            btnName: '下游父子关系',
+            btnName: '+推荐关系',
+            fnHandler: 'expandNodeRECOMMEND'
+          },
+          {
+            btnName: ' 逻辑物理关系',
+            fnHandler: 'expandNodeLOGICAL_PHYSICAL'
+          },
+          {
+            btnName: ' 上游父子关系',
+            fnHandler: 'expandNodeLAST_PARENT_CHILD'
+          },
+          {
+            btnName: '+其他关系',
+            fnHandler: 'expandNodeOTHERS'
+          },
+          {
+            btnName: ' 下游父子关系',
             fnHandler: 'expandNodeNEXT_PARENT_CHILD'
           }
         ],
-        DATABASE: [
+        BusinessLogicEntityColumn: [
           {
-            btnName: '所有',
+            btnName: '+所有',
             fnHandler: 'expandNodeAll'
           },
-
           {
-            btnName: '下游父子关系',
+            btnName: '+推荐关系',
+            fnHandler: 'expandNodeRECOMMEND'
+          },
+          {
+            btnName: ' 上游父子关系',
+            fnHandler: 'expandNodeLAST_PARENT_CHILD'
+          },
+          {
+            btnName: '+其他关系',
+            fnHandler: 'expandNodeOTHERS'
+          },
+          {
+            btnName: ' 逻辑物理关系',
+            fnHandler: 'expandNodeLOGICAL_PHYSICAL'
+          },
+        ],
+        DATABASE: [
+          {
+            btnName: '+所有',
+            fnHandler: 'expandNodeAll'
+          },
+          {
+            btnName: '+其他关系',
+            fnHandler: 'expandNodeOTHERS'
+          },
+          {
+            btnName: ' 下游父子关系',
             fnHandler: 'expandNodeNEXT_PARENT_CHILD'
           }
         ],
         TABLE: [
-          {btnName: '所有', fnHandler: 'expandNodeAll'}, {btnName: '逻辑物理关系', fnHandler: 'expandNodeLOGICAL_PHISICAL'}, {
-            btnName: '下游父子关系',
-            fnHandler: 'expandNodeNEXT_PARENT_CHILD'
-          }],
-        COLUMN: [
           {
-            btnName: '所有',
+            btnName: '+所有',
             fnHandler: 'expandNodeAll'
           },
           {
-            btnName: '主外键关系',
-            fnHandler: 'expandNodePK_FK'
+            btnName: '+推荐关系',
+            fnHandler: 'expandNodeRECOMMEND'
           },
           {
-            btnName: '数据流关系',
+            btnName: ' 数据流关系',
             fnHandler: 'expandNodeDATA_FLOW'
           },
           {
-            btnName: '逻辑物理关系',
-            fnHandler: 'expandNodeLOGICAL_PHISICAL'
-          }
-
-        ],
-        JOB: [
+            btnName: ' 主外键关系',
+            fnHandler: 'expandNodePK_FK'
+          },
           {
-            btnName: '所有',
+            btnName: ' 上游父子关系',
+            fnHandler: 'expandNodeLAST_PARENT_CHILD'
+          },
+          {
+            btnName: '+其他关系',
+            fnHandler: 'expandNodeOTHERS'
+          },
+          {
+            btnName: ' 逻辑物理关系',
+            fnHandler: 'expandNodeLOGICAL_PHYSICAL'
+          },
+          {
+            btnName: ' 下游父子关系',
+            fnHandler: 'expandNodeNEXT_PARENT_CHILD'
+          }
+        ],
+        COLUMN: [
+          {
+            btnName: '+所有',
             fnHandler: 'expandNodeAll'
+          },
+          {
+            btnName: '+推荐关系',
+            fnHandler: 'expandNodeRECOMMEND'
           },
 
           {
-            btnName: '下游父子关系',
+            btnName: ' 上游父子关系',
+            fnHandler: 'expandNodeLAST_PARENT_CHILD'
+          },
+          {
+            btnName: '+其他关系',
+            fnHandler: 'expandNodeOTHERS'
+          },
+          {
+            btnName: ' 逻辑物理关系',
+            fnHandler: 'expandNodeLOGICAL_PHYSICAL'
+          },
+          {
+            btnName: ' 数据流关系',
+            fnHandler: 'expandNodeDATA_FLOW'
+          },
+          {
+            btnName: ' 主外键关系',
+            fnHandler: 'expandNodePK_FK'
+          },
+        ],
+        JOB: [
+          {
+            btnName: '+所有',
+            fnHandler: 'expandNodeAll'
+          },
+          {
+            btnName: '+其他关系',
+            fnHandler: 'expandNodeOTHERS'
+          },
+          {
+            btnName: ' 下游父子关系',
             fnHandler: 'expandNodeNEXT_PARENT_CHILD'
           }
         ],
         NODE: [
           {
-            btnName: '所有',
+            btnName: '+所有',
             fnHandler: 'expandNodeAll'
           },
           {
-            btnName: '下游父子关系',
+            btnName: '+推荐关系',
+            fnHandler: 'expandNodeRECOMMEND'
+          },
+          {
+            btnName: ' 数据流关系',
+            fnHandler: 'expandNodeDATA_FLOW'
+          },
+          {
+            btnName: ' 上游父子关系',
+            fnHandler: 'expandNodeLAST_PARENT_CHILD'
+          },
+          {
+            btnName: '+其他关系',
+            fnHandler: 'expandNodeOTHERS'
+          },
+          {
+            btnName: ' 下游父子关系',
             fnHandler: 'expandNodeNEXT_PARENT_CHILD'
           }
         ],
         ColumnLineage: [
           {
-            btnName: '所有',
+            btnName: '+所有',
             fnHandler: 'expandNodeAll'
           },
           {
-            btnName: '主外键关系',
-            fnHandler: 'expandNodePK_FK'
+            btnName: '+推荐关系',
+            fnHandler: 'expandNodeRECOMMEND'
           },
           {
-            btnName: '数据流关系',
+            btnName: ' 数据流关系',
             fnHandler: 'expandNodeDATA_FLOW'
           },
           {
-            btnName: '逻辑物理关系',
-            fnHandler: 'expandNodeLOGICAL_PHISICAL'
-          },
-          {
-            btnName: '上游父子关系',
+            btnName: ' 上游父子关系',
             fnHandler: 'expandNodeLAST_PARENT_CHILD'
           },
-          {
-            btnName: '下游父子关系',
-            fnHandler: 'expandNodeNEXT_PARENT_CHILD'
-          }
-        ]
+        ],
       }
     }
   },
@@ -241,7 +331,7 @@ export default {
 
       if (contextData.node) {
         this.node = contextData.node;
-        this.nodeMenulists[3].children = this.expandDict[this.node.group];
+        this.nodeMenulists[2].children = this.expandDict[this.node.group];
         this.contextMenuData.menulists = this.nodeMenulists
       } else {
         this.link = contextData.link;
