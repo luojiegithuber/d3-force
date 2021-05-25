@@ -64,6 +64,7 @@ export function Node (node) {
   this.isExpandChildLinkMap = undefined; // 对象，保存扩散节点 id——node对象
   this.show = node.show; // 是否展示
   this.isShrink = false; // 是否处于收缩子节点状态
+  this.isBeShrinked = false; // 是否处于被父节点收缩的状态
 
   // ****************以下是路径记忆用的数据结构
   this.isRemember = false;
@@ -96,6 +97,7 @@ export function Edge (edge) {
   // ****************以下是增量布局测试用的数据结构
   this.show = edge.show; // 是否展示
   this.isShrink = false; // 是否处于收缩状态
+  this.isBeShrinked = false; // 是否处于被父节点收缩的状态
 
   this.isRemember = () => this.sourceNode.isRemember && this.targetNode.isRemember
 }
@@ -321,6 +323,18 @@ export function highlightNode (oldNodeG, newNodeG) {
     .attr('stroke', 'orange')
     .style('stroke-opacity', 1)
     .attr('stroke-width', '2.5px')
+}
+
+// 高亮节点 节点格式是d3.selection！！！
+export function highlightLink (oldLinkG, newLinkG) {
+  // 旧的得去掉高亮
+  if (oldLinkG) {
+    oldLinkG
+      .style('stroke-width', 1)
+  }
+
+  newLinkG
+    .style('stroke-width', 3)
 }
 export const colorin = '#00f';
 export const colorout = '#f00';

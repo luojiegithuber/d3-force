@@ -156,6 +156,11 @@ export default {
     this.bus.$on('pinNode', node => {
       this.layoutObj.pinNode(node)
     })
+
+    // 是否可视化非记忆节点
+    this.bus.$on('changeSwitchVisualize', checked => {
+      this.layoutObj.switchVisualizeRemember(checked)
+    })
   },
 
   watch: {

@@ -9,6 +9,7 @@
                     @expandNodeLOGICAL_PHISICAL="expandNode('LOGICAL_PHISICAL')"
                     @expandNodeLAST_PARENT_CHILD="expandNode('LAST_PARENT_CHILD')"
                     @expandNodeNEXT_PARENT_CHILD="expandNode('NEXT_PARENT_CHILD')"
+                    @linkRelationshipExpand="linkRelationshipExpand()"
   >
   </vue-context-menu>
 </template>
@@ -30,26 +31,38 @@ export default {
           y: null
         },
         // Menu options (菜单选项)
-        menulists: [{
-          fnHandler: 'checkNode', // Binding events(绑定事件)
-          btnName: '查看节点信息' // The name of the menu option (菜单名称)
-        }, {
-          fnHandler: 'shrinkNode',
-          btnName: '收缩'
-        },
-          // {
-          //   btnName: '隐藏'
-          // },
-        {
-          fnHandler: 'pinNode',
-          btnName: '钉住'
-        },
-        {
-          btnName: '关系扩展',
-          children: []
-        }]
+        menulists: []
+
       },
-      // 根据节点类型动态设置右键菜单项
+
+      nodeMenulists: [{
+        fnHandler: 'checkNode', // Binding events(绑定事件)
+        btnName: '查看节点信息' // The name of the menu option (菜单名称)
+      }, {
+        fnHandler: 'shrinkNode',
+        btnName: '收缩'
+      },
+        // {
+        //   btnName: '隐藏'
+        // },
+      {
+        fnHandler: 'pinNode',
+        btnName: '钉住'
+      },
+      {
+        btnName: '关系扩展',
+        children: []
+      }],
+
+      linkMenulists: [{
+        fnHandler: 'linkRelationshipExpand',
+        btnName: '关系扩展'
+      }, {
+        btnName: '隐藏'
+      }, {
+        btnName: '删除'
+      }],
+
       expandDict: {
         BusinessCatalog: [
           {
@@ -177,6 +190,11 @@ export default {
 
     },
 
+    // 边的关系扩展
+    linkRelationshipExpand () {
+      console.log('关系扩展边', this.link);
+    },
+
     expandNode (relationship_type = 'ALL') {
       this.callBackEndHandle();
       if (this.node.isExpandChildren) {
@@ -186,6 +204,7 @@ export default {
           node: this.node,
           newGraph: {
             nodes: this.node.isExpandChildNode,
+
             edges: this.node.isExpandChildLink
           }
         })
@@ -209,8 +228,8 @@ export default {
       this.bus.$emit('shrinkNode', this.node)
     },
 
-    setNodeContextMenu (nodeContextData, cbEnd) {
-      if (!nodeContextData) {
+    setNodeContextMenu (contextData, cbEnd) {
+      if (!contextData) {
         this.node = null;
         let x = -1000;
         let y = -1000;
@@ -219,14 +238,22 @@ export default {
         }
         return
       }
-      this.node = nodeContextData.node;
-      let x = nodeContextData.position[0];
-      let y = nodeContextData.position[1];
+
+      if (contextData.node) {
+        this.node = contextData.node;
+        this.nodeMenulists[3].children = this.expandDict[this.node.group];
+        this.contextMenuData.menulists = this.nodeMenulists
+      } else {
+        this.link = contextData.link;
+        this.contextMenuData.menulists = this.linkMenulists;
+      }
+
+      let x = contextData.position[0];
+      let y = contextData.position[1];
       // Get the current location
       this.contextMenuData.axis = {
         x, y
       };
-      this.contextMenuData.menulists[3].children = this.expandDict[this.node.group];
 
       this.callBackEndHandle = cbEnd;
     },

@@ -4,6 +4,9 @@
         <span style="font-weight:bold">● 布局选择：</span>
         <a-select :options="options" v-model="layoutId" :default-value="layoutId" style="width: 200px" @change="onChangeSelectLayout">
         </a-select>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <span style="font-weight:bold">● 是否可视化非记忆节点：</span>
+        <a-switch default-checked @change="onChangeSwitch" />
       </div>
       <div class="diagram-icons-list">
           <a-icon v-show="!isFullScreen" type="fullscreen" @click="canvasFullScreen" />
@@ -13,6 +16,7 @@
           <a-icon type="plus-square" @click="testGetNewData"/>
           <a-icon type="minus-square" />
           <a-icon type="question-circle" @click="testChangeDiagram"/>
+
       </div>
   </div>
 </template>
@@ -48,6 +52,10 @@ export default {
   },
 
   methods: {
+    onChangeSwitch (checked) {
+      this.bus.$emit('changeSwitchVisualize', checked)
+    },
+
     onChangeSelectLayout (layoutId) {
       // this.bus.$emit('changeGraphLayout', e.target.value)
       this.$store.dispatch('changeLayoutIdFun', layoutId)
