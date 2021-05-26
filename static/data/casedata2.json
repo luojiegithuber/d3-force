@@ -1,0 +1,2022 @@
+{
+  "case1": {
+    "case_id": "case1",
+    "case_key_nodes": [
+      "6d05a4d0-ee58-4d84-a2df-b335f9b1cc98",
+      "5b248538-1778-45db-8632-9779c030d2d4",
+      "46b25cb7-4743-4582-8c5f-02b619c685eb",
+      "e828f5e9-8a97-435c-bc35-5cdaf7ad7965"
+    ],
+    "relative_nodes_number": 28,
+    "relative_nodes_entity_type": {
+      "TABLE": 28
+    },
+    "relative_nodes_details": [
+      {
+        "guid": "a6c952a5-a8b7-4d6a-b19d-2e5b0a9c9946",
+        "display_text": "TABLE0",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user3",
+        "update_by": "user3",
+        "create_time": 1592931984199,
+        "update_time": 1592931984199,
+        "tags": [
+          "dli_cim"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "690ebdde-e37b-498c-8b2d-9b0601a750ca",
+        "display_text": "TABLE2",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user3",
+        "update_by": "user3",
+        "create_time": 1592068018519,
+        "update_time": 1592068018519,
+        "tags": [
+          "dli_cim"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "cd9078ff-f8c8-4db8-a619-d72300efa7c4",
+        "display_text": "TABLE9",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user3",
+        "update_by": "user3",
+        "create_time": 1585933488522,
+        "update_time": 1585933488522,
+        "tags": [
+          "dli_cim"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "1b3387df-cd3c-491e-895e-1a9515c029c1",
+        "display_text": "TABLE12",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user3",
+        "update_by": "user3",
+        "create_time": 1585847071348,
+        "update_time": 1585847071348,
+        "tags": [
+          "dli_cim"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "5b248538-1778-45db-8632-9779c030d2d4",
+        "display_text": "TABLE13",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user1",
+        "update_by": "user1",
+        "create_time": 1574960417966,
+        "update_time": 1574960417966,
+        "tags": [
+          "dli_cim"
+        ],
+        "classifications": [
+          "\u975e\u9690\u79c1"
+        ],
+        "attributes": null
+      },
+      {
+        "guid": "e828f5e9-8a97-435c-bc35-5cdaf7ad7965",
+        "display_text": "TABLE14",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user1",
+        "update_by": "user1",
+        "create_time": 1574960418202,
+        "update_time": 1574960418202,
+        "tags": [
+          "dli_cim"
+        ],
+        "classifications": [
+          "\u975e\u9690\u79c1"
+        ],
+        "attributes": null
+      },
+      {
+        "guid": "3e9b6a5a-348a-4ad2-8369-b2cdb580a877",
+        "display_text": "TABLE21",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user3",
+        "update_by": "user3",
+        "create_time": 1590426318841,
+        "update_time": 1590426318841,
+        "tags": [
+          "dli_cim"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "be26cf03-fc83-4741-be35-6873b54b7427",
+        "display_text": "TABLE28",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user4",
+        "update_by": "user4",
+        "create_time": 1585328556944,
+        "update_time": 1585328556944,
+        "tags": [
+          "dli_ccm"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "de8ba899-cb7c-47b6-aaad-cf25807d2f82",
+        "display_text": "TABLE30",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user1",
+        "update_by": "user1",
+        "create_time": 1574442007564,
+        "update_time": 1574442007564,
+        "tags": [
+          "dli_ccm"
+        ],
+        "classifications": [
+          "L2"
+        ],
+        "attributes": null
+      },
+      {
+        "guid": "2f27689c-0af1-4a8e-9d8f-5d4e9c1030d9",
+        "display_text": "TABLE31",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user1",
+        "update_by": "user1",
+        "create_time": 1574528407512,
+        "update_time": 1574528407512,
+        "tags": [
+          "dli_ccm"
+        ],
+        "classifications": [
+          "L2"
+        ],
+        "attributes": null
+      },
+      {
+        "guid": "e7ba7795-1a63-44bb-8798-7d3555565c9c",
+        "display_text": "TABLE52",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user10",
+        "update_by": "user10",
+        "create_time": 1575884483246,
+        "update_time": 1575884483246,
+        "tags": [
+          "dli_cim"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "bef1cd1b-626f-464f-b983-f20394654b1f",
+        "display_text": "TABLE54",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user1",
+        "update_by": "user1",
+        "create_time": 1591981291692,
+        "update_time": 1591981291692,
+        "tags": [
+          "dli_cim"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "35c3f255-25a2-4bd8-ab86-389fc64b785e",
+        "display_text": "TABLE58",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user3",
+        "update_by": "user3",
+        "create_time": 1585674200021,
+        "update_time": 1585674200021,
+        "tags": [
+          "dli_cim"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "2e13147d-c3cc-49bf-957f-5fc4bed25d6b",
+        "display_text": "TABLE59",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user1",
+        "update_by": "user1",
+        "create_time": 1587488626510,
+        "update_time": 1587488626510,
+        "tags": [
+          "dli_cim"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "791be062-cc83-4e37-be1d-90f10df8fba9",
+        "display_text": "TABLE60",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user1",
+        "update_by": "user1",
+        "create_time": 1592326945958,
+        "update_time": 1592326945958,
+        "tags": [
+          "dli_cim"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "bc92d746-1d01-4652-8fa1-c9170e2bd710",
+        "display_text": "TABLE62",
+        "type_name": "dli_table_view",
+        "entity_type": "TABLE",
+        "create_by": "user1",
+        "update_by": "user1",
+        "create_time": 1587488629025,
+        "update_time": 1587488629025,
+        "tags": [
+          "dli_cim",
+          "dli_cma"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "8b2be033-f1cd-476b-b98d-5d3d758e3f2d",
+        "display_text": "TABLE64",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user1",
+        "update_by": "user1",
+        "create_time": 1587488615413,
+        "update_time": 1587488615413,
+        "tags": [
+          "dli_cim"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "1cd70b5e-ff9b-4644-828c-8e6df3634d7e",
+        "display_text": "TABLE71",
+        "type_name": "dli_table_view",
+        "entity_type": "TABLE",
+        "create_by": "user1",
+        "update_by": "user1",
+        "create_time": 1587488561315,
+        "update_time": 1587488561315,
+        "tags": [
+          "dli_cim"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "840a561b-859d-4e52-9169-526c9bf0cbfd",
+        "display_text": "TABLE73",
+        "type_name": "dli_table_view",
+        "entity_type": "TABLE",
+        "create_by": "user1",
+        "update_by": "user1",
+        "create_time": 1587488558540,
+        "update_time": 1587488558540,
+        "tags": [
+          "dli_cim"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "e158cf27-5852-4a9c-9f45-b029a2071f63",
+        "display_text": "TABLE74",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user10",
+        "update_by": "user10",
+        "create_time": 1575884477773,
+        "update_time": 1575884477773,
+        "tags": [
+          "dli_cim"
+        ],
+        "classifications": [
+          "L2"
+        ],
+        "attributes": null
+      },
+      {
+        "guid": "b4f45336-5307-40ff-bab4-e5f458a4901f",
+        "display_text": "TABLE75",
+        "type_name": "dli_table_view",
+        "entity_type": "TABLE",
+        "create_by": "user1",
+        "update_by": "user1",
+        "create_time": 1589907758937,
+        "update_time": 1589907758937,
+        "tags": [
+          "dli_cim"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "fcc98a03-93d9-412a-a8c5-342223c26bf3",
+        "display_text": "TABLE80",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user1",
+        "update_by": "user1",
+        "create_time": 1587488563901,
+        "update_time": 1587488563901,
+        "tags": [
+          "dli_ccm"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "10a3cb79-420d-4a35-b336-94e0e3439ba9",
+        "display_text": "TABLE83",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user3",
+        "update_by": "user3",
+        "create_time": 1595005655552,
+        "update_time": 1595005655552,
+        "tags": [
+          "dli_cim"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "389469cb-ade0-403b-8c2a-4afb987799d2",
+        "display_text": "TABLE85",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user3",
+        "update_by": "user3",
+        "create_time": 1595005659054,
+        "update_time": 1595005659054,
+        "tags": [
+          "dli_cim"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "813c6109-5748-4441-a4cf-ca18d892f038",
+        "display_text": "TABLE90",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user10",
+        "update_by": "user10",
+        "create_time": 1575884478286,
+        "update_time": 1575884478286,
+        "tags": [
+          "dli_cim"
+        ],
+        "classifications": [
+          "L2"
+        ],
+        "attributes": null
+      },
+      {
+        "guid": "2dfc045e-6a5e-4364-aa2f-5c365fa1e1cf",
+        "display_text": "TABLE91",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user0",
+        "update_by": "user0",
+        "create_time": 1600880446058,
+        "update_time": 1600880446058,
+        "tags": [
+          "dli_cim"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "7c839015-f61e-4913-9ced-92a2fda53c6e",
+        "display_text": "TABLE95",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user4",
+        "update_by": "user4",
+        "create_time": 1615222836255,
+        "update_time": 1615222836255,
+        "tags": null,
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "f61b4cbe-6658-41ea-89b0-64a9292c6e83",
+        "display_text": "TABLE96",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user4",
+        "update_by": "user4",
+        "create_time": 1610384454639,
+        "update_time": 1610384454639,
+        "tags": [
+          "dli_cim"
+        ],
+        "classifications": null,
+        "attributes": null
+      }
+    ]
+  },
+  "case2": {
+    "case_id": "case2",
+    "case_key_nodes": [
+      "48b5dbb9-dafd-428a-864c-2b447ac0aaca",
+      "2aa15df9-b7ac-49db-b477-c861ba2cb420",
+      "6bc23964-61cf-4280-8943-a3ca6fe1a38e",
+      "9e4f9d9b-1d18-4adc-8035-f73edf6f2318"
+    ],
+    "relative_nodes_number": 7,
+    "relative_nodes_entity_type": {
+      "TABLE": 7
+    },
+    "relative_nodes_details": [
+      {
+        "guid": "9e4f9d9b-1d18-4adc-8035-f73edf6f2318",
+        "display_text": "TABLE6",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user1",
+        "update_by": "user1",
+        "create_time": 1576774829242,
+        "update_time": 1576774829242,
+        "tags": [
+          "dli_cim"
+        ],
+        "classifications": [
+          "\u975e\u9690\u79c1"
+        ],
+        "attributes": null
+      },
+      {
+        "guid": "2aa15df9-b7ac-49db-b477-c861ba2cb420",
+        "display_text": "TABLE10",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user1",
+        "update_by": "user1",
+        "create_time": 1574960417697,
+        "update_time": 1574960417697,
+        "tags": [
+          "dli_cim"
+        ],
+        "classifications": [
+          "\u975e\u9690\u79c1"
+        ],
+        "attributes": null
+      },
+      {
+        "guid": "6d941241-f451-41d4-a938-a5242dccfaf9",
+        "display_text": "TABLE55",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user10",
+        "update_by": "user10",
+        "create_time": 1575884481562,
+        "update_time": 1575884481562,
+        "tags": [
+          "dli_cim"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "e158cf27-5852-4a9c-9f45-b029a2071f63",
+        "display_text": "TABLE74",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user10",
+        "update_by": "user10",
+        "create_time": 1575884477773,
+        "update_time": 1575884477773,
+        "tags": [
+          "dli_cim"
+        ],
+        "classifications": [
+          "L2"
+        ],
+        "attributes": null
+      },
+      {
+        "guid": "f61b4cbe-6658-41ea-89b0-64a9292c6e83",
+        "display_text": "TABLE96",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user4",
+        "update_by": "user4",
+        "create_time": 1610384454639,
+        "update_time": 1610384454639,
+        "tags": [
+          "dli_cim"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "4b84676c-5a9c-4511-80b1-e8426331690c",
+        "display_text": "TABLE115",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user1",
+        "update_by": "user1",
+        "create_time": 1587488612864,
+        "update_time": 1587488612864,
+        "tags": [
+          "dli_cim"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "2b3db696-14f8-4186-b34a-40c624f73b31",
+        "display_text": "TABLE116",
+        "type_name": "dli_table_view",
+        "entity_type": "TABLE",
+        "create_by": "user1",
+        "update_by": "user1",
+        "create_time": 1587488621025,
+        "update_time": 1587488621025,
+        "tags": [
+          "dli_cim"
+        ],
+        "classifications": null,
+        "attributes": null
+      }
+    ]
+  },
+  "case3": {
+    "case_id": "case3",
+    "case_key_nodes": [
+      "1df77151-2262-4f02-a9c9-30c27e5d5847",
+      "a6c952a5-a8b7-4d6a-b19d-2e5b0a9c9946"
+    ],
+    "relative_nodes_number": 26,
+    "relative_nodes_entity_type": {
+      "TABLE": 26
+    },
+    "relative_nodes_details": [
+      {
+        "guid": "a6c952a5-a8b7-4d6a-b19d-2e5b0a9c9946",
+        "display_text": "TABLE0",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user3",
+        "update_by": "user3",
+        "create_time": 1592931984199,
+        "update_time": 1592931984199,
+        "tags": [
+          "dli_cim"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "690ebdde-e37b-498c-8b2d-9b0601a750ca",
+        "display_text": "TABLE2",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user3",
+        "update_by": "user3",
+        "create_time": 1592068018519,
+        "update_time": 1592068018519,
+        "tags": [
+          "dli_cim"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "cd9078ff-f8c8-4db8-a619-d72300efa7c4",
+        "display_text": "TABLE9",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user3",
+        "update_by": "user3",
+        "create_time": 1585933488522,
+        "update_time": 1585933488522,
+        "tags": [
+          "dli_cim"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "5b248538-1778-45db-8632-9779c030d2d4",
+        "display_text": "TABLE13",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user1",
+        "update_by": "user1",
+        "create_time": 1574960417966,
+        "update_time": 1574960417966,
+        "tags": [
+          "dli_cim"
+        ],
+        "classifications": [
+          "\u975e\u9690\u79c1"
+        ],
+        "attributes": null
+      },
+      {
+        "guid": "e828f5e9-8a97-435c-bc35-5cdaf7ad7965",
+        "display_text": "TABLE14",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user1",
+        "update_by": "user1",
+        "create_time": 1574960418202,
+        "update_time": 1574960418202,
+        "tags": [
+          "dli_cim"
+        ],
+        "classifications": [
+          "\u975e\u9690\u79c1"
+        ],
+        "attributes": null
+      },
+      {
+        "guid": "3e9b6a5a-348a-4ad2-8369-b2cdb580a877",
+        "display_text": "TABLE21",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user3",
+        "update_by": "user3",
+        "create_time": 1590426318841,
+        "update_time": 1590426318841,
+        "tags": [
+          "dli_cim"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "166b8379-d73c-4763-9b23-fe443fe7cc5a",
+        "display_text": "TABLE51",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user1",
+        "update_by": "user1",
+        "create_time": 1573812285441,
+        "update_time": 1573812285441,
+        "tags": [
+          "dli_cim"
+        ],
+        "classifications": [
+          "L2",
+          "\u975e\u9690\u79c1"
+        ],
+        "attributes": null
+      },
+      {
+        "guid": "e7ba7795-1a63-44bb-8798-7d3555565c9c",
+        "display_text": "TABLE52",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user10",
+        "update_by": "user10",
+        "create_time": 1575884483246,
+        "update_time": 1575884483246,
+        "tags": [
+          "dli_cim"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "742a18f2-2920-4c62-816d-f80488e89e7b",
+        "display_text": "TABLE53",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user1",
+        "update_by": "user1",
+        "create_time": 1573812268687,
+        "update_time": 1573812268687,
+        "tags": [
+          "dli_cim"
+        ],
+        "classifications": [
+          "\u975e\u9690\u79c1",
+          "L2"
+        ],
+        "attributes": null
+      },
+      {
+        "guid": "bef1cd1b-626f-464f-b983-f20394654b1f",
+        "display_text": "TABLE54",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user1",
+        "update_by": "user1",
+        "create_time": 1591981291692,
+        "update_time": 1591981291692,
+        "tags": [
+          "dli_cim"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "791be062-cc83-4e37-be1d-90f10df8fba9",
+        "display_text": "TABLE60",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user1",
+        "update_by": "user1",
+        "create_time": 1592326945958,
+        "update_time": 1592326945958,
+        "tags": [
+          "dli_cim"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "bc92d746-1d01-4652-8fa1-c9170e2bd710",
+        "display_text": "TABLE62",
+        "type_name": "dli_table_view",
+        "entity_type": "TABLE",
+        "create_by": "user1",
+        "update_by": "user1",
+        "create_time": 1587488629025,
+        "update_time": 1587488629025,
+        "tags": [
+          "dli_cim",
+          "dli_cma"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "8b2be033-f1cd-476b-b98d-5d3d758e3f2d",
+        "display_text": "TABLE64",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user1",
+        "update_by": "user1",
+        "create_time": 1587488615413,
+        "update_time": 1587488615413,
+        "tags": [
+          "dli_cim"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "1cd70b5e-ff9b-4644-828c-8e6df3634d7e",
+        "display_text": "TABLE71",
+        "type_name": "dli_table_view",
+        "entity_type": "TABLE",
+        "create_by": "user1",
+        "update_by": "user1",
+        "create_time": 1587488561315,
+        "update_time": 1587488561315,
+        "tags": [
+          "dli_cim"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "840a561b-859d-4e52-9169-526c9bf0cbfd",
+        "display_text": "TABLE73",
+        "type_name": "dli_table_view",
+        "entity_type": "TABLE",
+        "create_by": "user1",
+        "update_by": "user1",
+        "create_time": 1587488558540,
+        "update_time": 1587488558540,
+        "tags": [
+          "dli_cim"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "e158cf27-5852-4a9c-9f45-b029a2071f63",
+        "display_text": "TABLE74",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user10",
+        "update_by": "user10",
+        "create_time": 1575884477773,
+        "update_time": 1575884477773,
+        "tags": [
+          "dli_cim"
+        ],
+        "classifications": [
+          "L2"
+        ],
+        "attributes": null
+      },
+      {
+        "guid": "b4f45336-5307-40ff-bab4-e5f458a4901f",
+        "display_text": "TABLE75",
+        "type_name": "dli_table_view",
+        "entity_type": "TABLE",
+        "create_by": "user1",
+        "update_by": "user1",
+        "create_time": 1589907758937,
+        "update_time": 1589907758937,
+        "tags": [
+          "dli_cim"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "fcc98a03-93d9-412a-a8c5-342223c26bf3",
+        "display_text": "TABLE80",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user1",
+        "update_by": "user1",
+        "create_time": 1587488563901,
+        "update_time": 1587488563901,
+        "tags": [
+          "dli_ccm"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "10a3cb79-420d-4a35-b336-94e0e3439ba9",
+        "display_text": "TABLE83",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user3",
+        "update_by": "user3",
+        "create_time": 1595005655552,
+        "update_time": 1595005655552,
+        "tags": [
+          "dli_cim"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "389469cb-ade0-403b-8c2a-4afb987799d2",
+        "display_text": "TABLE85",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user3",
+        "update_by": "user3",
+        "create_time": 1595005659054,
+        "update_time": 1595005659054,
+        "tags": [
+          "dli_cim"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "813c6109-5748-4441-a4cf-ca18d892f038",
+        "display_text": "TABLE90",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user10",
+        "update_by": "user10",
+        "create_time": 1575884478286,
+        "update_time": 1575884478286,
+        "tags": [
+          "dli_cim"
+        ],
+        "classifications": [
+          "L2"
+        ],
+        "attributes": null
+      },
+      {
+        "guid": "2dfc045e-6a5e-4364-aa2f-5c365fa1e1cf",
+        "display_text": "TABLE91",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user0",
+        "update_by": "user0",
+        "create_time": 1600880446058,
+        "update_time": 1600880446058,
+        "tags": [
+          "dli_cim"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "7c839015-f61e-4913-9ced-92a2fda53c6e",
+        "display_text": "TABLE95",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user4",
+        "update_by": "user4",
+        "create_time": 1615222836255,
+        "update_time": 1615222836255,
+        "tags": null,
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "f61b4cbe-6658-41ea-89b0-64a9292c6e83",
+        "display_text": "TABLE96",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user4",
+        "update_by": "user4",
+        "create_time": 1610384454639,
+        "update_time": 1610384454639,
+        "tags": [
+          "dli_cim"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "2fafffc0-c79e-4c90-8994-a7e56a80d2b7",
+        "display_text": "TABLE97",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user6",
+        "update_by": "user6",
+        "create_time": 1615568452007,
+        "update_time": 1615568452007,
+        "tags": null,
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "db86ae52-db51-4862-95cb-1fcff013dd15",
+        "display_text": "TABLE100",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user6",
+        "update_by": "user6",
+        "create_time": 1607997775642,
+        "update_time": 1607997775642,
+        "tags": [
+          "dli_houyi"
+        ],
+        "classifications": null,
+        "attributes": null
+      }
+    ]
+  },
+  "case4": {
+    "case_id": "case4",
+    "case_key_nodes": [
+      "cfaffbc8-e6e9-4e18-9d1e-1f9015ae1608",
+      "5dcdeed4-e41b-453d-b367-469ea532f4a3"
+    ],
+    "relative_nodes_number": 2,
+    "relative_nodes_entity_type": {
+      "TABLE": 2
+    },
+    "relative_nodes_details": [
+      {
+        "guid": "5dcdeed4-e41b-453d-b367-469ea532f4a3",
+        "display_text": "TABLE15",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user3",
+        "update_by": "user3",
+        "create_time": 1592327248155,
+        "update_time": 1592327248155,
+        "tags": [
+          "dli_cim"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "791be062-cc83-4e37-be1d-90f10df8fba9",
+        "display_text": "TABLE60",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user1",
+        "update_by": "user1",
+        "create_time": 1592326945958,
+        "update_time": 1592326945958,
+        "tags": [
+          "dli_cim"
+        ],
+        "classifications": null,
+        "attributes": null
+      }
+    ]
+  },
+  "case5": {
+    "case_id": "case5",
+    "case_key_nodes": [],
+    "relative_nodes_number": 50,
+    "relative_nodes_entity_type": {
+      "TABLE": 50
+    },
+    "relative_nodes_details": [
+      {
+        "guid": "6fd4306d-f379-42f9-9fa1-fa0dbf650680",
+        "display_text": "TABLE0",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user0",
+        "update_by": "user0",
+        "create_time": 1597162238056,
+        "update_time": 1597162238056,
+        "tags": [
+          "\u6570\u636e\u5e94\u7528\u4e0e\u6570\u636e\u5206\u6790"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "a289721a-017d-460a-80df-0dce40712370",
+        "display_text": "TABLE1",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user0",
+        "update_by": "user0",
+        "create_time": 1597162241994,
+        "update_time": 1597162241994,
+        "tags": [
+          "\u6570\u636e\u5e94\u7528\u4e0e\u6570\u636e\u5206\u6790"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "c557a1a7-67be-4808-98ff-e1776dc928e6",
+        "display_text": "TABLE2",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user0",
+        "update_by": "user0",
+        "create_time": 1597149230611,
+        "update_time": 1597149230611,
+        "tags": [
+          "\u6570\u636e\u5e94\u7528\u4e0e\u6570\u636e\u5206\u6790"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "e7f52868-e72b-4ead-92c9-3bfebd9ebac5",
+        "display_text": "TABLE3",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user0",
+        "update_by": "user0",
+        "create_time": 1597150944390,
+        "update_time": 1597150944390,
+        "tags": [
+          "\u6570\u636e\u5e94\u7528\u4e0e\u6570\u636e\u5206\u6790"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "bc08558b-455c-43fa-a3a1-907428bc4a41",
+        "display_text": "TABLE4",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user0",
+        "update_by": "user0",
+        "create_time": 1597150951136,
+        "update_time": 1597150951136,
+        "tags": [
+          "\u6570\u636e\u5e94\u7528\u4e0e\u6570\u636e\u5206\u6790"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "e4f54276-343b-43ed-95e4-35668bf5a632",
+        "display_text": "TABLE5",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user0",
+        "update_by": "user0",
+        "create_time": 1597150947136,
+        "update_time": 1597150947136,
+        "tags": [
+          "\u6570\u636e\u5e94\u7528\u4e0e\u6570\u636e\u5206\u6790"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "2ad96cbf-7cb3-428b-b63e-0251c087cd89",
+        "display_text": "TABLE6",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user0",
+        "update_by": "user0",
+        "create_time": 1597150950626,
+        "update_time": 1597150950626,
+        "tags": [
+          "\u6570\u636e\u5e94\u7528\u4e0e\u6570\u636e\u5206\u6790"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "8dc3346d-0fca-4b60-b7b9-e5f6840add65",
+        "display_text": "TABLE7",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user0",
+        "update_by": "user0",
+        "create_time": 1597149239437,
+        "update_time": 1597149239437,
+        "tags": [
+          "\u6570\u636e\u5e94\u7528\u4e0e\u6570\u636e\u5206\u6790"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "dac54ebe-643f-4486-aee2-a710dca02ff2",
+        "display_text": "TABLE8",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user0",
+        "update_by": "user0",
+        "create_time": 1597162249554,
+        "update_time": 1597162249554,
+        "tags": [
+          "\u6570\u636e\u5e94\u7528\u4e0e\u6570\u636e\u5206\u6790"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "cfe222da-e2dc-4590-8745-034ac5be8eb4",
+        "display_text": "TABLE9",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user0",
+        "update_by": "user0",
+        "create_time": 1597162245057,
+        "update_time": 1597162245057,
+        "tags": [
+          "\u6570\u636e\u5e94\u7528\u4e0e\u6570\u636e\u5206\u6790"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "d1129905-3ab8-4fb9-b3ff-12f404a2a70e",
+        "display_text": "TABLE10",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user0",
+        "update_by": "user0",
+        "create_time": 1597150944911,
+        "update_time": 1597150944911,
+        "tags": [
+          "\u6570\u636e\u5e94\u7528\u4e0e\u6570\u636e\u5206\u6790"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "c6624f1f-1eba-4c41-80a2-96356edf54cb",
+        "display_text": "TABLE11",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user0",
+        "update_by": "user0",
+        "create_time": 1597162247153,
+        "update_time": 1597162247153,
+        "tags": [
+          "\u6570\u636e\u5e94\u7528\u4e0e\u6570\u636e\u5206\u6790"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "0eb22eb4-d373-470d-9430-37199e183629",
+        "display_text": "TABLE12",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user0",
+        "update_by": "user0",
+        "create_time": 1597162240045,
+        "update_time": 1597162240045,
+        "tags": [
+          "\u6570\u636e\u5e94\u7528\u4e0e\u6570\u636e\u5206\u6790"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "223aa9cb-6c5e-4874-825a-6f1efea34e95",
+        "display_text": "TABLE13",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user0",
+        "update_by": "user0",
+        "create_time": 1597162244752,
+        "update_time": 1597162244752,
+        "tags": [
+          "\u6570\u636e\u5e94\u7528\u4e0e\u6570\u636e\u5206\u6790"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "24a08a61-6fbf-4d86-853d-2b32cd788813",
+        "display_text": "TABLE14",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user1",
+        "update_by": "user1",
+        "create_time": 1600932859020,
+        "update_time": 1600932859020,
+        "tags": [
+          "\u6570\u636e\u7ba1\u7406"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "85382fe1-c09b-4ec1-9fcd-6663743e7923",
+        "display_text": "TABLE15",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user1",
+        "update_by": "user1",
+        "create_time": 1600915605778,
+        "update_time": 1600915605778,
+        "tags": [
+          "\u6570\u636e\u7ba1\u7406"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "12c45bf8-ee09-486d-b109-0af8044b114e",
+        "display_text": "TABLE16",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user1",
+        "update_by": "user1",
+        "create_time": 1600932853195,
+        "update_time": 1600932853195,
+        "tags": [
+          "\u6570\u636e\u7ba1\u7406"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "836b4991-d248-40a6-a5d7-bda0402b3e62",
+        "display_text": "TABLE17",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user0",
+        "update_by": "user0",
+        "create_time": 1597150950168,
+        "update_time": 1597150950168,
+        "tags": [
+          "\u6570\u636e\u5e94\u7528\u4e0e\u6570\u636e\u5206\u6790"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "6d216e23-26bf-4ba4-85a0-8d93d6ed59fe",
+        "display_text": "TABLE18",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user0",
+        "update_by": "user0",
+        "create_time": 1597150947401,
+        "update_time": 1597150947401,
+        "tags": [
+          "\u6570\u636e\u5e94\u7528\u4e0e\u6570\u636e\u5206\u6790"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "64bd11f2-5adf-45f2-81e8-1bb0064a5586",
+        "display_text": "TABLE19",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user0",
+        "update_by": "user0",
+        "create_time": 1597150948346,
+        "update_time": 1597150948346,
+        "tags": [
+          "\u6570\u636e\u5e94\u7528\u4e0e\u6570\u636e\u5206\u6790"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "797dccad-91d7-4d5b-a546-1089a63f57d6",
+        "display_text": "TABLE20",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user0",
+        "update_by": "user0",
+        "create_time": 1597162242821,
+        "update_time": 1597162242821,
+        "tags": [
+          "\u6570\u636e\u5e94\u7528\u4e0e\u6570\u636e\u5206\u6790"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "eeced430-576f-4d79-ad12-2a2da1bdc5fd",
+        "display_text": "TABLE21",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user0",
+        "update_by": "user0",
+        "create_time": 1597149239437,
+        "update_time": 1597149239437,
+        "tags": [
+          "\u6570\u636e\u5e94\u7528\u4e0e\u6570\u636e\u5206\u6790"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "e71ca9b9-aad9-48cb-a767-b9f1ce0a81bb",
+        "display_text": "TABLE22",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user1",
+        "update_by": "user1",
+        "create_time": 1600932875127,
+        "update_time": 1600932875127,
+        "tags": [
+          "\u6570\u636e\u7ba1\u7406"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "474d36a7-51ba-41b4-a9df-1b55f56c41fc",
+        "display_text": "TABLE23",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user1",
+        "update_by": "user1",
+        "create_time": 1600932870127,
+        "update_time": 1600932870127,
+        "tags": [
+          "\u6570\u636e\u7ba1\u7406"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "532fea2c-1393-456b-a9cc-07eb14b3085d",
+        "display_text": "TABLE24",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user1",
+        "update_by": "user1",
+        "create_time": 1600932854257,
+        "update_time": 1600932854257,
+        "tags": [
+          "\u6570\u636e\u7ba1\u7406"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "6df0e422-8dcc-4a95-8bf2-3c71037c79bc",
+        "display_text": "TABLE25",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user0",
+        "update_by": "user0",
+        "create_time": 1597149230806,
+        "update_time": 1597149230806,
+        "tags": [
+          "\u6570\u636e\u5e94\u7528\u4e0e\u6570\u636e\u5206\u6790"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "f72e5e7d-a203-4ddb-be8e-d33194a2d480",
+        "display_text": "TABLE26",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user0",
+        "update_by": "user0",
+        "create_time": 1597149231641,
+        "update_time": 1597149231641,
+        "tags": [
+          "\u6570\u636e\u5e94\u7528\u4e0e\u6570\u636e\u5206\u6790"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "5cbd0025-3b7e-48a8-8c2b-8175de51a555",
+        "display_text": "TABLE27",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user0",
+        "update_by": "user0",
+        "create_time": 1597149230636,
+        "update_time": 1597149230636,
+        "tags": [
+          "\u6570\u636e\u5e94\u7528\u4e0e\u6570\u636e\u5206\u6790"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "935dd6f1-26b7-4c88-abd2-ae09eeb35f87",
+        "display_text": "TABLE28",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user0",
+        "update_by": "user0",
+        "create_time": 1597149230842,
+        "update_time": 1597149230842,
+        "tags": [
+          "\u6570\u636e\u5e94\u7528\u4e0e\u6570\u636e\u5206\u6790"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "29e5b145-ba22-4db7-a99d-1b9816241d89",
+        "display_text": "TABLE29",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user0",
+        "update_by": "user0",
+        "create_time": 1597149240223,
+        "update_time": 1597149240223,
+        "tags": [
+          "\u6570\u636e\u5e94\u7528\u4e0e\u6570\u636e\u5206\u6790"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "704f3849-4af9-4cbf-992b-6f5279c1f46d",
+        "display_text": "TABLE30",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user0",
+        "update_by": "user0",
+        "create_time": 1597149233448,
+        "update_time": 1597149233448,
+        "tags": [
+          "\u6570\u636e\u5e94\u7528\u4e0e\u6570\u636e\u5206\u6790"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "d29a6310-8f9d-44bc-b264-cd55f81e0ba4",
+        "display_text": "TABLE31",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user0",
+        "update_by": "user0",
+        "create_time": 1597149232107,
+        "update_time": 1597149232107,
+        "tags": [
+          "\u6570\u636e\u5e94\u7528\u4e0e\u6570\u636e\u5206\u6790"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "c1a544db-eb26-4b49-a36c-109d76fcccdc",
+        "display_text": "TABLE32",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user0",
+        "update_by": "user0",
+        "create_time": 1597149231001,
+        "update_time": 1597149231001,
+        "tags": [
+          "\u6570\u636e\u5e94\u7528\u4e0e\u6570\u636e\u5206\u6790"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "a988c581-014a-457a-8f7f-7c0112d2396f",
+        "display_text": "TABLE33",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user0",
+        "update_by": "user0",
+        "create_time": 1597149230402,
+        "update_time": 1597149230402,
+        "tags": [
+          "\u6570\u636e\u5e94\u7528\u4e0e\u6570\u636e\u5206\u6790"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "23352a17-e7a8-4834-8eb3-63015b7f8665",
+        "display_text": "TABLE34",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user1",
+        "update_by": "user1",
+        "create_time": 1600932855272,
+        "update_time": 1600932855272,
+        "tags": [
+          "\u6570\u636e\u7ba1\u7406"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "bb85af73-3d0e-4827-88a9-f5be419bac32",
+        "display_text": "TABLE35",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user0",
+        "update_by": "user0",
+        "create_time": 1597149231505,
+        "update_time": 1597149231505,
+        "tags": [
+          "\u6570\u636e\u5e94\u7528\u4e0e\u6570\u636e\u5206\u6790"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "2ead83ad-d57e-41da-8801-19bc9e26856f",
+        "display_text": "TABLE36",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user0",
+        "update_by": "user0",
+        "create_time": 1597149238214,
+        "update_time": 1597149238214,
+        "tags": [
+          "\u6570\u636e\u5e94\u7528\u4e0e\u6570\u636e\u5206\u6790"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "85ce9816-216e-4b65-9a0e-a4707d81a197",
+        "display_text": "TABLE37",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user0",
+        "update_by": "user0",
+        "create_time": 1601395533520,
+        "update_time": 1601395533520,
+        "tags": [
+          "\u6570\u636e\u5e94\u7528\u4e0e\u6570\u636e\u5206\u6790"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "1732c1af-335c-4c6c-b6ef-33c79fd7bf99",
+        "display_text": "TABLE38",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user0",
+        "update_by": "user0",
+        "create_time": 1601395539085,
+        "update_time": 1601395539085,
+        "tags": [
+          "\u6570\u636e\u5e94\u7528\u4e0e\u6570\u636e\u5206\u6790"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "10dccc3b-e3a4-4a09-9ecf-c68f02aaf684",
+        "display_text": "TABLE39",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user0",
+        "update_by": "user0",
+        "create_time": 1601395537981,
+        "update_time": 1601395537981,
+        "tags": [
+          "\u6570\u636e\u5e94\u7528\u4e0e\u6570\u636e\u5206\u6790"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "225b9511-8f3a-4e88-9a40-b06506c6abc0",
+        "display_text": "TABLE40",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user0",
+        "update_by": "user0",
+        "create_time": 1601395540302,
+        "update_time": 1601395540302,
+        "tags": [
+          "\u6570\u636e\u5e94\u7528\u4e0e\u6570\u636e\u5206\u6790"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "ae62b8be-5834-4766-94a0-f5321cfd9ba3",
+        "display_text": "TABLE41",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user0",
+        "update_by": "user0",
+        "create_time": 1601395531785,
+        "update_time": 1601395531785,
+        "tags": [
+          "\u6570\u636e\u5e94\u7528\u4e0e\u6570\u636e\u5206\u6790"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "22b8b852-33c4-495c-b63e-24ba35777051",
+        "display_text": "TABLE42",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user0",
+        "update_by": "user0",
+        "create_time": 1597150945457,
+        "update_time": 1597150945457,
+        "tags": [
+          "\u6570\u636e\u5e94\u7528\u4e0e\u6570\u636e\u5206\u6790"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "deb6bb63-5730-447d-80bc-f6c58624a91b",
+        "display_text": "TABLE43",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user0",
+        "update_by": "user0",
+        "create_time": 1600931010948,
+        "update_time": 1600931010948,
+        "tags": [
+          "\u6570\u636e\u5e94\u7528\u4e0e\u6570\u636e\u5206\u6790"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "1e162aa1-47ee-4695-87dc-54de2cd8f8a3",
+        "display_text": "TABLE44",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user0",
+        "update_by": "user0",
+        "create_time": 1600505908438,
+        "update_time": 1600505908438,
+        "tags": [
+          "\u6570\u636e\u5e94\u7528\u548c\u6570\u636e\u5206\u6790"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "7a11d24c-579e-4275-aa5b-ea2c12e25d71",
+        "display_text": "TABLE45",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user0",
+        "update_by": "user0",
+        "create_time": 1600931034008,
+        "update_time": 1600931034008,
+        "tags": [
+          "\u6570\u636e\u5e94\u7528\u4e0e\u6570\u636e\u5206\u6790"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "341ac254-a35c-422e-90d0-1ef87538ed01",
+        "display_text": "TABLE46",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user1",
+        "update_by": "user1",
+        "create_time": 1600767671350,
+        "update_time": 1600767671350,
+        "tags": [
+          "\u6570\u636e\u5e94\u7528\u4e0e\u6570\u636e\u5206\u6790"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "899a7a35-50a7-4e3a-863d-43cc46fdf005",
+        "display_text": "TABLE47",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user7",
+        "update_by": "user7",
+        "create_time": 1607650117346,
+        "update_time": 1607650117346,
+        "tags": [
+          "NPS"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "ddc159a7-c07f-4d13-a2ea-bb52c6f7dbb9",
+        "display_text": "TABLE48",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user7",
+        "update_by": "user7",
+        "create_time": 1607650116910,
+        "update_time": 1607650116910,
+        "tags": [
+          "\u6570\u636e\u5e94\u7528\u548c\u6570\u636e\u5206\u6790"
+        ],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "1f595127-5735-4e64-8acd-86948342c2a7",
+        "display_text": "TABLE49",
+        "type_name": "dli_table_managed",
+        "entity_type": "TABLE",
+        "create_by": "user0",
+        "update_by": "user0",
+        "create_time": 1612321025288,
+        "update_time": 1612321025288,
+        "tags": [
+          "\u6570\u636e\u5e94\u7528\u548c\u6570\u636e\u5206\u6790"
+        ],
+        "classifications": null,
+        "attributes": null
+      }
+    ]
+  },
+  "case6": {
+    "case_id": "case6",
+    "case_key_nodes": [],
+    "relative_nodes_number": 17,
+    "relative_nodes_entity_type": {
+      "TABLE": 17
+    },
+    "relative_nodes_details": [
+      {
+        "guid": "table0",
+        "display_text": "table0",
+        "entity_type": "TABLE",
+        "type_name": "xxx-null",
+        "create_by": "xxx-null",
+        "update_by": "xxx-null",
+        "create_time": 1621432542831,
+        "update_time": 1621432542831,
+        "tags": [],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "table1",
+        "display_text": "table1",
+        "entity_type": "TABLE",
+        "type_name": "xxx-null",
+        "create_by": "xxx-null",
+        "update_by": "xxx-null",
+        "create_time": 1621432542831,
+        "update_time": 1621432542831,
+        "tags": [],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "table2",
+        "display_text": "table2",
+        "entity_type": "TABLE",
+        "type_name": "xxx-null",
+        "create_by": "xxx-null",
+        "update_by": "xxx-null",
+        "create_time": 1621432542831,
+        "update_time": 1621432542831,
+        "tags": [],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "table3",
+        "display_text": "table3",
+        "entity_type": "TABLE",
+        "type_name": "xxx-null",
+        "create_by": "xxx-null",
+        "update_by": "xxx-null",
+        "create_time": 1621432542831,
+        "update_time": 1621432542831,
+        "tags": [],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "table4",
+        "display_text": "table4",
+        "entity_type": "TABLE",
+        "type_name": "xxx-null",
+        "create_by": "xxx-null",
+        "update_by": "xxx-null",
+        "create_time": 1621432542831,
+        "update_time": 1621432542831,
+        "tags": [],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "table5",
+        "display_text": "table5",
+        "entity_type": "TABLE",
+        "type_name": "xxx-null",
+        "create_by": "xxx-null",
+        "update_by": "xxx-null",
+        "create_time": 1621432542831,
+        "update_time": 1621432542831,
+        "tags": [],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "table6",
+        "display_text": "table6",
+        "entity_type": "TABLE",
+        "type_name": "xxx-null",
+        "create_by": "xxx-null",
+        "update_by": "xxx-null",
+        "create_time": 1621432542831,
+        "update_time": 1621432542831,
+        "tags": [],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "table7",
+        "display_text": "table7",
+        "entity_type": "TABLE",
+        "type_name": "xxx-null",
+        "create_by": "xxx-null",
+        "update_by": "xxx-null",
+        "create_time": 1621432542831,
+        "update_time": 1621432542831,
+        "tags": [],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "table8",
+        "display_text": "table8",
+        "entity_type": "TABLE",
+        "type_name": "xxx-null",
+        "create_by": "xxx-null",
+        "update_by": "xxx-null",
+        "create_time": 1621432542831,
+        "update_time": 1621432542831,
+        "tags": [],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "table9",
+        "display_text": "table9",
+        "entity_type": "TABLE",
+        "type_name": "xxx-null",
+        "create_by": "xxx-null",
+        "update_by": "xxx-null",
+        "create_time": 1621432542831,
+        "update_time": 1621432542831,
+        "tags": [],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "table10",
+        "display_text": "table10",
+        "entity_type": "TABLE",
+        "type_name": "xxx-null",
+        "create_by": "xxx-null",
+        "update_by": "xxx-null",
+        "create_time": 1621432542831,
+        "update_time": 1621432542831,
+        "tags": [],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "table11",
+        "display_text": "table11",
+        "entity_type": "TABLE",
+        "type_name": "xxx-null",
+        "create_by": "xxx-null",
+        "update_by": "xxx-null",
+        "create_time": 1621432542831,
+        "update_time": 1621432542831,
+        "tags": [],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "table12",
+        "display_text": "table12",
+        "entity_type": "TABLE",
+        "type_name": "xxx-null",
+        "create_by": "xxx-null",
+        "update_by": "xxx-null",
+        "create_time": 1621432542831,
+        "update_time": 1621432542831,
+        "tags": [],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "table13",
+        "display_text": "table13",
+        "entity_type": "TABLE",
+        "type_name": "xxx-null",
+        "create_by": "xxx-null",
+        "update_by": "xxx-null",
+        "create_time": 1621432542831,
+        "update_time": 1621432542831,
+        "tags": [],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "table14",
+        "display_text": "table14",
+        "entity_type": "TABLE",
+        "type_name": "xxx-null",
+        "create_by": "xxx-null",
+        "update_by": "xxx-null",
+        "create_time": 1621432542831,
+        "update_time": 1621432542831,
+        "tags": [],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "table15",
+        "display_text": "table15",
+        "entity_type": "TABLE",
+        "type_name": "xxx-null",
+        "create_by": "xxx-null",
+        "update_by": "xxx-null",
+        "create_time": 1621432542831,
+        "update_time": 1621432542831,
+        "tags": [],
+        "classifications": null,
+        "attributes": null
+      },
+      {
+        "guid": "table16",
+        "display_text": "table16",
+        "entity_type": "TABLE",
+        "type_name": "xxx-null",
+        "create_by": "xxx-null",
+        "update_by": "xxx-null",
+        "create_time": 1621432542831,
+        "update_time": 1621432542831,
+        "tags": [],
+        "classifications": null,
+        "attributes": null
+      }
+    ]
+  }
+}

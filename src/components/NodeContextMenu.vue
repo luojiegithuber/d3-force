@@ -16,7 +16,7 @@
   </vue-context-menu>
 </template>
 <script>
-import {getNodeNextJump} from '@/request/api';// 导入我们的api接口
+import {getNodeNextJump, getRelationshipExpandEdge} from '@/request/api';// 导入我们的api接口
 export default {
   name: 'app',
   data () {
@@ -131,7 +131,7 @@ export default {
           {
             btnName: ' 逻辑物理关系',
             fnHandler: 'expandNodeLOGICAL_PHYSICAL'
-          },
+          }
         ],
         DATABASE: [
           {
@@ -210,7 +210,7 @@ export default {
           {
             btnName: ' 主外键关系',
             fnHandler: 'expandNodePK_FK'
-          },
+          }
         ],
         JOB: [
           {
@@ -268,8 +268,8 @@ export default {
           {
             btnName: ' 上游父子关系',
             fnHandler: 'expandNodeLAST_PARENT_CHILD'
-          },
-        ],
+          }
+        ]
       }
     }
   },
@@ -282,7 +282,16 @@ export default {
 
     // 边的关系扩展
     linkRelationshipExpand () {
-      console.log('关系扩展边', this.link);
+      getRelationshipExpandEdge(this.link.data).then(res => {
+        if (res.message === 'success') {
+          console.log('【扩散边】新取得的数据', res.content)
+          this.bus.$emit('addEdgeRelationshipExpand', {
+            link: this.link,
+            newGraph: res.content
+          })
+        }
+        // this.callBackEndHandle();
+      })
     },
 
     expandNode (relationship_type = 'ALL') {
@@ -294,7 +303,6 @@ export default {
           node: this.node,
           newGraph: {
             nodes: this.node.isExpandChildNode,
-
             edges: this.node.isExpandChildLink
           }
         })

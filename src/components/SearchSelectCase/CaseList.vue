@@ -52,7 +52,7 @@ export default {
   data () {
     return {
       caseData: [], // 搜索到的所有案例
-      caseIndex: 1, // 案例X
+      caseIndex: 6, // 案例X
       caseItem: {}, // 单个案例
       caseNodes: [], // 展示框用
       visible: true,
@@ -87,7 +87,7 @@ export default {
 
   created () {
     this.caseData = Object.values(caseData);
-    this.caseItem = this.caseData[this.caseIndex -1];
+    this.caseItem = this.caseData[this.caseIndex - 1];
     this.caseNodes = this.caseItem.relative_nodes_details
     // console.log(this.caseData)
   }

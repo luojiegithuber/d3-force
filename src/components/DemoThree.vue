@@ -161,6 +161,12 @@ export default {
     this.bus.$on('changeSwitchVisualize', checked => {
       this.layoutObj.switchVisualizeRemember(checked)
     })
+
+    // 关系扩展
+    this.bus.$on('addEdgeRelationshipExpand', obj => {
+      console.log('关系扩展后的新数据:', obj)
+      this.layoutObj.addEdgeRelationshipExpand(obj);
+    })
   },
 
   watch: {

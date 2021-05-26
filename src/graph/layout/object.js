@@ -100,6 +100,10 @@ export function Edge (edge) {
   this.isBeShrinked = false; // 是否处于被父节点收缩的状态
 
   this.isRemember = () => this.sourceNode.isRemember && this.targetNode.isRemember
+
+  // ****************以下是关系扩展需要的数据结构
+  this.relationshipTypeExpand = [];
+  this.isRelationshipExpand = false;
 }
 
 // 根据原始数据获取相应的连边，以放止污染原始数据

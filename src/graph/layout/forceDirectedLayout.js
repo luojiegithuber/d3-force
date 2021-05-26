@@ -200,6 +200,7 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
           console.log('右键事件执行结束')
           // pinNode(d)
           // filterNoRemember(d);
+          // switchVisualizeRemember();
           // restart();
         }) // 传递节点数据和鼠标点击所在位置，在这个位置显示右键菜单栏
         // filterNoRemember(d);
@@ -416,8 +417,8 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
 
       const newChildrenNodes = createNodes(newNodes, node => {
         allNodeByIdMap.set(node.id, node);
-        node.x = rootNode.x
-        node.y = rootNode.y
+        /*         node.x = rootNode.x
+        node.y = rootNode.y */
       });
       allNodes.push(...newChildrenNodes)
       rootNode.expandChildrenNode.push(...newChildrenNodes);
@@ -562,11 +563,40 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
     // restart();
   }
 
+  function addEdgeRelationshipExpand (obj) {
+    const handleLink = obj.link;
+    console.log(obj.newGraph.nodes.map(d => d.guid), obj.newGraph.edges.map(d => d.source + '——>' + d.target))
+
+    let newNodes = obj.newGraph.nodes.filter(node => !allNodeByIdMap.has(node.guid))
+    let newLinks = obj.newGraph.edges.filter(link => !allLinkByIdMap.has(link.guid))
+
+    newNodes = createNodes(newNodes, node => {
+      allNodeByIdMap.set(node.id, node)
+    });
+
+    newLinks = createEdges(newLinks, link => {
+      allLinkByIdMap.set(link.id, link)
+    });
+
+    allNodes.push(...newNodes)
+    allLinks.push(...newLinks)
+
+    console.log(newNodes.map(d => d.id), newLinks.map(d => d.sourceNode.id + '——>' + d.targetNode.id))
+
+    nodes.push(...newNodes);
+    links.push(...newLinks);
+
+    handleLink.isRelationshipExpand = true; // 表明关系扩展过了
+
+    restart();
+  }
+
   return {
     addNewGraph,
     shrinkNode,
     pinNode,
-    switchVisualizeRemember
+    switchVisualizeRemember,
+    addEdgeRelationshipExpand
   }
 }
 
