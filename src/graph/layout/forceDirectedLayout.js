@@ -390,9 +390,9 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
       const newNodes = newGraph.nodes.filter(node => {
         if (allNodeByIdMap.has(node.guid)) {
           // 如果已经存在，过滤
-          // 如果此时又被隐藏着，应当可视化出来
+          // 如果此时又被隐藏着，应当可视化出来,但是也别忘了边
           if (!allCurNodeByIdMap.has(node.guid)) {
-            console.log('重复且隐藏节点', allNodeByIdMap.get(node.guid))
+            // console.log('重复且隐藏节点', allNodeByIdMap.get(node.guid))
             nodes.push(allNodeByIdMap.get(node.guid))
             // rootNode.expandChildrenNode.push(allNodeByIdMap.get(node.guid))
           }
@@ -408,6 +408,10 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
       const newLinks = newGraph.edges.filter(link => {
         if (allLinkByIdMap.has(link.guid)) {
           // 如果已经存在，过滤
+          if (!allCurLinkByIdMap.has(link.guid)) {
+            // console.log('重复且隐藏边', allNodeByIdMap.get(node.guid))
+            links.push(allLinkByIdMap.get(link.guid))
+          }
           return false;
         } else {
           // allLinkByIdMap.set(link.guid, link);
@@ -563,12 +567,29 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
     // restart();
   }
 
+  // 边的关系扩展
   function addEdgeRelationshipExpand (obj) {
     const handleLink = obj.link;
-    console.log(obj.newGraph.nodes.map(d => d.guid), obj.newGraph.edges.map(d => d.source + '——>' + d.target))
+    // console.log(obj.newGraph.nodes.map(d => d.guid), obj.newGraph.edges.map(d => d.source + '——>' + d.target))
 
-    let newNodes = obj.newGraph.nodes.filter(node => !allNodeByIdMap.has(node.guid))
-    let newLinks = obj.newGraph.edges.filter(link => !allLinkByIdMap.has(link.guid))
+    let newNodes = obj.newGraph.nodes.filter(node => {
+      if (!allNodeByIdMap.has(node.guid)) {
+        return true
+      } else {
+        // 节点存在，但是由于不被记忆被隐藏的时候，应当调出来
+        if (!allCurNodeByIdMap.has(node.guid)) { nodes.push(allNodeByIdMap.get(node.guid)) }
+        return false
+      }
+    })
+    let newLinks = obj.newGraph.edges.filter(link => {
+      if (!allLinkByIdMap.has(link.guid)) {
+        return true
+      } else {
+        // 边存在，但是由于不被记忆被隐藏的时候，应当调出来
+        if (!allCurLinkByIdMap.has(link.guid)) { links.push(allLinkByIdMap.get(link.guid)) }
+        return false
+      }
+    })
 
     newNodes = createNodes(newNodes, node => {
       allNodeByIdMap.set(node.id, node)
@@ -581,14 +602,23 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
     allNodes.push(...newNodes)
     allLinks.push(...newLinks)
 
-    console.log(newNodes.map(d => d.id), newLinks.map(d => d.sourceNode.id + '——>' + d.targetNode.id))
+    // console.log(newNodes.map(d => d.id), newLinks.map(d => d.sourceNode.id + '——>' + d.targetNode.id))
 
     nodes.push(...newNodes);
     links.push(...newLinks);
 
-    handleLink.isRelationshipExpand = true; // 表明关系扩展过了
+    deleteLink(handleLink)
+
+    // handleLink.isRelationshipExpand = true; // 表明关系扩展过了
 
     restart();
+  }
+
+  function deleteLink (handleLink) {
+    links = links.filter(link => link.id !== handleLink.id) // 视图层 去掉操作边，永久消失
+    allLinks = allLinks.filter(link => link.id !== handleLink.id) // 全部数据 去掉操作边，永久消失
+    allCurLinkByIdMap.delete(handleLink.id)
+    allLinkByIdMap.delete(handleLink.id)
   }
 
   return {
