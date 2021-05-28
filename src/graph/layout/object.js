@@ -141,7 +141,7 @@ export function updateNodeSvg (nodeRootG, nodes, nodeDrawOption = {
   var g = nodeRootG.selectAll('g')
   g = g.data(nodes, function (d) { return d.id; });
   g.exit().remove();
-  g = g.enter().append('g').attr('class', 'node')
+  g = g.enter().append('g').attr('class', 'node').lower()
   drawCircle(g);
   drawText(g);
   g = g.merge(g);
@@ -303,14 +303,28 @@ export function drawLinkSvg (svg, links, linkDrawOption = {
 
 // 用于节点的移动
 // 传入参数————是d3.选择器下的node g对象
-export function moveNode (nodeG) {
-  nodeG.attr('transform', (d) => `translate(${d.x},${d.y})`);
+export function moveNode (nodeG, isTransition) {
+  if (isTransition) {
+    nodeG
+      .transition()
+      .duration(500)
+      .attr('transform', (d) => `translate(${d.x},${d.y})`);
+  } else {
+    nodeG.attr('transform', (d) => `translate(${d.x},${d.y})`);
+  }
 }
 
 // 用于边的移动
 // 传入参数————是d3.选择器下的边  path
-export function moveLink (linkG) {
-  linkG.attr('d', d => `M ${d.sourceNode.x} ${d.sourceNode.y} L ${d.targetNode.x} ${d.targetNode.y}`);
+export function moveLink (linkG, isTransition) {
+  if (isTransition) {
+    linkG
+      .transition()
+      .duration(500)
+      .attr('d', d => `M ${d.sourceNode.x} ${d.sourceNode.y} L ${d.targetNode.x} ${d.targetNode.y}`);
+  } else {
+    linkG.attr('d', d => `M ${d.sourceNode.x} ${d.sourceNode.y} L ${d.targetNode.x} ${d.targetNode.y}`);
+  }
 }
 
 // 高亮节点 节点格式是d3.selection！！！

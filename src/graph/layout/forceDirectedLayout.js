@@ -39,6 +39,8 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
 
   var isVisualizeNoRemember = true
 
+  var isTransitionStatus = false;
+
   // 当前操作节点
   var curNode = null;
   var curNodeSelection = null; // d3格式的节点
@@ -88,7 +90,11 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
     .on('end', tickEnd);
 
   function tickEnd () {
-
+    if (isTransitionStatus) {
+      moveNode(nodeG, true); // 对其中的g transform translate
+      moveLink(linkG, true); // 对path进行设置
+      isTransitionStatus = false;
+    }
   }
   simulation
     // .force('link', d3.forceLink(links).id(d => d.id).distance(d => linkDistance(d.group)))
@@ -155,6 +161,7 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
         // filterNoRemember(d)
 
         console.log('在力导向布局中选择了节点', d);
+        d3.select(this).raise()
         // 要让this有效别用箭头函数
         highlightNode(curNodeSelection, d3.select(this))
         curNode = d;
@@ -191,6 +198,7 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
       .on('contextmenu', function (e, d) {
         rememberNode(d)
         highlightNode(curNodeSelection, d3.select(this))
+        d3.select(this).raise()
         curNode = d;
         curNodeSelection = d3.select(this);
         callFunShowNodeContextMenu({
@@ -207,15 +215,14 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
         e.stopPropagation(); // 停止冒泡，避免被宏观监听到单击事件
         e.preventDefault(); // 阻止浏览器默认右键单击事件
       })
-    /*       .on('dblclick', function (e, d) {
-        e.stopPropagation(); // 停止冒泡
-      }) */
       .call(
         d3.drag()
           .on('start', dragstart)
           .on('drag', dragg)
           .on('end', dragend)
-      );
+      )
+    nodeG
+      .attr('transform', (d) => `translate(${d.x},${d.y})`)
 
     // 边绘制/更新
     linkG = updateLinkSvg(linkRootG, links)
@@ -235,16 +242,23 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
         e.stopPropagation(); // 停止冒泡，避免被宏观监听到单击事件
         e.preventDefault(); // 阻止浏览器默认右键单击事件
       })
-    // 仿真器更新
-    simulation.nodes(nodes);
+    linkG
+      .attr('d', d => `M ${d.sourceNode.x} ${d.sourceNode.y} L ${d.targetNode.x} ${d.targetNode.y}`)
+
     allCurNodeByIdMap = new Map(nodes.map(node => {
       node.isBeShrinked = false;
+      node.lastCoordinateX = node.x;
+      node.lastCoordinateY = node.y;
       return [node.id, node]
     }))
     allCurLinkByIdMap = new Map(links.map(link => {
       link.isBeShrinked = false;
+      link.lastCoordinateX = link.x;
+      link.lastCoordinateY = link.y;
       return [link.id, link]
     }))
+    // 仿真器更新
+    simulation.nodes(nodes);
     simulation.force('link').links(links)
     // 设置以下四个参数达到过渡动画效果
 
@@ -257,8 +271,14 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
 
   // 对点边位置进行移动更新
   function ticked () {
-    moveNode(nodeG); // 对其中的g transform translate
-    moveLink(linkG); // 对path进行设置
+    if (!isTransitionStatus) {
+      moveNode(nodeG); // 对其中的g transform translate
+      moveLink(linkG); // 对path进行设置
+    } else {
+      for (let i = 0; i < 10; i++) {
+        simulation.tick();
+      }
+    }
   }
 
   // 拖拽开始
@@ -418,11 +438,11 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
           return true
         }
       });
-
+      console.log('初始根节点位置', rootNode.x, rootNode.y)
       const newChildrenNodes = createNodes(newNodes, node => {
         allNodeByIdMap.set(node.id, node);
-        /*         node.x = rootNode.x
-        node.y = rootNode.y */
+        node.x = rootNode.x;
+        node.y = rootNode.y;
       });
       allNodes.push(...newChildrenNodes)
       rootNode.expandChildrenNode.push(...newChildrenNodes);
@@ -446,6 +466,7 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
 
       rootNode.isExpandChildren = true; // 表明扩展过了
       // expandNode(rootNode)
+      isTransitionStatus = true
 
       restart();
     }
