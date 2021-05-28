@@ -18,7 +18,7 @@ export const nodeColor = {
   COLUMN: '#8dd3c7',
   JOB: 'aquamarine',
   NODE: 'aqua',
-  ColumnLineage: 'pink',
+  ColumnLineage: 'pink'
 }
 
 // 节点标签编码
@@ -144,23 +144,23 @@ export function updateNodeSvg (nodeRootG, nodes, curNode, nodeDrawOption = {
   g.exit().remove();
   g = g.enter().append('g').attr('class', 'node').lower()
   drawCircle(g);
-  // drawText(g);
+  drawText(g);
   g = g.merge(g);
 
   g = nodeRootG.selectAll('g');
 
   function drawCircle (g) {
-    // g
-    //   .append('circle')
-    //   .attr('stroke', 'grey')
-    //   .style('stroke-opacity', 0.3)
-    //   .attr('stroke-width', '1px')
-    //   .attr('r', nodeDrawOption.nodeSize)
-    //   .style('fill', d => nodeDrawOption.isPackage ? nodeColor[d.data[nodeDrawOption.setColorByKey]] : nodeColor[d[nodeDrawOption.setColorByKey]])
-    //   .append('title')
-    //   .text(d => nodeDrawOption.isPackage ? d.data.label : d.label);
-
     g
+      .append('circle')
+      .attr('stroke', 'grey')
+      .style('stroke-opacity', 0.3)
+      .attr('stroke-width', '1px')
+      .attr('r', nodeDrawOption.nodeSize)
+      .style('fill', d => nodeDrawOption.isPackage ? nodeColor[d.data[nodeDrawOption.setColorByKey]] : nodeColor[d[nodeDrawOption.setColorByKey]])
+      .append('title')
+      .text(d => nodeDrawOption.isPackage ? d.data.label : d.label);
+
+    /*     g
       .append('circle')
       .attr('stroke', d => d.isNew ? 'none' : 'grey')
       .style('stroke-opacity', d => d.isNew ? 0 : 0.3)
@@ -170,7 +170,7 @@ export function updateNodeSvg (nodeRootG, nodes, curNode, nodeDrawOption = {
       .attr('cy', d => d.isNew ? curNode.y : d.y)
       .style('fill', d => d.isNew ? 'none' : nodeColor[d[nodeDrawOption.setColorByKey]])
       .append('title')
-      .text(d => nodeDrawOption.isPackage ? d.data.label : d.label);
+      .text(d => nodeDrawOption.isPackage ? d.data.label : d.label); */
   }
 
   function drawText (g) {
@@ -207,7 +207,7 @@ export function updateLinkSvg (linkRootG, links, linkDrawOption = {}) {
 
   g = g.enter().append('g').attr('class', 'link')
     .append('path')
-    .attr('stroke',d=> linkColor[d.group] || 'black' )
+    .attr('stroke', d => linkColor[d.group] || 'black')
     .style('stroke-width', 1)
     .attr('id', (d, i) => 'edgepath' + i)
     .attr('marker-end', 'url(#arrow)')

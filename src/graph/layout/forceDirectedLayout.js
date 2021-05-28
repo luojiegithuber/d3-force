@@ -221,6 +221,7 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
           .on('drag', dragg)
           .on('end', dragend)
       )
+    console.log(nodeG)
     nodeG
       .attr('transform', (d) => `translate(${d.x},${d.y})`)
 
