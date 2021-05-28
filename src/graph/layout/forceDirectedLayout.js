@@ -315,6 +315,7 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
       })
       rootNode.expandChildrenNode.forEach(childNode => {
         if (!allCurNodeByIdMap.has(childNode.id)) {
+          console.log('无记忆的隐藏节点')
           nodes.push(childNode);
           expandChildNode(childNode)
         }
@@ -373,7 +374,7 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
           })
           childNode.expandChildrenNode.forEach(childNode => {
             nodes.push(childNode);
-            expandChildNode(childNode)
+            // expandChildNode(childNode)
           })
         }
       } else {
@@ -412,9 +413,11 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
         if (allNodeByIdMap.has(node.guid)) {
           // 如果已经存在，过滤
           // 如果此时又被隐藏着，应当可视化出来,但是也别忘了边
+          rootNode.expandChildrenNode.push(allNodeByIdMap.get(node.guid))
           if (!allCurNodeByIdMap.has(node.guid)) {
             // console.log('重复且隐藏节点', allNodeByIdMap.get(node.guid))
             nodes.push(allNodeByIdMap.get(node.guid))
+
             // rootNode.expandChildrenNode.push(allNodeByIdMap.get(node.guid))
           }
 
@@ -428,6 +431,7 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
       // 同上
       const newLinks = newGraph.edges.filter(link => {
         if (allLinkByIdMap.has(link.guid)) {
+          rootNode.expandChildrenLink.push(allLinkByIdMap.get(link.guid))
           // 如果已经存在，过滤
           if (!allCurLinkByIdMap.has(link.guid)) {
             // console.log('重复且隐藏边', allNodeByIdMap.get(node.guid))
