@@ -41,10 +41,6 @@ export default {
         fnHandler: 'checkNode', // Binding events(绑定事件)
         btnName: '查看节点信息' // The name of the menu option (菜单名称)
       },
-      //   {
-      //   fnHandler: 'shrinkNode',
-      //   btnName: '收缩'
-      // },
         // {
         //   btnName: '隐藏'
         // },
@@ -55,6 +51,10 @@ export default {
       {
         btnName: '关系扩展',
         children: []
+      },
+      {
+        fnHandler: 'shrinkNode',
+        btnName: '收缩'
       }],
 
       linkMenulists: [{

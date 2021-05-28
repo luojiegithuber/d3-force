@@ -207,8 +207,8 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
         }, () => {
           console.log('右键事件执行结束')
           // pinNode(d)
-          // filterNoRemember(d);
-          // switchVisualizeRemember();
+          filterNoRemember(d);
+          // switchVisualizeRemember(false);
           // restart();
         }) // 传递节点数据和鼠标点击所在位置，在这个位置显示右键菜单栏
         // filterNoRemember(d);
@@ -221,7 +221,7 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
           .on('drag', dragg)
           .on('end', dragend)
       )
-    console.log(nodeG)
+
     nodeG
       .attr('transform', (d) => `translate(${d.x},${d.y})`)
 
@@ -556,8 +556,6 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
   // 操作某一个节点的时候，过滤掉不被记忆的节点和与之相互关联的边
   // 入参：正在被操作的节点
   function filterNoRemember (handelNode) {
-    noRememberNodes = [];
-    noRememberLinks = [];
     nodes = nodes.filter(node => {
       if (node.isRemember) {
         return true;
@@ -587,6 +585,8 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
     allCurNodeByIdMap = new Map(nodes.map(node => [node.id, node]))
     allCurLinkByIdMap = new Map(links.map(link => [link.id, link]))
     // restart();
+    noRememberNodes = [];
+    noRememberLinks = [];
   }
 
   // 边的关系扩展
