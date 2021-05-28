@@ -1,7 +1,7 @@
 import * as d3 from '../../../static/d3/d3.v6-6-0.min.js';
 
 // 连边颜色编码
-const linkColor = {
+export const linkColor = {
   PARENT_CHILD: '#9e79db',
   LOGICAL_PHYSICAL: '#8dd3c7',
   DATA_FLOW: '#009966',
@@ -9,7 +9,7 @@ const linkColor = {
 }
 
 // 节点颜色编码
-const nodeColor = {
+export const nodeColor = {
   BusinessCatalog: '#ff9e6d',
   BusinessLogicEntity: '#86cbff',
   BusinessLogicEntityColumn: '#c2e5a0',
@@ -19,10 +19,6 @@ const nodeColor = {
   JOB: 'aquamarine',
   NODE: 'aqua',
   ColumnLineage: 'pink',
-  AAAAAA: '#ff9e6d',
-  BBBBBB: '#86cbff',
-  CCCCCC: '#c2e5a0',
-  DDDDDD: '#fff686'
 }
 
 // 节点标签编码
@@ -69,6 +65,7 @@ export function Node (node) {
   // ****************以下是路径记忆用的数据结构
   this.isRemember = false;
   // 1.节点不被记忆不代表不能可视化，当处于被扩展状态的时候，不被记忆也是可以可视化的
+  this.isNew = true;
 }
 
 // 根据原始数据获取相应的节点，以放止污染原始数据
@@ -78,7 +75,7 @@ export function createNodes (originalNodes, callback) {
 
     allNodeByIdMap.set(node.id, node); // 用于辅助连边数据结构的构造
 
-    if (callback)callback(node, index);
+    if (callback) callback(node, index);
     return node;
   });
 }
@@ -104,6 +101,8 @@ export function Edge (edge) {
   // ****************以下是关系扩展需要的数据结构
   this.relationshipTypeExpand = [];
   this.isRelationshipExpand = false;
+
+  this.isNew = true;
 }
 
 // 根据原始数据获取相应的连边，以放止污染原始数据
@@ -131,7 +130,7 @@ export function NodeDrawOption (option) {
 }
 
 // 更新节点绘画
-export function updateNodeSvg (nodeRootG, nodes, nodeDrawOption = {
+export function updateNodeSvg (nodeRootG, nodes, curNode, nodeDrawOption = {
   nodeSize: 18,
   setColorByKey: 'group',
   isPackage: false
@@ -139,23 +138,37 @@ export function updateNodeSvg (nodeRootG, nodes, nodeDrawOption = {
   // nodes = nodes.filter(d => d.show);
 
   var g = nodeRootG.selectAll('g')
-  g = g.data(nodes, function (d) { return d.id; });
+  g = g.data(nodes, function (d) {
+    return d.id;
+  });
   g.exit().remove();
   g = g.enter().append('g').attr('class', 'node').lower()
   drawCircle(g);
-  drawText(g);
+  // drawText(g);
   g = g.merge(g);
 
   g = nodeRootG.selectAll('g');
 
   function drawCircle (g) {
+    // g
+    //   .append('circle')
+    //   .attr('stroke', 'grey')
+    //   .style('stroke-opacity', 0.3)
+    //   .attr('stroke-width', '1px')
+    //   .attr('r', nodeDrawOption.nodeSize)
+    //   .style('fill', d => nodeDrawOption.isPackage ? nodeColor[d.data[nodeDrawOption.setColorByKey]] : nodeColor[d[nodeDrawOption.setColorByKey]])
+    //   .append('title')
+    //   .text(d => nodeDrawOption.isPackage ? d.data.label : d.label);
+
     g
       .append('circle')
-      .attr('stroke', 'grey')
-      .style('stroke-opacity', 0.3)
-      .attr('stroke-width', '1px')
+      .attr('stroke', d => d.isNew ? 'none' : 'grey')
+      .style('stroke-opacity', d => d.isNew ? 0 : 0.3)
+      .attr('stroke-width', d => d.isNew ? '0px' : '1px')
       .attr('r', nodeDrawOption.nodeSize)
-      .style('fill', d => nodeDrawOption.isPackage ? nodeColor[d.data[nodeDrawOption.setColorByKey]] : nodeColor[d[nodeDrawOption.setColorByKey]])
+      .attr('cx', d => d.isNew ? curNode.x : d.x)
+      .attr('cy', d => d.isNew ? curNode.y : d.y)
+      .style('fill', d => d.isNew ? 'none' : nodeColor[d[nodeDrawOption.setColorByKey]])
       .append('title')
       .text(d => nodeDrawOption.isPackage ? d.data.label : d.label);
   }
@@ -187,12 +200,14 @@ export function updateLinkSvg (linkRootG, links, linkDrawOption = {}) {
   // links = links.filter(d => d.show);
 
   var g = linkRootG.selectAll('g')
-  g = g.data(links, function (d) { return d.id; });
+  g = g.data(links, function (d) {
+    return d.id;
+  });
   g.exit().remove();
 
   g = g.enter().append('g').attr('class', 'link')
     .append('path')
-    .attr('stroke', d => linkColor[d.group] || 'black')
+    .attr('stroke',d=> linkColor[d.group] || 'black' )
     .style('stroke-width', 1)
     .attr('id', (d, i) => 'edgepath' + i)
     .attr('marker-end', 'url(#arrow)')
@@ -231,7 +246,7 @@ export function drawNodeSvg (svg, nodes, nodeDrawOption = {
     .attr('dy', nodeDrawOption.nodeSize / 2)
     .attr('dx', -nodeDrawOption.nodeSize / 2)
     .text(d => nodeDrawOption.isPackage ? d.data.label : d.label)
-    // .text(d => nodeLabelScale(d.entity_type)); // 针对业务案例
+  // .text(d => nodeLabelScale(d.entity_type)); // 针对业务案例
 
   return nodeG
 }
@@ -354,6 +369,7 @@ export function highlightLink (oldLinkG, newLinkG) {
   newLinkG
     .style('stroke-width', 3)
 }
+
 export const colorin = '#00f';
 export const colorout = '#f00';
 export const colornone = '#ccc';
