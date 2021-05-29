@@ -89,7 +89,7 @@ export default {
     this.caseData = Object.values(caseData);
     this.caseItem = this.caseData[this.caseIndex - 1];
     this.caseNodes = this.caseItem.relative_nodes_details
-    // console.log(this.caseData)
+    this.selectNode(this.caseNodes[0]); // 默认展示第一项数据表
   }
 };
 </script>

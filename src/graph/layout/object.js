@@ -53,19 +53,91 @@ export function Node (node) {
   this.links = []; // Edge类型
 
   // ****************以下是增量布局测试用的数据结构
-  this.isExpandChildren = false; // 是否曾经扩展过
-  this.expandChildrenNode = []; // 增量后子节点Node类型放里面 ; 判断有没有子节点就要根据其数组长度来
-  this.isExpandChildNodeMap = {}; // 对象，保存扩散节点 id——node对象
-  this.expandChildrenLink = []; // 增量后子节点Node类型放里面 ; 判断有没有子节点就要根据其数组长度来
-  this.isExpandChildLinkMap = {}; // 对象，保存扩散节点 id——node对象
-  this.show = node.show; // 是否展示
-  this.isShrink = false; // 是否处于收缩子节点状态
-  this.isBeShrinked = false; // 是否处于被父节点收缩的状态
+  // 是否曾经扩展过
+  this.isExpandChildren = {
+    ALL:false,
+    RECOMMEND:false,
+    OTHERS:false,
+    DATA_FLOW:false,
+    PK_FK:false,
+    LAST_PARENT_CHILD:false,
+    LOGICAL_PHYSICAL:false,
+    NEXT_PARENT_CHILD:false,
+  };
+  // 增量后子节点Node类型放里面 ; 判断有没有子节点就要根据其数组长度来
+  this.expandChildrenNode = {
+    ALL:[],
+    RECOMMEND:[],
+    OTHERS:[],
+    DATA_FLOW:[],
+    PK_FK:[],
+    LAST_PARENT_CHILD:[],
+    LOGICAL_PHYSICAL:[],
+    NEXT_PARENT_CHILD:[],
+  };
+  // 对象，保存扩散节点 id——node对象
+  this.isExpandChildNodeMap = {
+    ALL:{},
+    RECOMMEND:{},
+    OTHERS:{},
+    DATA_FLOW:{},
+    PK_FK:{},
+    LAST_PARENT_CHILD:{},
+    LOGICAL_PHYSICAL:{},
+    NEXT_PARENT_CHILD:{},
+  };
+  // 增量后子节点Node类型放里面 ; 判断有没有子节点就要根据其数组长度来
+  this.expandChildrenLink = {
+    ALL:[],
+    RECOMMEND:[],
+    OTHERS:[],
+    DATA_FLOW:[],
+    PK_FK:[],
+    LAST_PARENT_CHILD:[],
+    LOGICAL_PHYSICAL:[],
+    NEXT_PARENT_CHILD:[],
+  };
+  // 对象，保存扩散节点 id——node对象
+  this.isExpandChildLinkMap = {
+    ALL:{},
+    RECOMMEND:{},
+    OTHERS:{},
+    DATA_FLOW:{},
+    PK_FK:{},
+    LAST_PARENT_CHILD:{},
+    LOGICAL_PHYSICAL:{},
+    NEXT_PARENT_CHILD:{},
+  };
+  this.default_show = node.default_show; // 是否默认展示
+  // 是否处于收缩子节点状态
+  this.isShrink = {
+    ALL:false,
+    RECOMMEND:false,
+    OTHERS:false,
+    DATA_FLOW:false,
+    PK_FK:false,
+    LAST_PARENT_CHILD:false,
+    LOGICAL_PHYSICAL:false,
+    NEXT_PARENT_CHILD:false,
+  };
+  // 是否处于被父节点收缩的状态
+  this.isBeShrinked = {
+    ALL:false,
+    RECOMMEND:false,
+    OTHERS:false,
+    DATA_FLOW:false,
+    PK_FK:false,
+    LAST_PARENT_CHILD:false,
+    LOGICAL_PHYSICAL:false,
+    NEXT_PARENT_CHILD:false,
+  };
 
   // ****************以下是路径记忆用的数据结构
-  this.isRemember = false;
+  this.isRemember = node.isRemember || false;
   // 1.节点不被记忆不代表不能可视化，当处于被扩展状态的时候，不被记忆也是可以可视化的
-  this.isNew = true;
+  // ****************以下是钉住/解锁用的数据结构
+  this.isPin = false;
+  this.isPinRemember = false;
 }
 
 // 根据原始数据获取相应的节点，以放止污染原始数据
@@ -92,17 +164,33 @@ export function Edge (edge) {
   this.targetNode = allNodeByIdMap.get(edge.target); // target节点详细信息
 
   // ****************以下是增量布局测试用的数据结构
-  this.show = edge.show; // 是否展示
-  this.isShrink = false; // 是否处于收缩状态
-  this.isBeShrinked = false; // 是否处于被父节点收缩的状态
+  this.default_show = edge.default_show; // 是否展示
+  this.isShrink = {
+    ALL:false,
+    RECOMMEND:false,
+    OTHERS:false,
+    DATA_FLOW:false,
+    PK_FK:false,
+    LAST_PARENT_CHILD:false,
+    LOGICAL_PHYSICAL:false,
+    NEXT_PARENT_CHILD:false,
+  }; // 是否处于收缩状态
+  this.isBeShrinked = {
+    ALL:false,
+    RECOMMEND:false,
+    OTHERS:false,
+    DATA_FLOW:false,
+    PK_FK:false,
+    LAST_PARENT_CHILD:false,
+    LOGICAL_PHYSICAL:false,
+    NEXT_PARENT_CHILD:false,
+  }; // 是否处于被父节点收缩的状态
 
   this.isRemember = () => this.sourceNode.isRemember && this.targetNode.isRemember
 
   // ****************以下是关系扩展需要的数据结构
   this.relationshipTypeExpand = [];
   this.isRelationshipExpand = false;
-
-  this.isNew = true;
 }
 
 // 根据原始数据获取相应的连边，以放止污染原始数据
@@ -159,18 +247,6 @@ export function updateNodeSvg (nodeRootG, nodes, curNode, nodeDrawOption = {
       .style('fill', d => nodeDrawOption.isPackage ? nodeColor[d.data[nodeDrawOption.setColorByKey]] : nodeColor[d[nodeDrawOption.setColorByKey]])
       .append('title')
       .text(d => nodeDrawOption.isPackage ? d.data.label : d.label);
-
-    /*     g
-      .append('circle')
-      .attr('stroke', d => d.isNew ? 'none' : 'grey')
-      .style('stroke-opacity', d => d.isNew ? 0 : 0.3)
-      .attr('stroke-width', d => d.isNew ? '0px' : '1px')
-      .attr('r', nodeDrawOption.nodeSize)
-      .attr('cx', d => d.isNew ? curNode.x : d.x)
-      .attr('cy', d => d.isNew ? curNode.y : d.y)
-      .style('fill', d => d.isNew ? 'none' : nodeColor[d[nodeDrawOption.setColorByKey]])
-      .append('title')
-      .text(d => nodeDrawOption.isPackage ? d.data.label : d.label); */
   }
 
   function drawText (g) {
@@ -322,7 +398,7 @@ export function moveNode (nodeG, isTransition) {
   if (isTransition) {
     nodeG
       .transition()
-      .duration(500)
+      .duration(800)
       .attr('transform', (d) => `translate(${d.x},${d.y})`);
   } else {
     nodeG.attr('transform', (d) => `translate(${d.x},${d.y})`);
@@ -335,7 +411,7 @@ export function moveLink (linkG, isTransition) {
   if (isTransition) {
     linkG
       .transition()
-      .duration(500)
+      .duration(800)
       .attr('d', d => `M ${d.sourceNode.x} ${d.sourceNode.y} L ${d.targetNode.x} ${d.targetNode.y}`);
   } else {
     linkG.attr('d', d => `M ${d.sourceNode.x} ${d.sourceNode.y} L ${d.targetNode.x} ${d.targetNode.y}`);
@@ -360,14 +436,14 @@ export function highlightNode (oldNodeG, newNodeG) {
 
 // 高亮节点 节点格式是d3.selection！！！
 export function highlightLink (oldLinkG, newLinkG) {
-  // 旧的得去掉高亮
-  if (oldLinkG) {
-    oldLinkG
-      .style('stroke-width', 1)
-  }
-
-  newLinkG
-    .style('stroke-width', 3)
+  // // 旧的得去掉高亮
+  // if (oldLinkG) {
+  //   oldLinkG
+  //     .style('stroke-width', 1)
+  // }
+  //
+  // newLinkG
+  //   .style('stroke-width', 3)
 }
 
 export const colorin = '#00f';

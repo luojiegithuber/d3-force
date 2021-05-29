@@ -47,7 +47,7 @@ export default {
   data () {
     return {
       options: options,
-      layoutId: 10
+      layoutId: 11
     }
   },
 
