@@ -304,6 +304,7 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
 
   // 已经扩展过的节点再次扩展时，直接利用缓存
   function expandNode (rootNode) {
+    isTransitionStatus = true;
     if (!rootNode.isShrink) {
       console.log('节点已经是扩展状态')
       // 已经是扩展状态却还需要扩展的原因还有一个——————暴露无记忆子节点！！！！
@@ -315,7 +316,8 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
       })
       rootNode.expandChildrenNode.forEach(childNode => {
         if (!allCurNodeByIdMap.has(childNode.id)) {
-          console.log('无记忆的隐藏节点')
+          childNode.x = rootNode.x
+          childNode.y = rootNode.y
           nodes.push(childNode);
           expandChildNode(childNode)
         }
@@ -443,7 +445,7 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
           return true
         }
       });
-      console.log('初始根节点位置', rootNode.x, rootNode.y)
+      // console.log('初始根节点位置', rootNode.x, rootNode.y)
       const newChildrenNodes = createNodes(newNodes, node => {
         allNodeByIdMap.set(node.id, node);
         node.x = rootNode.x;
@@ -546,9 +548,13 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
 
   // 钉住
   function pinNode (handelNode) {
-    // console.log('节点被钉住', handelNode);
     handelNode.fx = handelNode.x;
     handelNode.fy = handelNode.y;
+    /*     handelNode.expandChildrenNode.forEach(childNode => {
+      rememberNode(childNode)
+      childNode.fx = childNode.x;
+      childNode.fy = childNode.y;
+    }) */
   }
 
   // 记住一个节点和其相关节点
