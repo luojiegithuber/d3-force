@@ -55,9 +55,9 @@ export function Node (node) {
   // ****************以下是增量布局测试用的数据结构
   this.isExpandChildren = false; // 是否曾经扩展过
   this.expandChildrenNode = []; // 增量后子节点Node类型放里面 ; 判断有没有子节点就要根据其数组长度来
-  this.isExpandChildNodeMap = undefined; // 对象，保存扩散节点 id——node对象
+  this.isExpandChildNodeMap = {}; // 对象，保存扩散节点 id——node对象
   this.expandChildrenLink = []; // 增量后子节点Node类型放里面 ; 判断有没有子节点就要根据其数组长度来
-  this.isExpandChildLinkMap = undefined; // 对象，保存扩散节点 id——node对象
+  this.isExpandChildLinkMap = {}; // 对象，保存扩散节点 id——node对象
   this.show = node.show; // 是否展示
   this.isShrink = false; // 是否处于收缩子节点状态
   this.isBeShrinked = false; // 是否处于被父节点收缩的状态

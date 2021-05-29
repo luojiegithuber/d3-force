@@ -306,7 +306,7 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
   function expandNode (rootNode) {
     isTransitionStatus = true;
     if (!rootNode.isShrink) {
-      console.log('节点已经是扩展状态')
+      console.log('节点已经是扩展状态', rootNode)
       // 已经是扩展状态却还需要扩展的原因还有一个——————暴露无记忆子节点！！！！
       // expandChildNoRememberNode1(rootNode)
       rootNode.expandChildrenLink.forEach(childLink => {
@@ -319,7 +319,7 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
           childNode.x = rootNode.x
           childNode.y = rootNode.y
           nodes.push(childNode);
-          expandChildNode(childNode)
+          // expandChildNode(childNode)
         }
       })
       restart();
@@ -389,7 +389,7 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
           childNode.expandChildrenNode.forEach(childNode => {
             if (childNode.isRemember) {
               nodes.push(childNode);
-              expandChildNode(childNode)
+              // expandChildNode(childNode)
             }
           })
         }
@@ -451,23 +451,24 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
         node.x = rootNode.x;
         node.y = rootNode.y;
       });
-      allNodes.push(...newChildrenNodes)
-      rootNode.expandChildrenNode.push(...newChildrenNodes);
-      rootNode.isExpandChildNodeMap = {}; // 根据id判断是不是子节点
-      rootNode.expandChildrenNode.forEach(d => {
+
+      // rootNode.expandChildrenNode.push(...newChildrenNodes);
+      /* newChildrenNodes.forEach(d => {
         rootNode.isExpandChildNodeMap[d.id] = d;
-      });
+      }); */
 
       const newChildrenLinks = createEdges(newLinks, link => {
         allLinkByIdMap.set(link.id, link);
       });
-      allLinks.push(...newChildrenLinks)
-      rootNode.expandChildrenLink.push(...newChildrenLinks);
-      rootNode.isExpandChildLinkMap = {}; // 根据id判断是不是子线
-      rootNode.expandChildrenLink.forEach(d => {
-        rootNode.isExpandChildLinkMap[d.id] = d;
+
+      // rootNode.expandChildrenLink.push(...newChildrenLinks);
+      newChildrenLinks.forEach(d => {
+        /*         rootNode.isExpandChildLinkMap[d.id] = d; */
+        linkTwoNodes(d.sourceNode, d.targetNode, d)
       });
 
+      allNodes.push(...newChildrenNodes)
+      allLinks.push(...newChildrenLinks)
       nodes.push(...newChildrenNodes);
       links.push(...newChildrenLinks);
 
@@ -602,7 +603,29 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
   // 边的关系扩展
   function addEdgeRelationshipExpand (obj) {
     const handleLink = obj.link;
+    // const nodeA = handleLink.sourceNode;
+    // const nodeB = handleLink.targetNode;
+    isTransitionStatus = true;
     // console.log(obj.newGraph.nodes.map(d => d.guid), obj.newGraph.edges.map(d => d.source + '——>' + d.target))
+
+    // 关系扩展后的z节点肯定有所属的数据表, 【一定是 T 指向 z】
+    // 因此我们可以设置初始位置
+
+    // 根据这条边处理的事务：T增加z节点，新增z的初始位置设置为T处
+    function handleTzLink (link) {
+      if (link.sourceNode.group === 'TABLE') {
+        const TableNode = link.sourceNode;
+        const zNode = link.targetNode;
+
+        if (!TableNode.isExpandChildNodeMap[zNode.id]) {
+          // 互相成为彼此的下一跳节点
+          linkTwoNodes(TableNode, zNode, handleLink)
+
+          zNode.x = TableNode.x
+          zNode.y = TableNode.y
+        }
+      }
+    }
 
     let newNodes = obj.newGraph.nodes.filter(node => {
       if (!allNodeByIdMap.has(node.guid)) {
@@ -628,6 +651,7 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
     });
 
     newLinks = createEdges(newLinks, link => {
+      handleTzLink(link)
       allLinkByIdMap.set(link.id, link)
     });
 
@@ -651,6 +675,21 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
     allLinks = allLinks.filter(link => link.id !== handleLink.id) // 全部数据 去掉操作边，永久消失
     allCurLinkByIdMap.delete(handleLink.id)
     allLinkByIdMap.delete(handleLink.id)
+  }
+
+  // 互相成为彼此的下一跳
+  function linkTwoNodes (nodeA, nodeB, link) {
+    if (!nodeA.isExpandChildNodeMap[nodeB.id]) {
+      nodeA.expandChildrenNode.push(nodeB);
+      nodeA.isExpandChildNodeMap[nodeB.id] = nodeB;
+      nodeA.expandChildrenLink.push(link);
+      nodeA.isExpandChildLinkMap[link.id] = link;
+
+      nodeB.expandChildrenNode.push(nodeA);
+      nodeB.isExpandChildNodeMap[nodeA.id] = nodeA;
+      nodeB.expandChildrenLink.push(link);
+      nodeB.isExpandChildLinkMap[link.id] = link;
+    }
   }
 
   return {
