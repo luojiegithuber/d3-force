@@ -163,9 +163,9 @@
       })
 
       // 关系扩展
-      this.bus.$on('addEdgeRelationshipExpand', obj => {
+      this.bus.$on('addEdgeRelationshipExpand', (obj,params) => {
         // console.log('关系扩展后的新数据:', obj)
-        this.layoutObj.addEdgeRelationshipExpand(obj);
+        this.layoutObj.addEdgeRelationshipExpand(obj,params);
       })
     },
 
@@ -194,7 +194,7 @@
         getNodeNextJump(node,'RECOMMEND').then(res => {
           if (res.message === 'success') {
             // 将所选择的左侧节点进行路径记忆
-            res.content.nodes.forEach(d => {d.isRemember = d.guid === node.id});
+            res.content.nodes.forEach(d => {d.isRemember = d.guid === node.guid});
 
             this.originData = res.content;
             this.changeLayout(this.$store.state.layoutId);

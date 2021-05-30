@@ -121,23 +121,16 @@ export function Node (node) {
     NEXT_PARENT_CHILD:false,
   };
   // 是否处于被父节点收缩的状态
-  this.isBeShrinked = {
-    ALL:false,
-    RECOMMEND:false,
-    OTHERS:false,
-    DATA_FLOW:false,
-    PK_FK:false,
-    LAST_PARENT_CHILD:false,
-    LOGICAL_PHYSICAL:false,
-    NEXT_PARENT_CHILD:false,
-  };
+  this.isBeShrinked = false;
 
   // ****************以下是路径记忆用的数据结构
   this.isRemember = node.isRemember || false;
   // 1.节点不被记忆不代表不能可视化，当处于被扩展状态的时候，不被记忆也是可以可视化的
   // ****************以下是钉住/解锁用的数据结构
-  this.isPin = false;
+  this.isPinStatus = false;
   this.isPinRemember = false;
+  // ****************以下是边主外键扩展用的数据结构
+  this.pk_fk_group_id = node.pk_fk_group_id || null;
 }
 
 // 根据原始数据获取相应的节点，以放止污染原始数据
@@ -175,18 +168,9 @@ export function Edge (edge) {
     LOGICAL_PHYSICAL:false,
     NEXT_PARENT_CHILD:false,
   }; // 是否处于收缩状态
-  this.isBeShrinked = {
-    ALL:false,
-    RECOMMEND:false,
-    OTHERS:false,
-    DATA_FLOW:false,
-    PK_FK:false,
-    LAST_PARENT_CHILD:false,
-    LOGICAL_PHYSICAL:false,
-    NEXT_PARENT_CHILD:false,
-  }; // 是否处于被父节点收缩的状态
+  this.isBeShrinked = false; // 是否处于被父节点收缩的状态
 
-  this.isRemember = () => this.sourceNode.isRemember && this.targetNode.isRemember
+  this.isRemember = () => (this.sourceNode.isRemember||this.sourceNode.isPinRemember) && (this.targetNode.isRemember||this.targetNode.isPinRemember)
 
   // ****************以下是关系扩展需要的数据结构
   this.relationshipTypeExpand = [];

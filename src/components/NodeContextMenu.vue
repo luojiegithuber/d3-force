@@ -11,7 +11,7 @@
                     @expandNodeLOGICAL_PHYSICAL="expandNode('LOGICAL_PHYSICAL')"
                     @expandNodeLAST_PARENT_CHILD="expandNode('LAST_PARENT_CHILD')"
                     @expandNodeNEXT_PARENT_CHILD="expandNode('NEXT_PARENT_CHILD')"
-                    @linkRelationshipExpand="linkRelationshipExpand()"
+                    @expandLinkPK_FK="expandLink('PK_FK')"
   >
   </vue-context-menu>
 </template>
@@ -22,6 +22,7 @@
     data () {
       return {
         node: null, // 当前操作的节点
+        link: null, // 当前操作的边
         lastExpandNodeId: null,  // 上一次扩展操作的节点
         lastExpandEdgeId: null,  // 上一次扩展操作的节点
         lastRelationshipType: null, // 上一次扩展操作的类型
@@ -40,31 +41,57 @@
 
         },
 
-        nodeMenulists: [{
-          fnHandler: 'checkNode', // Binding events(绑定事件)
-          btnName: '查看节点信息' // The name of the menu option (菜单名称)
+        nodeMenulists: {
+          COMMON: [
+            {
+              fnHandler: 'checkNode', // Binding events(绑定事件)
+              btnName: '查看节点信息' // The name of the menu option (菜单名称)
+            },
+            {
+              btnName: '关系扩展',
+              children: []
+            },
+            {
+              fnHandler: 'pinNode',
+              btnName: '钉住'
+            },
+            {
+              btnName: '隐藏',
+            }],
+          COLUMN: [
+            {
+              fnHandler: 'checkNode', // Binding events(绑定事件)
+              btnName: '查看节点信息' // The name of the menu option (菜单名称)
+            },
+            {
+              btnName: '关系扩展',
+              children: []
+            },
+            {
+              btnName: '隐藏',
+            }]
         },
-          {
-            btnName: '关系扩展',
-            children: []
-          },
-          {
-            fnHandler: 'pinNode',
-            btnName: '隐藏',
-          },
-          {
-            fnHandler: 'pinNode',
-            btnName: '钉住'
-          }],
 
-        linkMenulists: [{
-          fnHandler: 'linkRelationshipExpand',
-          btnName: '关系扩展'
-        }, {
-          btnName: '隐藏'
-        }, {
-          btnName: '删除'
-        }],
+        linkMenulists: {
+          COMMON: [
+            {
+              btnName: '隐藏'
+            }, {
+              btnName: '删除'
+            }
+          ],
+          PK_FK: [
+            {
+              fnHandler: 'expandLinkPK_FK',
+              btnName: '关系扩展'
+            }, {
+              btnName: '隐藏'
+            }, {
+              btnName: '删除'
+            }
+          ],
+
+        },
 
         expandDict: {
           BusinessCatalog: [
@@ -281,14 +308,14 @@
       },
 
       // 边的关系扩展
-      linkRelationshipExpand () {
+      expandLink (relationship_type = 'PK_FK') {
         getRelationshipExpandEdge(this.link.data).then(res => {
           if (res.message === 'success') {
             console.log('【扩散边】新取得的数据', res.content)
             this.bus.$emit('addEdgeRelationshipExpand', {
               link: this.link,
               newGraph: res.content
-            })
+            }, {relationship_type: relationship_type})
           }
           // this.callBackEndHandle();
         })
@@ -296,10 +323,10 @@
 
       expandNode (relationship_type = 'RECOMMEND') {
         this.callBackEndHandle();
-        if (this.lastExpandNodeId === this.node.id && this.lastRelationshipType === relationship_type) {
-          console.log(`重复上次请求操作，不需要重新渲染图`);
-          return;
-        }
+        // if (this.lastExpandNodeId === this.node.id && this.lastRelationshipType === relationship_type) {
+        //   console.log(`重复上次请求操作，不需要重新渲染图`);
+        //   return;
+        // }
         if (this.node.isExpandChildren[relationship_type]) {
           this.lastExpandNodeId = this.node.id;
           this.lastRelationshipType = relationship_type;
@@ -344,13 +371,32 @@
           return
         }
 
+        // 动态设置节点右键菜单
         if (contextData.node) {
           this.node = contextData.node;
-          this.nodeMenulists[1].children = this.expandDict[this.node.group];
-          this.contextMenuData.menulists = this.nodeMenulists
-        } else {
+          // 设置节点右键关系扩展菜单
+          // if (this.node.pk_fk_group_id) {
+          //   // 通过边主外键扩展的节点没有钉住功能
+          //   this.nodeMenulists.COLUMN[1].children = this.expandDict[this.node.group];
+          //   this.contextMenuData.menulists = this.nodeMenulists.COLUMN;
+          // } else {
+            this.nodeMenulists.COMMON[1].children = this.expandDict[this.node.group];
+            // 设置节点右键钉住和解锁的文本切换
+            this.nodeMenulists.COMMON[2].btnName = this.node.isPinStatus ? '解除钉住' : '钉住';
+            this.contextMenuData.menulists = this.nodeMenulists.COMMON;
+          // }
+
+
+        }
+        // 动态设置连边右键菜单
+        if (contextData.link) {
           this.link = contextData.link;
-          this.contextMenuData.menulists = this.linkMenulists;
+          if (this.link.group === 'PK_FK' && this.link.sourceNode.group === 'TABLE' && this.link.targetNode.group === 'TABLE') {
+            // 唯有 T-> PK_FK -> 类型的边才有主外键扩展
+            this.contextMenuData.menulists = this.linkMenulists.PK_FK;
+          } else {
+            this.contextMenuData.menulists = this.linkMenulists.COMMON;
+          }
         }
 
         let x = contextData.position[0];
