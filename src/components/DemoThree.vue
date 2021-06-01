@@ -26,203 +26,203 @@
 
 <script>
 
-  import NodeContextMenu from './NodeContextMenu'
-  import CaseList from './SearchSelectCase/CaseList'
-  import originDataNode from '../../static/data/huaweinode.json'
-  import originDataEdge from '../../static/data/huaweiedge.json'
-  import originData from '../../static/data/huawei.json'
-  // import '../../static/d3/d3-canvas-transition.min.js'
-  import * as d3 from '../../static/d3/d3.v6-6-0.min.js'
-  import selectGraphLayout from '../graph/layout/selectGraphLayout.ts'
-  import {getNodeNextJump} from '@/request/api';// 导入我们的api接口
-  // import * as d3 from '../../static/d3/d3.min.js'
+import NodeContextMenu from './NodeContextMenu'
+import CaseList from './SearchSelectCase/CaseList'
+import originDataNode from '../../static/data/huaweinode.json'
+import originDataEdge from '../../static/data/huaweiedge.json'
+import originData from '../../static/data/huawei.json'
+// import '../../static/d3/d3-canvas-transition.min.js'
+import * as d3 from '../../static/d3/d3.v6-6-0.min.js'
+import selectGraphLayout from '../graph/layout/selectGraphLayout.ts'
+import {getNodeNextJump} from '@/request/api';// 导入我们的api接口
+// import * as d3 from '../../static/d3/d3.min.js'
 
-  // var d31 = require('d3')
-  // var d31 = require('../../static/d3/d3.min.js')
-  // var d32 = require('../../static/d3/d3-canvas-transition.js')
-  /* var d32 = require('d3-canvas-transition')
+// var d31 = require('d3')
+// var d31 = require('../../static/d3/d3.min.js')
+// var d32 = require('../../static/d3/d3-canvas-transition.js')
+/* var d32 = require('d3-canvas-transition')
   var d3Collection = require('../../static/d3/d3-collection.js')
   var d3Selection = require('../../static/d3/d3-selection.js') */
-  // var d3Selection2 = Object.assign({}, d3Collection, d3Selection);
-  // console.log(d3)
-  // console.log(d32)
-  // var d3 = Object.assign({}, d31, d32);
-  /* var d3Other = Object.assign({}, d32, d3Collection, d3Selection);
+// var d3Selection2 = Object.assign({}, d3Collection, d3Selection);
+// console.log(d3)
+// console.log(d32)
+// var d3 = Object.assign({}, d31, d32);
+/* var d3Other = Object.assign({}, d32, d3Collection, d3Selection);
   console.log(d3Other);
   console.log(d3Collection);
   console.log(d3Selection); */
-  export default {
-    name: 'demo3',
-    components: {
-      CaseList,
-      NodeContextMenu
+export default {
+  name: 'demo3',
+  components: {
+    CaseList,
+    NodeContextMenu
 
-    },
-    data () {
-      return {
+  },
+  data () {
+    return {
 
-        myDiagram: null,
-        modelData: [], // 节点数据
-        modelLinks: [], // 连线数据
-        treeStructure: [], // 树结构映射
-        // curSelectedNode: null, // 当前选中的节点
-        isShowContextMenu: false,
+      myDiagram: null,
+      modelData: [], // 节点数据
+      modelLinks: [], // 连线数据
+      treeStructure: [], // 树结构映射
+      // curSelectedNode: null, // 当前选中的节点
+      isShowContextMenu: false,
 
-        d3showDIV: null,
+      d3showDIV: null,
 
-        isClearD3Content: false,
+      isClearD3Content: false,
 
-        /*       originData: {
+      /*       originData: {
           nodes: originDataNode,
           edges: originDataEdge
         }, */
-        originData: {nodes: [], edges: []},
-        isCanvas: false,
-        svg: d3.select('#mainsvg'),
-        canvas: null,
-        layout: 11,
+      originData: {nodes: [], edges: []},
+      isCanvas: false,
+      svg: d3.select('#mainsvg'),
+      canvas: null,
+      layout: 11,
 
-        isExtend: true,
+      isExtend: true,
 
-        width: 0,
-        height: 0,
+      width: 0,
+      height: 0,
 
-        radius: 5, // node的半径大小
-        context: null,
+      radius: 5, // node的半径大小
+      context: null,
 
-        simulation: null, // 力学仿真
-        transform: null,
-        mainData: null,
-        scale: null,
+      simulation: null, // 力学仿真
+      transform: null,
+      mainData: null,
+      scale: null,
 
-        layoutObj: null,
-        curSelectedNode: null,
-        layoutoption: null // 关于对一些特定布局的设置，例如径向布局的结点根
-      }
-    },
+      layoutObj: null,
+      curSelectedNode: null,
+      layoutoption: null // 关于对一些特定布局的设置，例如径向布局的结点根
+    }
+  },
 
-    mounted () {
-      // this.originData = this.createNewData(this.myData)
-      // console.log(this.originData)
-      // createCentric(this.originData, svg)
-      /* this.isCanvas = true;
+  mounted () {
+    // this.originData = this.createNewData(this.myData)
+    // console.log(this.originData)
+    // createCentric(this.originData, svg)
+    /* this.isCanvas = true;
       const canvas = document.querySelector('canvas');
       console.log(canvas)
       console.log(createForceDirectedGraph(this.originData, canvas)) */
 
-      this.d3showDIV = document.getElementById('d3show');
-      /*     this.height = this.d3showDIV.clientHeight
+    this.d3showDIV = document.getElementById('d3show');
+    /*     this.height = this.d3showDIV.clientHeight
       this.width = this.d3showDIV.clientWidth */
-      this.height = this.d3showDIV.offsetHeight;
-      this.width = this.d3showDIV.offsetWidth;
-      /* this.height = 500
+    this.height = this.d3showDIV.offsetHeight;
+    this.width = this.d3showDIV.offsetWidth;
+    /* this.height = 500
       this.width = 800 */
-      this.svg.attr('height', this.height)
-      this.svg.attr('width', this.width)
-      /*     this.height = this.d3showDIV.clientHeight
+    this.svg.attr('height', this.height)
+    this.svg.attr('width', this.width)
+    /*     this.height = this.d3showDIV.clientHeight
       this.width = this.d3showDIV.clientWidth */
 
-      // this.svg.attr('height', this.height)
-      // this.svg.attr('width', this.width)
-      const defaultLayoutId = 11;
-      this.$store.dispatch('changeLayoutIdFun', defaultLayoutId)
+    // this.svg.attr('height', this.height)
+    // this.svg.attr('width', this.width)
+    const defaultLayoutId = 11;
+    this.$store.dispatch('changeLayoutIdFun', defaultLayoutId)
 
-      // console.log(this.$store.state.layoutId)
+    // console.log(this.$store.state.layoutId)
+  },
+  beforeCreate () {
+    // 兄弟组件传值
+    // 监听抽屉的滑动，以免滑梯滑动之后canvas的面积不会被改变
+    this.bus.$on('toDiagramForArea', isExtend => {
+      this.isExtend = isExtend
+      // this.upDateDiagramAnimationFrame(0)
+    })
+
+    this.bus.$on('changeLayoutOption', layoutOption => {
+      this.layoutOption = layoutOption;
+      this.changeLayout(this.$store.state.layoutId, layoutOption);
+    })
+
+    // 新的数据加入后
+    this.bus.$on('addNewGraph', (obj, params) => {
+      this.layoutObj.addNewGraph(obj, params)
+    })
+
+    // 收缩节点
+    this.bus.$on('shrinkNode', node => {
+      this.layoutObj.shrinkNode(node)
+    })
+
+    // 钉住节点
+    this.bus.$on('pinNode', node => {
+      this.layoutObj.pinNode(node)
+    })
+
+    // 是否可视化非记忆节点
+    this.bus.$on('changeSwitchVisualize', checked => {
+      this.layoutObj.switchVisualizeRemember(checked)
+    })
+
+    // 关系扩展
+    this.bus.$on('addEdgeRelationshipExpand', (obj, params) => {
+      // console.log('关系扩展后的新数据:', obj)
+      this.layoutObj.addEdgeRelationshipExpand(obj, params);
+    })
+  },
+
+  watch: {
+
+    '$store.state.layoutId': function (layoutId) {
+      // console.log('当前的布局ID:', layoutId);
+      this.changeLayout(layoutId)
     },
-    beforeCreate () {
-      // 兄弟组件传值
-      // 监听抽屉的滑动，以免滑梯滑动之后canvas的面积不会被改变
-      this.bus.$on('toDiagramForArea', isExtend => {
-        this.isExtend = isExtend
-        // this.upDateDiagramAnimationFrame(0)
-      })
+    '$store.state.layoutOrderId': function (val) {
+      // console.log('当前的布局排序ID:', val);
+      this.layoutObj.update(this.layoutObj.orderFun[val])
+    }
 
-      this.bus.$on('changeLayoutOption', layoutOption => {
-        this.layoutOption = layoutOption;
-        this.changeLayout(this.$store.state.layoutId, layoutOption);
-      })
+  },
 
-      // 新的数据加入后
-      this.bus.$on('addNewGraph', (obj, params) => {
-        this.layoutObj.addNewGraph(obj, params)
-      })
+  methods: {
 
-      // 收缩节点
-      this.bus.$on('shrinkNode', node => {
-        this.layoutObj.shrinkNode(node)
-      })
-
-      // 钉住节点
-      this.bus.$on('pinNode', node => {
-        this.layoutObj.pinNode(node)
-      })
-
-      // 是否可视化非记忆节点
-      this.bus.$on('changeSwitchVisualize', checked => {
-        this.layoutObj.switchVisualizeRemember(checked)
-      })
-
-      // 关系扩展
-      this.bus.$on('addEdgeRelationshipExpand', obj => {
-        // console.log('关系扩展后的新数据:', obj)
-        this.layoutObj.addEdgeRelationshipExpand(obj);
-      })
+    open () {
+      this.$refs.CaseList.visible = true
     },
 
-    watch: {
+    selectNodeInCase (node) {
+      // console.log('你选择了节点：', node)
+      // 传过去这个节点的图数据
+      getNodeNextJump(node, 'RECOMMEND').then(res => {
+        if (res.message === 'success') {
+          // 将所选择的左侧节点进行路径记忆
+          res.content.nodes.forEach(d => { d.isRemember = d.guid === node.guid });
 
-      '$store.state.layoutId': function (layoutId) {
-        // console.log('当前的布局ID:', layoutId);
-        this.changeLayout(layoutId)
-      },
-      '$store.state.layoutOrderId': function (val) {
-        // console.log('当前的布局排序ID:', val);
-        this.layoutObj.update(this.layoutObj.orderFun[val])
-      }
+          this.originData = res.content;
+          this.changeLayout(this.$store.state.layoutId);
+        }
+      })
 
+      // // 只传一个节点
+      // this.originData = {
+      //   nodes: [node],
+      //   edges: []
+      // };
+      // this.changeLayout(this.$store.state.layoutId);
+
+      /* 访问接口，返回了数据之后 */
+      // this.originData = originData // 更新数据
+      // this.changeLayout(this.$store.state.layoutId);
     },
 
-    methods: {
+    selectedNodeChange (node) {
+      this.$store.dispatch('changeNodeFun', node)
+    },
 
-      open () {
-        this.$refs.CaseList.visible = true
-      },
+    showNodeContextMenu (nodeContextData, cbEnd) {
+      console.log('右键', nodeContextData)
+      this.$refs.NodeContextMenu.setNodeContextMenu(nodeContextData, cbEnd)
+    },
 
-      selectNodeInCase (node) {
-        // console.log('你选择了节点：', node)
-        // 传过去这个节点的图数据
-        getNodeNextJump(node,'RECOMMEND').then(res => {
-          if (res.message === 'success') {
-            // 将所选择的左侧节点进行路径记忆
-            res.content.nodes.forEach(d => {d.isRemember = d.guid === node.id});
-
-            this.originData = res.content;
-            this.changeLayout(this.$store.state.layoutId);
-          }
-        })
-
-        // // 只传一个节点
-        // this.originData = {
-        //   nodes: [node],
-        //   edges: []
-        // };
-        // this.changeLayout(this.$store.state.layoutId);
-
-        /* 访问接口，返回了数据之后 */
-        // this.originData = originData // 更新数据
-        // this.changeLayout(this.$store.state.layoutId);
-      },
-
-      selectedNodeChange (node) {
-        this.$store.dispatch('changeNodeFun', node)
-      },
-
-      showNodeContextMenu (nodeContextData, cbEnd) {
-        console.log('右键', nodeContextData)
-        this.$refs.NodeContextMenu.setNodeContextMenu(nodeContextData, cbEnd)
-      },
-
-      /* upDateDiagramAnimationFrame (count) {
+    /* upDateDiagramAnimationFrame (count) {
         count++
         requestAnimationFrame(() => {
           this.myDiagram.requestUpdate()
@@ -230,28 +230,28 @@
         })
       }, */
 
-      changeLayout (layoutId, layoutOption) {
-        this.$store.dispatch('changeNodeFun', {})
-        this.isClearD3Content = true;
+    changeLayout (layoutId, layoutOption) {
+      this.$store.dispatch('changeNodeFun', {})
+      this.isClearD3Content = true;
+      this.$nextTick(() => {
+        this.isClearD3Content = false;
+        this.isCanvas = this.isCanvasLayout(layoutId);
         this.$nextTick(() => {
-          this.isClearD3Content = false;
-          this.isCanvas = this.isCanvasLayout(layoutId);
-          this.$nextTick(() => {
-            const htmlDomSelection = this.isCanvasLayout(layoutId) ? document.querySelector('canvas') : d3.select('#mainsvg')
-            // console.log('111', layoutOption)
-            let data = this.originData
-            this.layoutObj = selectGraphLayout(layoutId, data, htmlDomSelection, this.selectedNodeChange, layoutOption, this.showNodeContextMenu)
-          })
+          const htmlDomSelection = this.isCanvasLayout(layoutId) ? document.querySelector('canvas') : d3.select('#mainsvg')
+          // console.log('111', layoutOption)
+          let data = this.originData
+          this.layoutObj = selectGraphLayout(layoutId, data, htmlDomSelection, this.selectedNodeChange, layoutOption, this.showNodeContextMenu)
         })
-        ;
-      },
+      })
+      ;
+    },
 
-      isCanvasLayout (layoutId) {
-        return layoutId === 7 || layoutId === 8
-      }
-
+    isCanvasLayout (layoutId) {
+      return layoutId === 7 || layoutId === 8
     }
+
   }
+}
 </script>
 
 <style scoped lang='scss'>
