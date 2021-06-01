@@ -47,6 +47,8 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
   var curNodeSelection = null; // d3格式的节点
   var curLinkSelection = null; // d3格式的节点
 
+  var curRelationshipLink = null; // 当前扩展的边，同时其子数据并没有被记忆，如果其子数据被记忆了就将该变量置null
+
   // 当前点击扩展的类型
   var curExpandRelationshipType = null;
 
@@ -599,7 +601,17 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
   // 记住一个节点和其相关节点
   function rememberNode (handelNode) {
     handelNode.isRemember = true;
-    // restart();
+
+    // 如果这个节点是属于边扩散的一组里面的成员，所有成员都要被记忆
+    if (handelNode.pk_fk_group_id) {
+      const fromLink = allLinkByIdMap.get(handelNode.pk_fk_group_id);
+      if (curRelationshipLink.id === fromLink.id) {
+        curRelationshipLink = null
+      }
+      fromLink.relationshipTypeExpandData.nodes.forEach(node => {
+        node.isRemember = true;
+      })
+    }
   }
 
   // 操作某一个节点的时候，过滤掉不被记忆的节点和与之相互关联的边
@@ -638,11 +650,24 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
     noRememberLinks = [];
   }
 
+  // 收缩扩展边
+  function shrinkLink (link) {
+    filterNoRemember()
+    links.push(link)
+    curRelationshipLink = null;
+  }
+
   // 边的关系扩展
   function addEdgeRelationshipExpand (obj, params) {
+    // 如果当前有非记忆扩展边
+    if (curRelationshipLink) {
+      shrinkLink(curRelationshipLink)
+    }
+
     curExpandRelationshipType = params.relationship_type;
     const handleLink = obj.link;
-
+    const handleLinkNodes = handleLink.relationshipTypeExpandData.nodes;
+    const handleLinkLinks = handleLink.relationshipTypeExpandData.links;
     // const nodeA = handleLink.sourceNode;
     // const nodeB = handleLink.targetNode;
     isTransitionStatus = true;
@@ -672,6 +697,7 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
         return true
       } else {
         // 节点存在，但是由于不被记忆被隐藏的时候，应当调出来
+        handleLinkNodes.push(allNodeByIdMap.get(node.guid))
         if (!allCurNodeByIdMap.has(node.guid)) {
           nodes.push(allNodeByIdMap.get(node.guid))
         }
@@ -682,6 +708,7 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
       if (!allLinkByIdMap.has(link.guid)) {
         return true
       } else {
+        handleLinkLinks.push(allLinkByIdMap.get(link.guid))
         // 边存在，但是由于不被记忆被隐藏的时候，应当调出来
         if (!allCurLinkByIdMap.has(link.guid)) {
           links.push(allLinkByIdMap.get(link.guid))
@@ -691,12 +718,14 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
     })
 
     newNodes = createNodes(newNodes, node => {
-      allNodeByIdMap.set(node.id, node)
+      allNodeByIdMap.set(node.id, node);
+      handleLinkNodes.push(node)
     });
 
     newLinks = createEdges(newLinks, link => {
       handleTzLink(link)
       allLinkByIdMap.set(link.id, link)
+      handleLinkLinks.push(link)
     });
 
     allNodes.push(...newNodes)
@@ -708,9 +737,13 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
     links.push(...newLinks);
 
     linkExpandByIdMap.set(handleLink.id, handleLink); // 记录这条边是进行扩展操作了的
-    deleteLink(handleLink)
+    rememberNode(handleLink.sourceNode)
+    rememberNode(handleLink.targetNode)
+    // deleteLink(handleLink)
+    links = links.filter(link => link.id !== handleLink.id) // 删除当前边
 
-    // handleLink.isRelationshipExpand = true; // 表明关系扩展过了
+    handleLink.isRelationshipExpand = true; // 表明关系扩展过了
+    curRelationshipLink = handleLink
 
     restart();
   }

@@ -195,6 +195,10 @@ export function Edge (edge) {
   // ****************以下是关系扩展需要的数据结构
   this.relationshipTypeExpand = [];
   this.isRelationshipExpand = false;
+  this.relationshipTypeExpandData = {
+    nodes: [],
+    links: []
+  };
 }
 
 // 根据原始数据获取相应的连边，以放止污染原始数据
