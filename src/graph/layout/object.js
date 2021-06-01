@@ -55,81 +55,81 @@ export function Node (node) {
   // ****************以下是增量布局测试用的数据结构
   // 是否曾经扩展过
   this.isExpandChildren = {
-    ALL:false,
-    RECOMMEND:false,
-    OTHERS:false,
-    DATA_FLOW:false,
-    PK_FK:false,
-    LAST_PARENT_CHILD:false,
-    LOGICAL_PHYSICAL:false,
-    NEXT_PARENT_CHILD:false,
+    ALL: false,
+    RECOMMEND: false,
+    OTHERS: false,
+    DATA_FLOW: false,
+    PK_FK: false,
+    LAST_PARENT_CHILD: false,
+    LOGICAL_PHYSICAL: false,
+    NEXT_PARENT_CHILD: false
   };
   // 增量后子节点Node类型放里面 ; 判断有没有子节点就要根据其数组长度来
   this.expandChildrenNode = {
-    ALL:[],
-    RECOMMEND:[],
-    OTHERS:[],
-    DATA_FLOW:[],
-    PK_FK:[],
-    LAST_PARENT_CHILD:[],
-    LOGICAL_PHYSICAL:[],
-    NEXT_PARENT_CHILD:[],
+    ALL: [],
+    RECOMMEND: [],
+    OTHERS: [],
+    DATA_FLOW: [],
+    PK_FK: [],
+    LAST_PARENT_CHILD: [],
+    LOGICAL_PHYSICAL: [],
+    NEXT_PARENT_CHILD: []
   };
   // 对象，保存扩散节点 id——node对象
   this.isExpandChildNodeMap = {
-    ALL:{},
-    RECOMMEND:{},
-    OTHERS:{},
-    DATA_FLOW:{},
-    PK_FK:{},
-    LAST_PARENT_CHILD:{},
-    LOGICAL_PHYSICAL:{},
-    NEXT_PARENT_CHILD:{},
+    ALL: {},
+    RECOMMEND: {},
+    OTHERS: {},
+    DATA_FLOW: {},
+    PK_FK: {},
+    LAST_PARENT_CHILD: {},
+    LOGICAL_PHYSICAL: {},
+    NEXT_PARENT_CHILD: {}
   };
   // 增量后子节点Node类型放里面 ; 判断有没有子节点就要根据其数组长度来
   this.expandChildrenLink = {
-    ALL:[],
-    RECOMMEND:[],
-    OTHERS:[],
-    DATA_FLOW:[],
-    PK_FK:[],
-    LAST_PARENT_CHILD:[],
-    LOGICAL_PHYSICAL:[],
-    NEXT_PARENT_CHILD:[],
+    ALL: [],
+    RECOMMEND: [],
+    OTHERS: [],
+    DATA_FLOW: [],
+    PK_FK: [],
+    LAST_PARENT_CHILD: [],
+    LOGICAL_PHYSICAL: [],
+    NEXT_PARENT_CHILD: []
   };
   // 对象，保存扩散节点 id——node对象
   this.isExpandChildLinkMap = {
-    ALL:{},
-    RECOMMEND:{},
-    OTHERS:{},
-    DATA_FLOW:{},
-    PK_FK:{},
-    LAST_PARENT_CHILD:{},
-    LOGICAL_PHYSICAL:{},
-    NEXT_PARENT_CHILD:{},
+    ALL: {},
+    RECOMMEND: {},
+    OTHERS: {},
+    DATA_FLOW: {},
+    PK_FK: {},
+    LAST_PARENT_CHILD: {},
+    LOGICAL_PHYSICAL: {},
+    NEXT_PARENT_CHILD: {}
   };
   this.default_show = node.default_show; // 是否默认展示
   // 是否处于收缩子节点状态
   this.isShrink = {
-    ALL:false,
-    RECOMMEND:false,
-    OTHERS:false,
-    DATA_FLOW:false,
-    PK_FK:false,
-    LAST_PARENT_CHILD:false,
-    LOGICAL_PHYSICAL:false,
-    NEXT_PARENT_CHILD:false,
+    ALL: false,
+    RECOMMEND: false,
+    OTHERS: false,
+    DATA_FLOW: false,
+    PK_FK: false,
+    LAST_PARENT_CHILD: false,
+    LOGICAL_PHYSICAL: false,
+    NEXT_PARENT_CHILD: false
   };
   // 是否处于被父节点收缩的状态
   this.isBeShrinked = {
-    ALL:false,
-    RECOMMEND:false,
-    OTHERS:false,
-    DATA_FLOW:false,
-    PK_FK:false,
-    LAST_PARENT_CHILD:false,
-    LOGICAL_PHYSICAL:false,
-    NEXT_PARENT_CHILD:false,
+    ALL: false,
+    RECOMMEND: false,
+    OTHERS: false,
+    DATA_FLOW: false,
+    PK_FK: false,
+    LAST_PARENT_CHILD: false,
+    LOGICAL_PHYSICAL: false,
+    NEXT_PARENT_CHILD: false
   };
 
   // ****************以下是路径记忆用的数据结构
@@ -166,24 +166,24 @@ export function Edge (edge) {
   // ****************以下是增量布局测试用的数据结构
   this.default_show = edge.default_show; // 是否展示
   this.isShrink = {
-    ALL:false,
-    RECOMMEND:false,
-    OTHERS:false,
-    DATA_FLOW:false,
-    PK_FK:false,
-    LAST_PARENT_CHILD:false,
-    LOGICAL_PHYSICAL:false,
-    NEXT_PARENT_CHILD:false,
+    ALL: false,
+    RECOMMEND: false,
+    OTHERS: false,
+    DATA_FLOW: false,
+    PK_FK: false,
+    LAST_PARENT_CHILD: false,
+    LOGICAL_PHYSICAL: false,
+    NEXT_PARENT_CHILD: false
   }; // 是否处于收缩状态
   this.isBeShrinked = {
-    ALL:false,
-    RECOMMEND:false,
-    OTHERS:false,
-    DATA_FLOW:false,
-    PK_FK:false,
-    LAST_PARENT_CHILD:false,
-    LOGICAL_PHYSICAL:false,
-    NEXT_PARENT_CHILD:false,
+    ALL: false,
+    RECOMMEND: false,
+    OTHERS: false,
+    DATA_FLOW: false,
+    PK_FK: false,
+    LAST_PARENT_CHILD: false,
+    LOGICAL_PHYSICAL: false,
+    NEXT_PARENT_CHILD: false
   }; // 是否处于被父节点收缩的状态
 
   this.isRemember = () => this.sourceNode.isRemember && this.targetNode.isRemember
