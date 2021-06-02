@@ -24,6 +24,7 @@
         node: null, // 当前操作的节点
         link: null, // 当前操作的边
         lastExpandNodeId: null,  // 上一次扩展操作的节点
+        lastPinNodeId: null,  // 上一次钉住操作的节点
         lastExpandEdgeId: null,  // 上一次扩展操作的节点
         lastRelationshipType: null, // 上一次扩展操作的类型
         callBackEndHandle: null, // 右键事件结束回调函数
@@ -231,10 +232,6 @@
               fnHandler: 'expandNodeLOGICAL_PHYSICAL'
             },
             {
-              btnName: ' 数据流关系',
-              fnHandler: 'expandNodeDATA_FLOW'
-            },
-            {
               btnName: ' 主外键关系',
               fnHandler: 'expandNodePK_FK'
             }
@@ -327,6 +324,7 @@
         //   console.log(`重复上次请求操作，不需要重新渲染图`);
         //   return;
         // }
+
         if (this.node.isExpandChildren[relationship_type]) {
           this.lastExpandNodeId = this.node.id;
           this.lastRelationshipType = relationship_type;
@@ -416,6 +414,7 @@
 
       // 钉住
       pinNode () {
+        this.lastPinNodeId = this.node.id;
         this.bus.$emit('pinNode', this.node)
       }
 

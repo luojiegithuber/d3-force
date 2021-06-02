@@ -64,6 +64,18 @@ export function Node (node) {
     LOGICAL_PHYSICAL:false,
     NEXT_PARENT_CHILD:false,
   };
+  // 当前扩展的状态
+  this.currentExpandStatus = {
+    ALL:false,
+    RECOMMEND:false,
+    OTHERS:false,
+    DATA_FLOW:false,
+    PK_FK:false,
+    LAST_PARENT_CHILD:false,
+    LOGICAL_PHYSICAL:false,
+    NEXT_PARENT_CHILD:false,
+  };
+
   // 增量后子节点Node类型放里面 ; 判断有没有子节点就要根据其数组长度来
   this.expandChildrenNode = {
     ALL:[],

@@ -7,7 +7,8 @@ import {
   moveNode,
   moveLink,
   highlightNode,
-  highlightLink
+  highlightLink,
+  Node
 } from './object.js';
 
 import {getNodeNextJump} from '@/request/api';// 导入我们的api接口
@@ -42,8 +43,10 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
 
   var isTransitionStatus = false;
 
-  var curNode = null;  // 当前操作节点
-  var lastNode = null;  // 上一次操作的节点
+  var curNode = new Node(option.selectNode);  // 当前操作节点
+  curNode.currentExpandStatus.RECOMMEND = true;
+  var lastNode = new Node(option.selectNode);  // 上一次操作的节点
+  lastNode.currentExpandStatus.RECOMMEND = true;
   var curNodeSelection = null; // d3格式的节点
   var curLinkSelection = null; // d3格式的节点
 
@@ -56,9 +59,13 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
   if (nodeSize >= 15) {
     nodeSize = 15;
   }
-
   // 获取节点及边数据，防止污染原始数据
   var nodes = createNodes(originalData.nodes, node => {
+    // 设置初始的扩展状态
+    if (node.id === curNode.id) {
+      node.currentExpandStatus.RECOMMEND = true;
+    }
+
     allNodeByIdMap.set(node.id, node)
   });
 
@@ -127,6 +134,7 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
   // 增量重绘函数
   function restart () {
     // 节点绘制更新
+
     nodeG = updateNodeSvg(nodeRootG, nodes, {
       nodeSize: nodeSize,
       setColorByKey: 'group',
@@ -151,6 +159,8 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
         curNodeSelection = d3.select(this);
         callFunSelectNode(d)
         e.stopPropagation(); // 停止冒泡
+
+        lastNode = d;
 
         // 点击即扩展，获取默认的扩展节点
         /*         if (d.isExpandChildren) {
@@ -187,14 +197,20 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
           node: d,
           position: [e.clientX, e.clientY]
         }, () => {
-          console.log('右键事件执行结束')
-          rememberNode(d)
+          console.log('右键扩展事件执行结束');
+          rememberNode(d);
           // 如果当前操作的节点与上一次操作的节点不同，则过滤掉非路径记忆节点
           // 否则可以不用过滤掉非路径记忆节点，直接在操作节点的基础上扩展其他内容
-          if (!lastNode || (lastNode.id !== curNode.id)) {
-            filterNoRemember(d);
+          // ！！！但这有一个问题：如果先钉住节点A，然后对节点B进行扩展，再对A取消钉住，
+          // 再对节点B扩展相同的东西，会发现A的没有被钉住的节点不消失
+          // 已修复？？？？？？
+          if (lastNode.id !== curNode.id) {
+            console.log('clean')
+            filterNoRemember();
           }
+
           lastNode = d;
+          // filterNoRemember(d);
           // switchVisualizeRemember(false);
           // restart();
         }) // 传递节点数据和鼠标点击所在位置，在这个位置显示右键菜单栏
@@ -254,7 +270,6 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
     // 扩展之后如果当前的节点启用了钉住，则对扩展出来的节点增加钉住功能
     if (curNode && curNode.isPinStatus) {
       curNode.links.forEach(link => {
-        console.log(link.sourceNode, link.targetNode)
         if (link.sourceNode.id === curNode.id && allCurLinkByIdMap.has(link.id)) {
           allNodeByIdMap.get(link.targetNode.id).isPinRemember = true;
         }
@@ -418,6 +433,31 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
       console.log(`没有对应的${curExpandRelationshipType}扩展数据`);
       return;
     }
+
+    // 如果扩展了则进行收缩(待补充)，记忆的以及钉住记忆的不能收缩
+    if (curNode.currentExpandStatus[curExpandRelationshipType]) {
+      console.log('已经有了扩展，需要表现为收缩',curExpandRelationshipType)
+      curNode.currentExpandStatus[curExpandRelationshipType] = false;
+
+      console.log(nodes.length,links.length)
+      // 收缩连边和节点
+      curNode.expandChildrenLink[curExpandRelationshipType].forEach(childLink => {
+        if (allCurLinkByIdMap.has(childLink.id)) {
+          links.splice(links.findIndex(d => d.id === childLink.id), 1);
+        }
+      })
+      curNode.expandChildrenNode[curExpandRelationshipType].forEach(childNode => {
+        if (allCurNodeByIdMap.has(childNode.id) && childNode.id !== curNode.id) {
+          nodes.splice(nodes.findIndex(d => d.id === childNode.id), 1);
+        }
+      })
+      restart();
+      console.log(nodes.length,links.length)
+      return;
+    }
+
+    // 否则进行扩展
+    curNode.currentExpandStatus[curExpandRelationshipType] = true;
     if (rootNode.isExpandChildren[curExpandRelationshipType]) {
       expandNode(rootNode);
     } else {
@@ -561,13 +601,14 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
   // 钉住
   function pinNode (handelNode) {
     // 由于操作了该节点，所以记忆
-    handelNode.isRemember = true;
-    handelNode.isPinRemember = true;
-    var link_node;
+    // handelNode.isRemember = true;
 
+    // curNode = handelNode;
+    var link_node;
     // 已经钉住了，则解锁
     if (handelNode.isPinStatus) {
       handelNode.isPinStatus = false;
+      handelNode.isPinRemember = false;
       // 路径记忆——忘记相连的节点
       handelNode.links.forEach(link => {
         if (link.sourceNode.id === handelNode.id && allCurLinkByIdMap.has(link.id)) {
@@ -583,6 +624,7 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
     // 否则执行钉住
     else {
       handelNode.isPinStatus = true;
+      handelNode.isPinRemember = true;
       // 路径记忆——记住相连的节点
       handelNode.links.forEach(link => {
         if (link.sourceNode.id === handelNode.id && allCurLinkByIdMap.has(link.id)) {
@@ -595,6 +637,7 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
         }
       })
     }
+    // lastNode = handelNode;
   }
 
   // 记住一个节点和其相关节点
@@ -643,6 +686,12 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
   function addEdgeRelationshipExpand (obj, params) {
     curExpandRelationshipType = params.relationship_type;
     const handleLink = obj.link;
+
+    // 边扩展时过滤掉非路径记忆节点
+    filterNoRemember();
+    // 同时将边两端的数据表节点记忆
+    allNodeByIdMap.get(handleLink.sourceNode.id).isRemember = true;
+    allNodeByIdMap.get(handleLink.targetNode.id).isRemember = true;
 
     // const nodeA = handleLink.sourceNode;
     // const nodeB = handleLink.targetNode;

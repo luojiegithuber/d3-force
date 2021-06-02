@@ -1797,6 +1797,19 @@
     },
     "relative_nodes_details": [
       {
+        "guid": "table2",
+        "display_text": "table2",
+        "entity_type": "TABLE",
+        "type_name": "xxx-null",
+        "create_by": "xxx-null",
+        "update_by": "xxx-null",
+        "create_time": 1621432542831,
+        "update_time": 1621432542831,
+        "tags": [],
+        "classifications": null,
+        "attributes": null
+      },
+      {
         "guid": "table0",
         "display_text": "table0",
         "entity_type": "TABLE",
@@ -1812,19 +1825,6 @@
       {
         "guid": "table1",
         "display_text": "table1",
-        "entity_type": "TABLE",
-        "type_name": "xxx-null",
-        "create_by": "xxx-null",
-        "update_by": "xxx-null",
-        "create_time": 1621432542831,
-        "update_time": 1621432542831,
-        "tags": [],
-        "classifications": null,
-        "attributes": null
-      },
-      {
-        "guid": "table2",
-        "display_text": "table2",
         "entity_type": "TABLE",
         "type_name": "xxx-null",
         "create_by": "xxx-null",

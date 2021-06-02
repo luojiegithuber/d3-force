@@ -81,6 +81,7 @@
         svg: d3.select('#mainsvg'),
         canvas: null,
         layout: 11,
+        selectNode:null,
 
         isExtend: true,
 
@@ -191,6 +192,7 @@
       selectNodeInCase (node) {
         // console.log('你选择了节点：', node)
         // 传过去这个节点的图数据
+        this.selectNode = node;
         getNodeNextJump(node,'RECOMMEND').then(res => {
           if (res.message === 'success') {
             // 将所选择的左侧节点进行路径记忆
@@ -230,7 +232,7 @@
         })
       }, */
 
-      changeLayout (layoutId, layoutOption) {
+      changeLayout (layoutId) {
         this.$store.dispatch('changeNodeFun', {})
         this.isClearD3Content = true;
         this.$nextTick(() => {
@@ -240,6 +242,7 @@
             const htmlDomSelection = this.isCanvasLayout(layoutId) ? document.querySelector('canvas') : d3.select('#mainsvg')
             // console.log('111', layoutOption)
             let data = this.originData
+            let layoutOption = {selectNode:this.selectNode}
             this.layoutObj = selectGraphLayout(layoutId, data, htmlDomSelection, this.selectedNodeChange, layoutOption, this.showNodeContextMenu)
           })
         })
