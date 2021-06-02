@@ -403,7 +403,7 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
           })
         }
       } else {
-        if (!childNode.isShrink) {
+        if (!childNode.isShrink[curExpandRelationshipType]) {
           childNode.expandChildrenLink[curExpandRelationshipType].forEach(childLink => {
             if (childLink.isRemember()) {
               links.push(childLink);
@@ -435,27 +435,27 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
       return;
     }
 
-    // 如果扩展了则进行收缩(待补充)，记忆的以及钉住记忆的不能收缩
-    if (curNode.currentExpandStatus[curExpandRelationshipType]) {
-      console.log('已经有了扩展，需要表现为收缩', curExpandRelationshipType)
-      curNode.currentExpandStatus[curExpandRelationshipType] = false;
-
-      console.log(nodes.length, links.length)
-      // 收缩连边和节点
-      curNode.expandChildrenLink[curExpandRelationshipType].forEach(childLink => {
-        if (allCurLinkByIdMap.has(childLink.id)) {
-          links.splice(links.findIndex(d => d.id === childLink.id), 1);
-        }
-      })
-      curNode.expandChildrenNode[curExpandRelationshipType].forEach(childNode => {
-        if (allCurNodeByIdMap.has(childNode.id) && childNode.id !== curNode.id) {
-          nodes.splice(nodes.findIndex(d => d.id === childNode.id), 1);
-        }
-      })
-      restart();
-      console.log(nodes.length, links.length)
-      return;
-    }
+    // // 如果扩展了则进行收缩(待补充)，记忆的以及钉住记忆的不能收缩
+    // if (curNode.currentExpandStatus[curExpandRelationshipType]) {
+    //   console.log('已经有了扩展，需要表现为收缩',curExpandRelationshipType)
+    //   curNode.currentExpandStatus[curExpandRelationshipType] = false;
+    //
+    //   console.log(nodes.length,links.length)
+    //   // 收缩连边和节点
+    //   curNode.expandChildrenLink[curExpandRelationshipType].forEach(childLink => {
+    //     if (allCurLinkByIdMap.has(childLink.id)) {
+    //       links.splice(links.findIndex(d => d.id === childLink.id), 1);
+    //     }
+    //   })
+    //   curNode.expandChildrenNode[curExpandRelationshipType].forEach(childNode => {
+    //     if (allCurNodeByIdMap.has(childNode.id) && childNode.id !== curNode.id) {
+    //       nodes.splice(nodes.findIndex(d => d.id === childNode.id), 1);
+    //     }
+    //   })
+    //   restart();
+    //   console.log(nodes.length,links.length)
+    //   return;
+    // }
 
     // 否则进行扩展
     curNode.currentExpandStatus[curExpandRelationshipType] = true;
