@@ -71,7 +71,7 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
 
   var links = createEdges(originalData.edges, link => {
     allLinkByIdMap.set(link.id, link)
-    linkTwoNodes(link.sourceNode,link.targetNode,link);
+    linkTwoNodes(link.sourceNode, link.targetNode, link);
   });
   // 力仿真器
   const simulation = d3.forceSimulation();
@@ -194,24 +194,29 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
         d3.select(this).raise()
         curNode = d;
         curNodeSelection = d3.select(this);
+        // console.log(curNode.group,lastNode.group)
         callFunShowNodeContextMenu({
           node: d,
           position: [e.clientX, e.clientY]
         }, () => {
           console.log('右键扩展事件执行结束');
           rememberNode(d);
-          d.links.forEach(link=>{
-            if (link.sourceNode.group==='NODE'){
-              rememberNode(allNodeByIdMap.get(link.sourceNode.id))
-            }else{
-              rememberNode(allNodeByIdMap.get(link.targetNode.id))
-            }
-          })
+          if (d.group === 'TABLE') {
+            d.links.forEach(link => {
+              if (link.sourceNode.group === 'NODE') {
+                rememberNode(allNodeByIdMap.get(link.sourceNode.id))
+              }
+              if (link.targetNode.group === 'NODE') {
+                rememberNode(allNodeByIdMap.get(link.targetNode.id))
+              }
+            })
+          }
           // 如果当前操作的节点与上一次操作的节点不同，则过滤掉非路径记忆节点
           // 否则可以不用过滤掉非路径记忆节点，直接在操作节点的基础上扩展其他内容
           // ！！！但这有一个问题：如果先钉住节点A，然后对节点B进行扩展，再对A取消钉住，
           // 再对节点B扩展相同的东西，会发现A的没有被钉住的节点不消失
           // 已修复！！！
+          // console.log(curNode.group,lastNode.group)
           if (lastNode.id !== curNode.id) {
             console.log('clean')
             filterNoRemember();
