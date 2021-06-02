@@ -24,6 +24,7 @@ export default {
       node: null, // 当前操作的节点
       link: null, // 当前操作的边
       lastExpandNodeId: null, // 上一次扩展操作的节点
+      lastPinNodeId: null, // 上一次钉住操作的节点
       lastExpandEdgeId: null, // 上一次扩展操作的节点
       lastRelationshipType: null, // 上一次扩展操作的类型
       callBackEndHandle: null, // 右键事件结束回调函数
@@ -231,10 +232,6 @@ export default {
             fnHandler: 'expandNodeLOGICAL_PHYSICAL'
           },
           {
-            btnName: ' 数据流关系',
-            fnHandler: 'expandNodeDATA_FLOW'
-          },
-          {
             btnName: ' 主外键关系',
             fnHandler: 'expandNodePK_FK'
           }
@@ -300,6 +297,7 @@ export default {
       }
     }
   },
+
   methods: {
 
     // 统一的扩展或收缩——对已经扩展的进行收缩，对未扩展的进行扩展
@@ -407,12 +405,9 @@ export default {
       this.callBackEndHandle = cbEnd;
     },
 
-    checkNode () {
-      console.log('所选择节点的信息为', this.node)
-    },
-
     // 钉住
     pinNode () {
+      this.lastPinNodeId = this.node.id;
       this.bus.$emit('pinNode', this.node)
     }
 
