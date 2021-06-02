@@ -51,7 +51,7 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
   var curLinkSelection = null; // d3格式的节点
 
   // 当前点击扩展的类型
-  var curExpandRelationshipType = null;
+  var curExpandRelationshipType = 'RECOMMEND';
 
   // 根据节点个数计算初始节点大小，最小半径为15
   let maxRadius = d3.min([width - margin.left - margin.right, height - margin.top - margin.bottom]) / 2;
@@ -71,6 +71,7 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
 
   var links = createEdges(originalData.edges, link => {
     allLinkByIdMap.set(link.id, link)
+    linkTwoNodes(link.sourceNode,link.targetNode,link);
   });
   // 力仿真器
   const simulation = d3.forceSimulation();
@@ -199,11 +200,18 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
         }, () => {
           console.log('右键扩展事件执行结束');
           rememberNode(d);
+          d.links.forEach(link=>{
+            if (link.sourceNode.group==='NODE'){
+              rememberNode(allNodeByIdMap.get(link.sourceNode.id))
+            }else{
+              rememberNode(allNodeByIdMap.get(link.targetNode.id))
+            }
+          })
           // 如果当前操作的节点与上一次操作的节点不同，则过滤掉非路径记忆节点
           // 否则可以不用过滤掉非路径记忆节点，直接在操作节点的基础上扩展其他内容
           // ！！！但这有一个问题：如果先钉住节点A，然后对节点B进行扩展，再对A取消钉住，
           // 再对节点B扩展相同的东西，会发现A的没有被钉住的节点不消失
-          // 已修复？？？？？？
+          // 已修复！！！
           if (lastNode.id !== curNode.id) {
             console.log('clean')
             filterNoRemember();
@@ -436,23 +444,23 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
 
     // // 如果扩展了则进行收缩(待补充)，记忆的以及钉住记忆的不能收缩
     // if (curNode.currentExpandStatus[curExpandRelationshipType]) {
-    //   console.log('已经有了扩展，需要表现为收缩',curExpandRelationshipType)
+    //   console.log('已经有了扩展，需要表现为收缩', curExpandRelationshipType)
     //   curNode.currentExpandStatus[curExpandRelationshipType] = false;
     //
-    //   console.log(nodes.length,links.length)
+    //   console.log(nodes.length, links.length)
     //   // 收缩连边和节点
     //   curNode.expandChildrenLink[curExpandRelationshipType].forEach(childLink => {
-    //     if (allCurLinkByIdMap.has(childLink.id)) {
+    //     if (allCurLinkByIdMap.has(childLink.id) && !childLink.isRemember()) {
     //       links.splice(links.findIndex(d => d.id === childLink.id), 1);
     //     }
     //   })
     //   curNode.expandChildrenNode[curExpandRelationshipType].forEach(childNode => {
-    //     if (allCurNodeByIdMap.has(childNode.id) && childNode.id !== curNode.id) {
+    //     if (allCurNodeByIdMap.has(childNode.id) && !childNode.isRemember && childNode.id !== curNode.id) {
     //       nodes.splice(nodes.findIndex(d => d.id === childNode.id), 1);
     //     }
     //   })
     //   restart();
-    //   console.log(nodes.length,links.length)
+    //   console.log(nodes.length, links.length)
     //   return;
     // }
 
