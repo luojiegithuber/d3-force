@@ -295,7 +295,8 @@ export function updateLinkSvg (linkRootG, links, linkDrawOption = {}) {
     .style('stroke-width', 1)
     .attr('id', (d, i) => 'edgepath' + i)
     .attr('marker-end', 'url(#arrow)')
-    .merge(g);
+  g.attr('opacity', 0)
+  g = g.merge(g)
 
   g = linkRootG.selectAll('g');
 
@@ -420,9 +421,12 @@ export function moveLink (linkG, isTransition) {
     linkG
       .transition()
       .duration(800)
+      .attr('opacity', 1)
       .attr('d', d => `M ${d.sourceNode.x} ${d.sourceNode.y} L ${d.targetNode.x} ${d.targetNode.y}`);
   } else {
-    linkG.attr('d', d => `M ${d.sourceNode.x} ${d.sourceNode.y} L ${d.targetNode.x} ${d.targetNode.y}`);
+    linkG
+      .attr('opacity', 1)
+      .attr('d', d => `M ${d.sourceNode.x} ${d.sourceNode.y} L ${d.targetNode.x} ${d.targetNode.y}`);
   }
 }
 

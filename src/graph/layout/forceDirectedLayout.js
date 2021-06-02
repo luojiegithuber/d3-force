@@ -603,7 +603,7 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
     handelNode.isRemember = true;
 
     // 如果这个节点是属于边扩散的一组里面的成员，所有成员都要被记忆
-    if (handelNode.pk_fk_group_id) {
+    /* if (handelNode.pk_fk_group_id) {
       const fromLink = allLinkByIdMap.get(handelNode.pk_fk_group_id);
       if (curRelationshipLink.id === fromLink.id) {
         curRelationshipLink = null
@@ -611,7 +611,7 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
       fromLink.relationshipTypeExpandData.nodes.forEach(node => {
         node.isRemember = true;
       })
-    }
+    } */
   }
 
   // 操作某一个节点的时候，过滤掉不被记忆的节点和与之相互关联的边
@@ -659,24 +659,90 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
 
   // 边的关系扩展
   function addEdgeRelationshipExpand (obj, params) {
+    const handleLink = obj.link;
     // 如果当前有非记忆扩展边
     if (curRelationshipLink) {
       shrinkLink(curRelationshipLink)
     }
 
-    curExpandRelationshipType = params.relationship_type;
-    const handleLink = obj.link;
-    const handleLinkNodes = handleLink.relationshipTypeExpandData.nodes;
-    const handleLinkLinks = handleLink.relationshipTypeExpandData.links;
-    // const nodeA = handleLink.sourceNode;
-    // const nodeB = handleLink.targetNode;
-    isTransitionStatus = true;
-    // console.log(obj.newGraph.nodes.map(d => d.guid), obj.newGraph.edges.map(d => d.source + '——>' + d.target))
+    // 如果以前请求过了，用缓存
+    if (handleLink.isRelationshipExpand) {
+      console.log('调用边关系扩展缓存')
+      let newNodes = handleLink.relationshipTypeExpandData.nodes.filter(node => !allCurNodeByIdMap.has(node.id))
+      let newLinks = handleLink.relationshipTypeExpandData.links.filter(link => !allCurLinkByIdMap.has(link.id))
+      console.log(newNodes, newLinks)
+      nodes.push(...newNodes);
+      links.push(...newLinks);
+    } else {
+      curExpandRelationshipType = params.relationship_type;
 
-    // 关系扩展后的z节点肯定有所属的数据表, 【一定是 T 指向 z】
-    // 因此我们可以设置初始位置
+      const handleLinkNodes = handleLink.relationshipTypeExpandData.nodes;
+      const handleLinkLinks = handleLink.relationshipTypeExpandData.links;
+      // const nodeA = handleLink.sourceNode;
+      // const nodeB = handleLink.targetNode;
+      isTransitionStatus = true;
+      // console.log(obj.newGraph.nodes.map(d => d.guid), obj.newGraph.edges.map(d => d.source + '——>' + d.target))
 
-    // 根据这条边处理的事务：T增加z节点，新增z的初始位置设置为T处
+      // 关系扩展后的z节点肯定有所属的数据表, 【一定是 T 指向 z】
+      // 因此我们可以设置初始位置
+
+      // 根据这条边处理的事务：T增加z节点，新增z的初始位置设置为T处
+
+      let newNodes = obj.newGraph.nodes.filter(node => {
+        if (!allNodeByIdMap.has(node.guid)) {
+          return true
+        } else {
+          // 节点存在，但是由于不被记忆被隐藏的时候，应当调出来
+          handleLinkNodes.push(allNodeByIdMap.get(node.guid))
+          if (!allCurNodeByIdMap.has(node.guid)) {
+            nodes.push(allNodeByIdMap.get(node.guid))
+          }
+          return false
+        }
+      })
+      let newLinks = obj.newGraph.edges.filter(link => {
+        if (!allLinkByIdMap.has(link.guid)) {
+          return true
+        } else {
+          handleLinkLinks.push(allLinkByIdMap.get(link.guid))
+          // 边存在，但是由于不被记忆被隐藏的时候，应当调出来
+          if (!allCurLinkByIdMap.has(link.guid)) {
+            links.push(allLinkByIdMap.get(link.guid))
+          }
+          return false
+        }
+      })
+
+      newNodes = createNodes(newNodes, node => {
+        allNodeByIdMap.set(node.id, node);
+        handleLinkNodes.push(node)
+      });
+
+      newLinks = createEdges(newLinks, link => {
+        handleTzLink(link)
+        allLinkByIdMap.set(link.id, link)
+        handleLinkLinks.push(link)
+      });
+
+      allNodes.push(...newNodes)
+      allLinks.push(...newLinks)
+
+      nodes.push(...newNodes);
+      links.push(...newLinks);
+
+      linkExpandByIdMap.set(handleLink.id, handleLink); // 记录这条边是进行扩展操作了的
+      rememberNode(handleLink.sourceNode)
+      rememberNode(handleLink.targetNode)
+    }
+
+    // deleteLink(handleLink)
+    links = links.filter(link => link.id !== handleLink.id) // 删除当前边
+
+    handleLink.isRelationshipExpand = true; // 表明关系扩展过了
+    curRelationshipLink = handleLink
+
+    restart();
+
     function handleTzLink (link) {
       if (link.sourceNode.group === 'TABLE') {
         const TableNode = link.sourceNode;
@@ -691,61 +757,6 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
         }
       }
     }
-
-    let newNodes = obj.newGraph.nodes.filter(node => {
-      if (!allNodeByIdMap.has(node.guid)) {
-        return true
-      } else {
-        // 节点存在，但是由于不被记忆被隐藏的时候，应当调出来
-        handleLinkNodes.push(allNodeByIdMap.get(node.guid))
-        if (!allCurNodeByIdMap.has(node.guid)) {
-          nodes.push(allNodeByIdMap.get(node.guid))
-        }
-        return false
-      }
-    })
-    let newLinks = obj.newGraph.edges.filter(link => {
-      if (!allLinkByIdMap.has(link.guid)) {
-        return true
-      } else {
-        handleLinkLinks.push(allLinkByIdMap.get(link.guid))
-        // 边存在，但是由于不被记忆被隐藏的时候，应当调出来
-        if (!allCurLinkByIdMap.has(link.guid)) {
-          links.push(allLinkByIdMap.get(link.guid))
-        }
-        return false
-      }
-    })
-
-    newNodes = createNodes(newNodes, node => {
-      allNodeByIdMap.set(node.id, node);
-      handleLinkNodes.push(node)
-    });
-
-    newLinks = createEdges(newLinks, link => {
-      handleTzLink(link)
-      allLinkByIdMap.set(link.id, link)
-      handleLinkLinks.push(link)
-    });
-
-    allNodes.push(...newNodes)
-    allLinks.push(...newLinks)
-
-    // console.log(newNodes.map(d => d.id), newLinks.map(d => d.sourceNode.id + '——>' + d.targetNode.id))
-
-    nodes.push(...newNodes);
-    links.push(...newLinks);
-
-    linkExpandByIdMap.set(handleLink.id, handleLink); // 记录这条边是进行扩展操作了的
-    rememberNode(handleLink.sourceNode)
-    rememberNode(handleLink.targetNode)
-    // deleteLink(handleLink)
-    links = links.filter(link => link.id !== handleLink.id) // 删除当前边
-
-    handleLink.isRelationshipExpand = true; // 表明关系扩展过了
-    curRelationshipLink = handleLink
-
-    restart();
   }
 
   function deleteLink (handleLink) {
