@@ -204,10 +204,28 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
           if (d.group === 'TABLE') {
             d.links.forEach(link => {
               if (link.sourceNode.group === 'NODE') {
-                rememberNode(allNodeByIdMap.get(link.sourceNode.id))
+                for (let edge of link.sourceNode.links) {
+                  if (edge.sourceNode.id === link.sourceNode.id && edge.targetNode.isRemember && edge.targetNode.id !== d.id) {
+                    rememberNode(allNodeByIdMap.get(link.sourceNode.id))
+                    break;
+                  }
+                  if (edge.targetNode.id === link.sourceNode.id && edge.sourceNode.isRemember && edge.sourceNode.id !== d.id) {
+                    rememberNode(allNodeByIdMap.get(link.sourceNode.id))
+                    break;
+                  }
+                }
               }
               if (link.targetNode.group === 'NODE') {
-                rememberNode(allNodeByIdMap.get(link.targetNode.id))
+                for (let edge of link.targetNode.links) {
+                  if (edge.targetNode.id === link.targetNode.id && edge.sourceNode.isRemember && edge.sourceNode.id !== d.id) {
+                    rememberNode(allNodeByIdMap.get(link.targetNode.id))
+                    break;
+                  }
+                  if (edge.sourceNode.id === link.targetNode.id && edge.targetNode.isRemember && edge.targetNode.id !== d.id) {
+                    rememberNode(allNodeByIdMap.get(link.targetNode.id))
+                    break;
+                  }
+                }
               }
             })
           }
