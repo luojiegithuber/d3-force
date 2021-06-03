@@ -36,6 +36,8 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
   var noRememberNodes = []; // 缓存被过滤的节点
   var noRememberLinks = []; // 缓存被过滤的边
 
+  var rootCenterNode = null; // 整个图的根节点，一开始要被记忆的
+
   var allNodes = [];
   var allLinks = [];
 
@@ -75,6 +77,9 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
     allLinkByIdMap.set(link.id, link)
     linkTwoNodes(link.sourceNode, link.targetNode, link);
   });
+  /*   console.log(rootCenterNodeId, nodes)
+  rememberNode(allNodeByIdMap.get(rootCenterNodeId)) */
+
   // 力仿真器
   const simulation = d3.forceSimulation();
   simulation.nodes(nodes)
@@ -360,6 +365,8 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
 
   // 已经扩展过的节点再次扩展时，直接利用缓存
   function expandNode (rootNode) {
+    setNodeCoordinateFromParent(rootNode, 'ALL')
+
     isTransitionStatus = true;
     if (!rootNode.isShrink[curExpandRelationshipType]) {
       console.log(`节点的${curExpandRelationshipType}已经是扩展状态`, rootNode)
@@ -733,17 +740,17 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
   // 收缩扩展边
   function shrinkLink (link) {
     filterNoRemember()
-    links.push(link)
-    curRelationshipLink = null;
+    if (link) {
+      links.push(link)
+      curRelationshipLink = null;
+    }
   }
 
   // 边的关系扩展
   function addEdgeRelationshipExpand (obj, params) {
     const handleLink = obj.link;
     // 如果当前有非记忆扩展边
-    if (curRelationshipLink) {
-      shrinkLink(curRelationshipLink)
-    }
+    shrinkLink(curRelationshipLink)
 
     // 如果以前请求过了，用缓存
     if (handleLink.isRelationshipExpand) {
@@ -861,13 +868,34 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
     }
   }
 
+  function setRootCenterNode (node) {
+    rootCenterNode = nodes.find(d => d.id === node.guid);
+    if (rootCenterNode) {
+      rememberNode(rootCenterNode);
+      console.log('全图根节点', rootCenterNode)
+    }
+  }
+
+  // 设置节点被扩展时候的坐标从父母节点开始
+  // 入参是父母节点
+  function setNodeCoordinateFromParent (handelNode, type) {
+    // 根据类别
+    handelNode.expandChildrenNode[type].forEach(childNode => {
+      if (!allCurNodeByIdMap.has(childNode.id)) {
+        childNode.x = handelNode.x;
+        childNode.y = handelNode.y;
+      }
+    })
+  }
+
   return {
     addNewGraph,
     shrinkNode,
     pinNode,
     switchVisualizeRemember,
     addEdgeRelationshipExpand,
-    filterNoRemember
+    filterNoRemember,
+    setRootCenterNode
   }
 }
 

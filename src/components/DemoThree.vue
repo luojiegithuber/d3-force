@@ -60,6 +60,7 @@ export default {
   },
   data () {
     return {
+      curNode: null,
 
       myDiagram: null,
       modelData: [], // 节点数据
@@ -190,7 +191,8 @@ export default {
     },
 
     selectNodeInCase (node) {
-      // console.log('你选择了节点：', node)
+      console.log('你选择了图的根节点：', node)
+      this.curNode = node
       // 传过去这个节点的图数据
       this.selectNode = node;
       getNodeNextJump(node, 'RECOMMEND').then(res => {
@@ -244,6 +246,7 @@ export default {
           let data = this.originData
           let layoutOption = {selectNode: this.selectNode}
           this.layoutObj = selectGraphLayout(layoutId, data, htmlDomSelection, this.selectedNodeChange, layoutOption, this.showNodeContextMenu)
+          this.layoutObj.setRootCenterNode(this.curNode)
         })
       })
     },
