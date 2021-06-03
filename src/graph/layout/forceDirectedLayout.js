@@ -209,6 +209,8 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
           if (lastNode.id !== curNode.id) {
             console.log('clean')
             filterNoRemember();
+          } else {
+            filterNoRemember();
           }
 
           lastNode = d;
@@ -678,7 +680,7 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
     });
     allCurNodeByIdMap = new Map(nodes.map(node => [node.id, node]))
     allCurLinkByIdMap = new Map(links.map(link => [link.id, link]))
-    // restart();
+    console.log(nodes)
   }
 
   // 恢复被全局过滤掉的边

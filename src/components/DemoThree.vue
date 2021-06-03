@@ -192,6 +192,7 @@ export default {
     selectNodeInCase (node) {
       // console.log('你选择了节点：', node)
       // 传过去这个节点的图数据
+      this.selectNode = node;
       getNodeNextJump(node, 'RECOMMEND').then(res => {
         if (res.message === 'success') {
           // 将所选择的左侧节点进行路径记忆
@@ -218,48 +219,12 @@ export default {
       this.$store.dispatch('changeNodeFun', node)
     },
 
-    methods: {
+    showNodeContextMenu (nodeContextData, cbEnd) {
+      console.log('右键', nodeContextData)
+      this.$refs.NodeContextMenu.setNodeContextMenu(nodeContextData, cbEnd)
+    },
 
-      open () {
-        this.$refs.CaseList.visible = true
-      },
-
-      selectNodeInCase (node) {
-        // console.log('你选择了节点：', node)
-        // 传过去这个节点的图数据
-        this.selectNode = node;
-        getNodeNextJump(node, 'RECOMMEND').then(res => {
-          if (res.message === 'success') {
-            // 将所选择的左侧节点进行路径记忆
-            res.content.nodes.forEach(d => { d.isRemember = d.guid === node.guid });
-
-            this.originData = res.content;
-            this.changeLayout(this.$store.state.layoutId);
-          }
-        })
-
-        // // 只传一个节点
-        // this.originData = {
-        //   nodes: [node],
-        //   edges: []
-        // };
-        // this.changeLayout(this.$store.state.layoutId);
-
-        /* 访问接口，返回了数据之后 */
-        // this.originData = originData // 更新数据
-        // this.changeLayout(this.$store.state.layoutId);
-      },
-
-      selectedNodeChange (node) {
-        this.$store.dispatch('changeNodeFun', node)
-      },
-
-      showNodeContextMenu (nodeContextData, cbEnd) {
-        console.log('右键', nodeContextData)
-        this.$refs.NodeContextMenu.setNodeContextMenu(nodeContextData, cbEnd)
-      },
-
-      /* upDateDiagramAnimationFrame (count) {
+    /* upDateDiagramAnimationFrame (count) {
         count++
         requestAnimationFrame(() => {
           this.myDiagram.requestUpdate()
@@ -267,27 +232,26 @@ export default {
         })
       }, */
 
-      changeLayout (layoutId) {
-        this.$store.dispatch('changeNodeFun', {})
-        this.isClearD3Content = true;
+    changeLayout (layoutId) {
+      this.$store.dispatch('changeNodeFun', {})
+      this.isClearD3Content = true;
+      this.$nextTick(() => {
+        this.isClearD3Content = false;
+        this.isCanvas = this.isCanvasLayout(layoutId);
         this.$nextTick(() => {
-          this.isClearD3Content = false;
-          this.isCanvas = this.isCanvasLayout(layoutId);
-          this.$nextTick(() => {
-            const htmlDomSelection = this.isCanvasLayout(layoutId) ? document.querySelector('canvas') : d3.select('#mainsvg')
-            // console.log('111', layoutOption)
-            let data = this.originData
-            let layoutOption = {selectNode: this.selectNode}
-            this.layoutObj = selectGraphLayout(layoutId, data, htmlDomSelection, this.selectedNodeChange, layoutOption, this.showNodeContextMenu)
-          })
+          const htmlDomSelection = this.isCanvasLayout(layoutId) ? document.querySelector('canvas') : d3.select('#mainsvg')
+          // console.log('111', layoutOption)
+          let data = this.originData
+          let layoutOption = {selectNode: this.selectNode}
+          this.layoutObj = selectGraphLayout(layoutId, data, htmlDomSelection, this.selectedNodeChange, layoutOption, this.showNodeContextMenu)
         })
-      },
+      })
+    },
 
-      isCanvasLayout (layoutId) {
-        return layoutId === 7 || layoutId === 8
-      }
-
+    isCanvasLayout (layoutId) {
+      return layoutId === 7 || layoutId === 8
     }
+
   }
 }
 </script>

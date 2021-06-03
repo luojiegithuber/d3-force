@@ -344,7 +344,7 @@ export default {
         this.lastExpandNodeId = this.node.id;
         this.lastRelationshipType = relationship_type;
         if (res.message === 'success') {
-          // console.log('新取得的数据', res.content)
+          console.log('新取得的数据', res.content)
           this.bus.$emit('addNewGraph', {
             node: this.node,
             newGraph: res.content
