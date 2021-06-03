@@ -43,15 +43,16 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
 
   var isTransitionStatus = false;
 
-  var curNode = new Node(option.selectNode); // 当前操作节点
+  var curNode = new Node(option.selectNode);  // 当前操作节点
   curNode.currentExpandStatus.RECOMMEND = true;
-  var lastNode = new Node(option.selectNode); // 上一次操作的节点
-  lastNode.currentExpandStatus.RECOMMEND = true;
+  curNode.isExpandChildren.RECOMMEND = true;
+  var lastExpandNode = new Node(option.selectNode);  // 上一次扩展操作的节点
+  lastExpandNode.currentExpandStatus.RECOMMEND = true;
   var curNodeSelection = null; // d3格式的节点
   var curLinkSelection = null; // d3格式的节点
 
   var curRelationshipLink = null; // 当前扩展的边，同时其子数据并没有被记忆，如果其子数据被记忆了就将该变量置null
-
+  var lastRelationshipLink = null; // 上一次扩展的边
   // 当前点击扩展的类型
   var curExpandRelationshipType = 'RECOMMEND';
 
@@ -66,15 +67,29 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
     // 设置初始的扩展状态
     if (node.id === curNode.id) {
       node.currentExpandStatus.RECOMMEND = true;
+      node.isExpandChildren.RECOMMEND = true;
+      rememberNode(node);
     }
-
     allNodeByIdMap.set(node.id, node)
   });
-
+  var initIndex = nodes.findIndex(d => d.id === curNode.id);//初始数据表的索引
   var links = createEdges(originalData.edges, link => {
     allLinkByIdMap.set(link.id, link)
-    linkTwoNodes(link.sourceNode, link.targetNode, link);
+    // linkTwoNodes(link.sourceNode, link.targetNode, link);
+
+    // 记录初始数据表节点RECOMMEND的数据
+    if (link.sourceNode.id !== curNode.id && !nodes[initIndex].isExpandChildNodeMap.RECOMMEND.hasOwnProperty(link.sourceNode.id)) {
+      nodes[initIndex].expandChildrenNode.RECOMMEND.push(link.sourceNode);
+      nodes[initIndex].isExpandChildNodeMap.RECOMMEND[link.sourceNode.id] = link.sourceNode;
+    }
+    if (link.targetNode.id !== curNode.id && !nodes[initIndex].isExpandChildNodeMap.RECOMMEND.hasOwnProperty(link.targetNode.id)) {
+      nodes[initIndex].expandChildrenNode.RECOMMEND.push(link.targetNode);
+      nodes[initIndex].isExpandChildNodeMap.RECOMMEND[link.targetNode.id] = link.targetNode;
+    }
+    nodes[initIndex].expandChildrenLink.RECOMMEND.push(link);
+    nodes[initIndex].isExpandChildLinkMap.RECOMMEND[link.id] = link;
   });
+
   // 力仿真器
   const simulation = d3.forceSimulation();
   simulation.nodes(nodes)
@@ -137,7 +152,6 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
   // 增量重绘函数
   function restart () {
     // 节点绘制更新
-
     nodeG = updateNodeSvg(nodeRootG, nodes, {
       nodeSize: nodeSize,
       setColorByKey: 'group',
@@ -163,7 +177,7 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
         callFunSelectNode(d)
         e.stopPropagation(); // 停止冒泡
 
-        lastNode = d;
+        // lastExpandNode = d;
 
         // 点击即扩展，获取默认的扩展节点
         /*         if (d.isExpandChildren) {
@@ -194,9 +208,15 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
       .on('contextmenu', function (e, d) {
         highlightNode(curNodeSelection, d3.select(this))
         d3.select(this).raise()
+
+        // 根据当前图上肉眼看到的节点判断是否已经全部扩展完，用于动态渲染右键扩展关系菜单项
+        for (let relationshipType in d.currentExpandStatus) {
+          d.currentExpandStatus[relationshipType] = isInCurrentGraph(d, relationshipType)
+          // console.log(d, relationshipType,d.currentExpandStatus[relationshipType],isInCurrentGraph(d, relationshipType))
+        }
+
         curNode = d;
         curNodeSelection = d3.select(this);
-        // console.log(curNode.group,lastNode.group)
         callFunShowNodeContextMenu({
           node: d,
           position: [e.clientX, e.clientY]
@@ -236,15 +256,14 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
           // ！！！但这有一个问题：如果先钉住节点A，然后对节点B进行扩展，再对A取消钉住，
           // 再对节点B扩展相同的东西，会发现A的没有被钉住的节点不消失
           // 已修复！！！
-          // console.log(curNode.group,lastNode.group)
-          if (lastNode.id !== curNode.id) {
+          if (lastExpandNode.id !== curNode.id) {
             console.log('clean')
             filterNoRemember();
-          } else {
-            filterNoRemember();
           }
-
-          lastNode = d;
+          // else {
+          //   filterNoRemember();
+          // }
+          lastExpandNode = d
           // filterNoRemember(d);
           // switchVisualizeRemember(false);
           // restart();
@@ -313,6 +332,19 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
         }
       })
     }
+
+    // 更新图中节点的当前扩展标识
+    console.log('更新其他标识')
+    nodes.forEach(d => {
+      for (let relationshipType in d.currentExpandStatus) {
+        // d.currentExpandStatus[relationshipType] = isInCurrentGraph(d, relationshipType)
+        allNodeByIdMap.get(d.id).currentExpandStatus[relationshipType] = isInCurrentGraph(d, relationshipType)
+        allCurNodeByIdMap.get(d.id).currentExpandStatus[relationshipType] = isInCurrentGraph(d, relationshipType)
+        // console.log(d.group, relationshipType, isInCurrentGraph(d, relationshipType))
+      }
+      // allNodeByIdMap.get(d.id).currentExpandStatus[relationshipType] = isInCurrentGraph(d, relationshipType)
+      // allNodeByIdMap.set(d.id, d);
+    });
 
     // 仿真器更新
     simulation.nodes(nodes);
@@ -428,22 +460,126 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
       if (isVisualizeNoRemember) {
         if (!childNode.isShrink[curExpandRelationshipType]) {
           childNode.expandChildrenLink[curExpandRelationshipType].forEach(childLink => {
-            links.push(childLink);
+            if (!allCurLinkByIdMap.has(childLink.id)) {
+              links.push(childLink);
+            }
           })
           childNode.expandChildrenNode[curExpandRelationshipType].forEach(childNode => {
-            nodes.push(childNode);
+            if (!allCurNodeByIdMap.has(childNode.id)) {
+              nodes.push(childNode);
+            }
             // expandChildNode(childNode)
           })
         }
       } else {
         if (!childNode.isShrink[curExpandRelationshipType]) {
           childNode.expandChildrenLink[curExpandRelationshipType].forEach(childLink => {
-            if (childLink.isRemember()) {
+            if (childLink.isRemember() && !allCurLinkByIdMap.has(childLink.id)) {
               links.push(childLink);
             }
           })
           childNode.expandChildrenNode[curExpandRelationshipType].forEach(childNode => {
-            if (childNode.isRemember || childNode.isPinRemember) {
+            if (childNode.isRemember || childNode.isPinRemember && !allCurNodeByIdMap.has(childNode.id)) {
+              nodes.push(childNode);
+              // expandChildNode(childNode)
+            }
+          })
+        }
+      }
+    }
+  }
+
+  // 收缩已经扩展的
+  function filterShinkNode (rootNode) {
+    isTransitionStatus = true;
+    if (!rootNode.isShrink[curExpandRelationshipType]) {
+      console.log(`节点的${curExpandRelationshipType}已经是扩展状态`, rootNode)
+      // 已经是扩展状态却还需要扩展的原因还有一个——————暴露无记忆子节点！！！！
+      // expandChildNoRememberNode1(rootNode)
+      rootNode.expandChildrenLink[curExpandRelationshipType].forEach(childLink => {
+        if (!allCurLinkByIdMap.has(childLink.id)) {
+          links.push(childLink);
+        }
+      })
+      rootNode.expandChildrenNode[curExpandRelationshipType].forEach(childNode => {
+        if (!allCurNodeByIdMap.has(childNode.id)) {
+          childNode.x = rootNode.x
+          childNode.y = rootNode.y
+          nodes.push(childNode);
+          // expandChildNode(childNode)
+        }
+      })
+      restart();
+
+      // restart();
+    } else {
+      rootNode.isShrink[curExpandRelationshipType] = false;
+      expandChildNode(rootNode)
+      restart();
+    }
+
+    /*     function expandChildNoRememberNode1 (childNode) {
+      if (!childNode.isShrink) {
+        // 子节点没有收缩的话，仅仅可视化记忆点边
+        childNode.expandChildrenLink.forEach(childLink => {
+          if (!allCurLinkByIdMap.has(childLink.id)) {
+            // 假如当前界面不存在，但是母节点处于扩散态（不收缩态）
+            links.push(childLink);
+          }
+        })
+        childNode.expandChildrenNode.forEach(childNode => {
+          if (!allCurNodeByIdMap.has(childNode.id)) {
+            nodes.push(childNode);
+            expandChildNoRememberNode2(childNode)
+          }
+        })
+      }
+    }
+
+    function expandChildNoRememberNode2 (childNode) {
+      if (!childNode.isShrink) {
+        // 子节点没有收缩的话，仅仅可视化记忆点边
+        childNode.expandChildrenLink.forEach(childLink => {
+          if (childLink.isRemember()) {
+            // 假如当前界面不存在，但是母节点处于扩散态（不收缩态）
+            links.push(childLink);
+          }
+        })
+        childNode.expandChildrenNode.forEach(childNode => {
+          if (childNode.isRemember) {
+            nodes.push(childNode);
+            expandChildNoRememberNode2(childNode)
+          }
+        })
+      }
+    }
+ */
+    function expandChildNode (childNode) {
+      // 根据记忆需求，被动扩展的时候，如果原本节点是收缩状态就不要扩展
+      if (isVisualizeNoRemember) {
+        if (!childNode.isShrink[curExpandRelationshipType]) {
+          childNode.expandChildrenLink[curExpandRelationshipType].forEach(childLink => {
+            if (!allCurLinkByIdMap.has(childLink.id)) {
+              links.push(childLink);
+            }
+
+          })
+          childNode.expandChildrenNode[curExpandRelationshipType].forEach(childNode => {
+            if (!allCurNodeByIdMap.has(childLink.id)) {
+              nodes.push(childNode);
+            }
+            // expandChildNode(childNode)
+          })
+        }
+      } else {
+        if (!childNode.isShrink[curExpandRelationshipType]) {
+          childNode.expandChildrenLink[curExpandRelationshipType].forEach(childLink => {
+            if (childLink.isRemember() && !allCurLinkByIdMap.has(childLink.id)) {
+              links.push(childLink);
+            }
+          })
+          childNode.expandChildrenNode[curExpandRelationshipType].forEach(childNode => {
+            if (childNode.isRemember || childNode.isPinRemember && !allCurNodeByIdMap.has(childNode.id)) {
               nodes.push(childNode);
               // expandChildNode(childNode)
             }
@@ -467,35 +603,37 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
     const rootNode = obj.node;
     const newGraph = obj.newGraph;
     curExpandRelationshipType = params.relationship_type;
-    if (newGraph.nodes.length === 0 && newGraph.edges.length === 0) {
-      console.log(`没有对应的${curExpandRelationshipType}扩展数据`);
-      return;
-    }
 
-    // // 如果扩展了则进行收缩(待补充)，记忆的以及钉住记忆的不能收缩
-    // if (curNode.currentExpandStatus[curExpandRelationshipType]) {
-    //   console.log('已经有了扩展，需要表现为收缩', curExpandRelationshipType)
-    //   curNode.currentExpandStatus[curExpandRelationshipType] = false;
-    //
-    //   console.log(nodes.length, links.length)
-    //   // 收缩连边和节点
-    //   curNode.expandChildrenLink[curExpandRelationshipType].forEach(childLink => {
-    //     if (allCurLinkByIdMap.has(childLink.id) && !childLink.isRemember()) {
-    //       links.splice(links.findIndex(d => d.id === childLink.id), 1);
-    //     }
-    //   })
-    //   curNode.expandChildrenNode[curExpandRelationshipType].forEach(childNode => {
-    //     if (allCurNodeByIdMap.has(childNode.id) && !childNode.isRemember && childNode.id !== curNode.id) {
-    //       nodes.splice(nodes.findIndex(d => d.id === childNode.id), 1);
-    //     }
-    //   })
-    //   restart();
-    //   console.log(nodes.length, links.length)
+    // if (newGraph.nodes.length === 0 && newGraph.edges.length === 0) {
+    //   console.log(`没有对应的${curExpandRelationshipType}扩展数据`);
     //   return;
     // }
 
+    if (rootNode.currentExpandStatus[curExpandRelationshipType]) {
+      rootNode.currentExpandStatus[curExpandRelationshipType] = false;
+      rootNode.isShrink[curExpandRelationshipType] = true;
+
+      rootNode.expandChildrenLink[curExpandRelationshipType].forEach(childLink => {
+        if (allCurLinkByIdMap.has(childLink.id) && !childLink.isRemember()) {
+          links.splice(links.findIndex(d => d.id === childLink.id), 1);
+        }
+      });
+      rootNode.expandChildrenNode[curExpandRelationshipType].forEach(childNode => {
+        if (allCurNodeByIdMap.has(childNode.id) && !childNode.isRemember && !childNode.isPinRemember && childNode.id !== curNode.id) {
+          nodes.splice(nodes.findIndex(d => d.id === childNode.id), 1);
+        }
+      });
+      nodes[nodes.findIndex(d => d.id === rootNode.id)] = rootNode;
+      allCurNodeByIdMap = new Map(nodes.map(node => [node.id, node]));
+      allCurLinkByIdMap = new Map(links.map(link => [link.id, link]));
+      isTransitionStatus = true;
+      restart();
+      return
+    }
+
     // 否则进行扩展
-    curNode.currentExpandStatus[curExpandRelationshipType] = true;
+    console.log('还没有扩展，需要表现为扩展', curExpandRelationshipType)
+    rootNode.currentExpandStatus[curExpandRelationshipType] = true;
     if (rootNode.isExpandChildren[curExpandRelationshipType]) {
       expandNode(rootNode);
     } else {
@@ -675,7 +813,7 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
         }
       })
     }
-    // lastNode = handelNode;
+    // lastExpandNode = handelNode;
   }
 
   // 记住一个节点和其相关节点
@@ -715,7 +853,8 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
     });
     allCurNodeByIdMap = new Map(nodes.map(node => [node.id, node]))
     allCurLinkByIdMap = new Map(links.map(link => [link.id, link]))
-    console.log(nodes)
+    return handelNode;
+    // restart();
   }
 
   // 恢复被全局过滤掉的边
@@ -753,6 +892,7 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
       console.log(newNodes, newLinks)
       nodes.push(...newNodes);
       links.push(...newLinks);
+
     } else {
       curExpandRelationshipType = params.relationship_type;
 
@@ -814,14 +954,16 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
       rememberNode(handleLink.sourceNode)
       rememberNode(handleLink.targetNode)
     }
-
+    console.log(nodes.length, links.length)
     // deleteLink(handleLink)
     links = links.filter(link => link.id !== handleLink.id) // 删除当前边
+    console.log(nodes.length, links.length)
 
     handleLink.isRelationshipExpand = true; // 表明关系扩展过了
     curRelationshipLink = handleLink
 
     restart();
+    lastRelationshipLink = curRelationshipLink;
 
     function handleTzLink (link) {
       if (link.sourceNode.group === 'TABLE') {
@@ -859,6 +1001,31 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
       nodeB.expandChildrenLink[curExpandRelationshipType].push(link);
       nodeB.isExpandChildLinkMap[curExpandRelationshipType][link.id] = link;
     }
+  }
+
+  // 判断节点扩展对应关系类型下的节点是否全部在图中
+  function isInCurrentGraph (node, relationshipType) {
+    // 如果未被记忆说明还没有扩展过的，因此 node 的扩展节点肯定不在图中
+    var isExistUnexpandNode = false;
+    if (!node.isRemember || !node.isExpandChildren[relationshipType] || !node.currentExpandStatus[relationshipType]) {
+      isExistUnexpandNode = true;
+    } else {
+      // 如果被记忆了则说明已经扩展过一次惹，那么就判断是否有东西
+      var balanceNodes = node.expandChildrenNode[relationshipType].filter(d => d.id !== node.id);  // 先过滤掉本身
+
+      // 没有东西，则表现为可扩展
+      // if (balanceNodes.length === 0) {
+      //   return false;
+      // } else {
+      balanceNodes.forEach(childNode => {
+        // 如果发现有图上不存在的节点，则表示还可以扩展
+        if (!allCurNodeByIdMap.has(childNode.id)) {
+          isExistUnexpandNode = true;
+        }
+      });
+      // }
+    }
+    return !isExistUnexpandNode;
   }
 
   return {

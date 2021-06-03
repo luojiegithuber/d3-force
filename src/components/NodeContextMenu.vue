@@ -319,40 +319,41 @@ export default {
       })
     },
 
-    expandNode (relationship_type = 'RECOMMEND') {
-      this.callBackEndHandle();
-      // if (this.lastExpandNodeId === this.node.id && this.lastRelationshipType === relationship_type) {
-      //   console.log(`重复上次请求操作，不需要重新渲染图`);
-      //   return;
-      // }
-      if (this.node.isExpandChildren[relationship_type]) {
-        this.lastExpandNodeId = this.node.id;
-        this.lastRelationshipType = relationship_type;
-        // 如果之前请求过节点了，那就不需要再请求，直接用现成的
-        console.log(`已经请求过该节点的${relationship_type}类型，直接扩展`)
-        this.bus.$emit('addNewGraph', {
-          node: this.node,
-          newGraph: {
-            nodes: this.node.isExpandChildNodeMap[relationship_type],
-            edges: this.node.isExpandChildNodeMap[relationship_type]
-          }
-        }, {relationship_type: relationship_type})
-        // this.callBackEndHandle();
-        return;
-      }
-      getNodeNextJump(this.node.data, relationship_type).then(res => {
-        this.lastExpandNodeId = this.node.id;
-        this.lastRelationshipType = relationship_type;
-        if (res.message === 'success') {
-          console.log('新取得的数据', res.content)
+      expandNode (relationship_type = 'RECOMMEND') {
+        this.callBackEndHandle();
+        // if (this.lastExpandNodeId === this.node.id && this.lastRelationshipType === relationship_type) {
+        //   console.log(`重复上次请求操作，不需要重新渲染图`);
+        //   return;
+        // }
+
+        if (this.node.isExpandChildren[relationship_type]) {
+          this.lastExpandNodeId = this.node.id;
+          this.lastRelationshipType = relationship_type;
+          // 如果之前请求过节点了，那就不需要再请求，直接用现成的
+          console.log(`已经请求过该节点的${relationship_type}类型，直接搞渲染`)
           this.bus.$emit('addNewGraph', {
             node: this.node,
-            newGraph: res.content
+            newGraph: {
+              nodes: this.node.isExpandChildNodeMap[relationship_type],
+              edges: this.node.isExpandChildNodeMap[relationship_type]
+            }
           }, {relationship_type: relationship_type})
+          // this.callBackEndHandle();
+          return;
         }
-        // this.callBackEndHandle();
-      })
-    },
+        getNodeNextJump(this.node.data, relationship_type).then(res => {
+          this.lastExpandNodeId = this.node.id;
+          this.lastRelationshipType = relationship_type;
+          if (res.message === 'success') {
+            // console.log('新取得的数据', res.content)
+            this.bus.$emit('addNewGraph', {
+              node: this.node,
+              newGraph: res.content
+            }, {relationship_type: relationship_type})
+          }
+          // this.callBackEndHandle();
+        })
+      },
 
     shrinkNode () {
       this.bus.$emit('shrinkNode', this.node)
@@ -369,31 +370,25 @@ export default {
         return
       }
 
-      // 动态设置节点右键菜单
-      if (contextData.node) {
-        this.node = contextData.node;
-        // 设置节点右键关系扩展菜单
-        // if (this.node.pk_fk_group_id) {
-        //   // 通过边主外键扩展的节点没有钉住功能
-        //   this.nodeMenulists.COLUMN[1].children = this.expandDict[this.node.group];
-        //   this.contextMenuData.menulists = this.nodeMenulists.COLUMN;
-        // } else {
-        this.nodeMenulists.COMMON[1].children = this.expandDict[this.node.group];
-        // 设置节点右键钉住和解锁的文本切换
-        this.nodeMenulists.COMMON[2].btnName = this.node.isPinStatus ? '解除钉住' : '钉住';
-        this.contextMenuData.menulists = this.nodeMenulists.COMMON;
-        // }
-      }
-      // 动态设置连边右键菜单
-      if (contextData.link) {
-        this.link = contextData.link;
-        if (this.link.group === 'PK_FK' && this.link.sourceNode.group === 'TABLE' && this.link.targetNode.group === 'TABLE') {
-          // 唯有 T-> PK_FK -> 类型的边才有主外键扩展
-          this.contextMenuData.menulists = this.linkMenulists.PK_FK;
-        } else {
-          this.contextMenuData.menulists = this.linkMenulists.COMMON;
+        // 动态设置节点右键菜单
+        if (contextData.node) {
+          this.node = contextData.node;
+          console.log("渲染菜单前",this.node.currentExpandStatus)
+          this.nodeMenulists.COMMON[1].children = this.expandDictByNodeType(this.node);
+          // 设置节点右键钉住和解锁的文本切换
+          this.nodeMenulists.COMMON[2].btnName = this.node.isPinStatus ? '解除钉住' : '钉住';
+          this.contextMenuData.menulists = this.nodeMenulists.COMMON;
         }
-      }
+        // 动态设置连边右键菜单
+        if (contextData.link) {
+          this.link = contextData.link;
+          if (this.link.group === 'PK_FK' && this.link.sourceNode.group === 'TABLE' && this.link.targetNode.group === 'TABLE') {
+            // 唯有 T-> PK_FK -> 类型的边才有主外键扩展
+            this.contextMenuData.menulists = this.linkMenulists.PK_FK;
+          } else {
+            this.contextMenuData.menulists = this.linkMenulists.COMMON;
+          }
+        }
 
       let x = contextData.position[0];
       let y = contextData.position[1];
@@ -402,17 +397,257 @@ export default {
         x, y
       };
 
-      this.callBackEndHandle = cbEnd;
-    },
+        this.callBackEndHandle = cbEnd;
+
+      },
+
+      checkNode () {
+        console.log('所选择节点的信息为', this.node)
+      },
 
     // 钉住
     pinNode () {
       this.lastPinNodeId = this.node.id;
       this.bus.$emit('pinNode', this.node)
-    }
+    },
 
+
+      // 右键扩展与收缩动态渲染菜单
+      expandDictByNodeType (node) {
+        let menuDict;
+        switch (node.group) {
+          case 'BusinessCatalog': {
+            menuDict = [
+              {
+                btnName: '+所有' + (node.currentExpandStatus.ALL ? ' (已扩展)' : ''),
+                fnHandler: 'expandNodeAll'
+              },
+              {
+                btnName: '+其他关系' + (node.currentExpandStatus.OTHERS ? ' (已扩展)' : ''),
+                fnHandler: 'expandNodeOTHERS'
+              },
+              {
+                btnName: ' 上游父子关系' + (node.currentExpandStatus.LAST_PARENT_CHILD ? ' (已扩展)' : ''),
+                fnHandler: 'expandNodeLAST_PARENT_CHILD'
+              },
+              {
+                btnName: ' 下游父子关系' + (node.currentExpandStatus.NEXT_PARENT_CHILD ? ' (已扩展)' : ''),
+                fnHandler: 'expandNodeNEXT_PARENT_CHILD'
+              }
+            ];
+            break;
+          }
+          case 'BusinessLogicEntity': {
+            menuDict = [
+              {
+                btnName: '+所有' + (node.currentExpandStatus.ALL ? ' (已扩展)' : ''),
+                fnHandler: 'expandNodeAll'
+              },
+              {
+                btnName: '+推荐关系' + (node.currentExpandStatus.RECOMMEND ? ' (已扩展)' : ''),
+                fnHandler: 'expandNodeRECOMMEND'
+              },
+              {
+                btnName: ' 逻辑物理关系' + (node.currentExpandStatus.LOGICAL_PHYSICAL ? ' (已扩展)' : ''),
+                fnHandler: 'expandNodeLOGICAL_PHYSICAL'
+              },
+              {
+                btnName: ' 上游父子关系' + (node.currentExpandStatus.LAST_PARENT_CHILD ? ' (已扩展)' : ''),
+                fnHandler: 'expandNodeLAST_PARENT_CHILD'
+              },
+              {
+                btnName: '+其他关系' + (node.currentExpandStatus.OTHERS ? ' (已扩展)' : ''),
+                fnHandler: 'expandNodeOTHERS'
+              },
+              {
+                btnName: ' 下游父子关系' + (node.currentExpandStatus.NEXT_PARENT_CHILD ? ' (已扩展)' : ''),
+                fnHandler: 'expandNodeNEXT_PARENT_CHILD'
+              }
+            ];
+            break;
+          }
+          case 'BusinessLogicEntityColumn': {
+            menuDict = [
+              {
+                btnName: '+所有' + (node.currentExpandStatus.ALL ? ' (已扩展)' : ''),
+                fnHandler: 'expandNodeAll'
+              },
+              {
+                btnName: '+推荐关系' + (node.currentExpandStatus.RECOMMEND ? ' (已扩展)' : ''),
+                fnHandler: 'expandNodeRECOMMEND'
+              },
+              {
+                btnName: ' 上游父子关系' + (node.currentExpandStatus.LAST_PARENT_CHILD ? ' (已扩展)' : ''),
+                fnHandler: 'expandNodeLAST_PARENT_CHILD'
+              },
+              {
+                btnName: '+其他关系' + (node.currentExpandStatus.OTHERS ? ' (已扩展)' : ''),
+                fnHandler: 'expandNodeOTHERS'
+              },
+              {
+                btnName: ' 逻辑物理关系' + (node.currentExpandStatus.LOGICAL_PHYSICAL ? ' (已扩展)' : ''),
+                fnHandler: 'expandNodeLOGICAL_PHYSICAL'
+              }
+            ];
+            break;
+          }
+          case 'DATABASE': {
+            menuDict = [
+              {
+                btnName: '+所有' + (node.currentExpandStatus.ALL ? ' (已扩展)' : ''),
+                fnHandler: 'expandNodeAll'
+              },
+              {
+                btnName: '+其他关系' + (node.currentExpandStatus.OTHERS ? ' (已扩展)' : ''),
+                fnHandler: 'expandNodeOTHERS'
+              },
+              {
+                btnName: ' 下游父子关系' + (node.currentExpandStatus.NEXT_PARENT_CHILD ? ' (已扩展)' : ''),
+                fnHandler: 'expandNodeNEXT_PARENT_CHILD'
+              }
+            ];
+            break;
+          }
+          case 'TABLE': {
+            menuDict = [
+              {
+                btnName: '+所有' + (node.currentExpandStatus.ALL ? ' (已扩展)' : ''),
+                fnHandler: 'expandNodeAll'
+              },
+              {
+                btnName: '+推荐关系' + (node.currentExpandStatus.RECOMMEND ? ' (已扩展)' : ''),
+                fnHandler: 'expandNodeRECOMMEND'
+              },
+              {
+                btnName: ' 数据流关系' + (node.currentExpandStatus.DATA_FLOW ? ' (已扩展)' : ''),
+                fnHandler: 'expandNodeDATA_FLOW'
+              },
+              {
+                btnName: ' 主外键关系' + (node.currentExpandStatus.PK_FK ? ' (已扩展)' : ''),
+                fnHandler: 'expandNodePK_FK'
+              },
+              {
+                btnName: ' 上游父子关系' + (node.currentExpandStatus.LAST_PARENT_CHILD ? ' (已扩展)' : ''),
+                fnHandler: 'expandNodeLAST_PARENT_CHILD'
+              },
+              {
+                btnName: '+其他关系' + (node.currentExpandStatus.OTHERS ? ' (已扩展)' : ''),
+                fnHandler: 'expandNodeOTHERS'
+              },
+              {
+                btnName: ' 逻辑物理关系' + (node.currentExpandStatus.LOGICAL_PHYSICAL ? ' (已扩展)' : ''),
+                fnHandler: 'expandNodeLOGICAL_PHYSICAL'
+              },
+              {
+                btnName: ' 下游父子关系' + (node.currentExpandStatus.NEXT_PARENT_CHILD ? ' (已扩展)' : ''),
+                fnHandler: 'expandNodeNEXT_PARENT_CHILD'
+              }
+            ];
+            break;
+          }
+          case 'COLUMN': {
+            menuDict = [
+              {
+                btnName: '+所有' + (node.currentExpandStatus.ALL ? ' (已扩展)' : ''),
+                fnHandler: 'expandNodeAll'
+              },
+              {
+                btnName: '+推荐关系' + (node.currentExpandStatus.RECOMMEND ? ' (已扩展)' : ''),
+                fnHandler: 'expandNodeRECOMMEND'
+              },
+
+              {
+                btnName: ' 上游父子关系' + (node.currentExpandStatus.LAST_PARENT_CHILD ? ' (已扩展)' : ''),
+                fnHandler: 'expandNodeLAST_PARENT_CHILD'
+              },
+              {
+                btnName: '+其他关系' + (node.currentExpandStatus.OTHERS ? ' (已扩展)' : ''),
+                fnHandler: 'expandNodeOTHERS'
+              },
+              {
+                btnName: ' 逻辑物理关系' + (node.currentExpandStatus.LOGICAL_PHYSICAL ? ' (已扩展)' : ''),
+                fnHandler: 'expandNodeLOGICAL_PHYSICAL'
+              },
+              {
+                btnName: ' 主外键关系' + (node.currentExpandStatus.PK_FK ? ' (已扩展)' : ''),
+                fnHandler: 'expandNodePK_FK'
+              }
+            ];
+            break;
+          }
+          case 'JOB': {
+            menuDict = [
+              {
+                btnName: '+所有' + (node.currentExpandStatus.ALL ? ' (已扩展)' : ''),
+                fnHandler: 'expandNodeAll'
+              },
+              {
+                btnName: '+其他关系' + (node.currentExpandStatus.OTHERS ? ' (已扩展)' : ''),
+                fnHandler: 'expandNodeOTHERS'
+              },
+              {
+                btnName: ' 下游父子关系' + (node.currentExpandStatus.NEXT_PARENT_CHILD ? ' (已扩展)' : ''),
+                fnHandler: 'expandNodeNEXT_PARENT_CHILD'
+              }
+            ];
+            break;
+          }
+          case 'NODE': {
+            menuDict = [
+              {
+                btnName: '+所有' + (node.currentExpandStatus.ALL ? ' (已扩展)' : ''),
+                fnHandler: 'expandNodeAll'
+              },
+              {
+                btnName: '+推荐关系' + (node.currentExpandStatus.RECOMMEND ? ' (已扩展)' : ''),
+                fnHandler: 'expandNodeRECOMMEND'
+              },
+              {
+                btnName: ' 数据流关系' + (node.currentExpandStatus.DATA_FLOW ? ' (已扩展)' : ''),
+                fnHandler: 'expandNodeDATA_FLOW'
+              },
+              {
+                btnName: ' 上游父子关系' + (node.currentExpandStatus.LAST_PARENT_CHILD ? ' (已扩展)' : ''),
+                fnHandler: 'expandNodeLAST_PARENT_CHILD'
+              },
+              {
+                btnName: '+其他关系' + (node.currentExpandStatus.OTHERS ? ' (已扩展)' : ''),
+                fnHandler: 'expandNodeOTHERS'
+              },
+              {
+                btnName: ' 下游父子关系' + (node.currentExpandStatus.NEXT_PARENT_CHILD ? ' (已扩展)' : ''),
+                fnHandler: 'expandNodeNEXT_PARENT_CHILD'
+              }
+            ];
+            break;
+          }
+          case 'ColumnLineage': {
+            menuDict = [
+              {
+                btnName: '+所有' + (node.currentExpandStatus.ALL ? ' (已扩展)' : ''),
+                fnHandler: 'expandNodeAll'
+              },
+              {
+                btnName: '+推荐关系' + (node.currentExpandStatus.RECOMMEND ? ' (已扩展)' : ''),
+                fnHandler: 'expandNodeRECOMMEND'
+              },
+              {
+                btnName: ' 数据流关系' + (node.currentExpandStatus.DATA_FLOW ? ' (已扩展)' : ''),
+                fnHandler: 'expandNodeDATA_FLOW'
+              },
+              {
+                btnName: ' 上游父子关系' + (node.currentExpandStatus.LAST_PARENT_CHILD ? ' (已扩展)' : ''),
+                fnHandler: 'expandNodeLAST_PARENT_CHILD'
+              }
+            ];
+            break;
+          }
+        }
+        return menuDict;
+      }
+
+    },
   }
-}
 </script>
 
 <style>
