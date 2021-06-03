@@ -53,7 +53,7 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
   var curRelationshipLink = null; // 当前扩展的边，同时其子数据并没有被记忆，如果其子数据被记忆了就将该变量置null
 
   // 当前点击扩展的类型
-  var curExpandRelationshipType = null;
+  var curExpandRelationshipType = 'RECOMMEND';
 
   // 根据节点个数计算初始节点大小，最小半径为15
   let maxRadius = d3.min([width - margin.left - margin.right, height - margin.top - margin.bottom]) / 2;
@@ -73,6 +73,7 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
 
   var links = createEdges(originalData.edges, link => {
     allLinkByIdMap.set(link.id, link)
+    linkTwoNodes(link.sourceNode, link.targetNode, link);
   });
   // 力仿真器
   const simulation = d3.forceSimulation();
@@ -195,17 +196,47 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
         d3.select(this).raise()
         curNode = d;
         curNodeSelection = d3.select(this);
+        // console.log(curNode.group,lastNode.group)
         callFunShowNodeContextMenu({
           node: d,
           position: [e.clientX, e.clientY]
         }, () => {
           console.log('右键扩展事件执行结束');
           rememberNode(d);
+          if (d.group === 'TABLE') {
+            d.links.forEach(link => {
+              if (link.sourceNode.group === 'NODE') {
+                for (let edge of link.sourceNode.links) {
+                  if (edge.sourceNode.id === link.sourceNode.id && edge.targetNode.isRemember && edge.targetNode.id !== d.id) {
+                    rememberNode(allNodeByIdMap.get(link.sourceNode.id))
+                    break;
+                  }
+                  if (edge.targetNode.id === link.sourceNode.id && edge.sourceNode.isRemember && edge.sourceNode.id !== d.id) {
+                    rememberNode(allNodeByIdMap.get(link.sourceNode.id))
+                    break;
+                  }
+                }
+              }
+              if (link.targetNode.group === 'NODE') {
+                for (let edge of link.targetNode.links) {
+                  if (edge.targetNode.id === link.targetNode.id && edge.sourceNode.isRemember && edge.sourceNode.id !== d.id) {
+                    rememberNode(allNodeByIdMap.get(link.targetNode.id))
+                    break;
+                  }
+                  if (edge.sourceNode.id === link.targetNode.id && edge.targetNode.isRemember && edge.targetNode.id !== d.id) {
+                    rememberNode(allNodeByIdMap.get(link.targetNode.id))
+                    break;
+                  }
+                }
+              }
+            })
+          }
           // 如果当前操作的节点与上一次操作的节点不同，则过滤掉非路径记忆节点
           // 否则可以不用过滤掉非路径记忆节点，直接在操作节点的基础上扩展其他内容
           // ！！！但这有一个问题：如果先钉住节点A，然后对节点B进行扩展，再对A取消钉住，
           // 再对节点B扩展相同的东西，会发现A的没有被钉住的节点不消失
-          // 已修复？？？？？？
+          // 已修复！！！
+          // console.log(curNode.group,lastNode.group)
           if (lastNode.id !== curNode.id) {
             console.log('clean')
             filterNoRemember();
@@ -439,23 +470,23 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
 
     // // 如果扩展了则进行收缩(待补充)，记忆的以及钉住记忆的不能收缩
     // if (curNode.currentExpandStatus[curExpandRelationshipType]) {
-    //   console.log('已经有了扩展，需要表现为收缩',curExpandRelationshipType)
+    //   console.log('已经有了扩展，需要表现为收缩', curExpandRelationshipType)
     //   curNode.currentExpandStatus[curExpandRelationshipType] = false;
     //
-    //   console.log(nodes.length,links.length)
+    //   console.log(nodes.length, links.length)
     //   // 收缩连边和节点
     //   curNode.expandChildrenLink[curExpandRelationshipType].forEach(childLink => {
-    //     if (allCurLinkByIdMap.has(childLink.id)) {
+    //     if (allCurLinkByIdMap.has(childLink.id) && !childLink.isRemember()) {
     //       links.splice(links.findIndex(d => d.id === childLink.id), 1);
     //     }
     //   })
     //   curNode.expandChildrenNode[curExpandRelationshipType].forEach(childNode => {
-    //     if (allCurNodeByIdMap.has(childNode.id) && childNode.id !== curNode.id) {
+    //     if (allCurNodeByIdMap.has(childNode.id) && !childNode.isRemember && childNode.id !== curNode.id) {
     //       nodes.splice(nodes.findIndex(d => d.id === childNode.id), 1);
     //     }
     //   })
     //   restart();
-    //   console.log(nodes.length,links.length)
+    //   console.log(nodes.length, links.length)
     //   return;
     // }
 
