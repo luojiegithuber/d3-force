@@ -460,6 +460,10 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
   *  }
   */
   function addNewGraph (obj, params) {
+    // 如果当前有非记忆扩展边
+    if (curRelationshipLink) {
+      shrinkLink(curRelationshipLink)
+    }
     const rootNode = obj.node;
     const newGraph = obj.newGraph;
     curExpandRelationshipType = params.relationship_type;
