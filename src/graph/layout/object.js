@@ -66,14 +66,14 @@ export function Node (node) {
   };
   // 当前扩展的状态
   this.currentExpandStatus = {
-    ALL:false,
-    RECOMMEND:false,
-    OTHERS:false,
-    DATA_FLOW:false,
-    PK_FK:false,
-    LAST_PARENT_CHILD:false,
-    LOGICAL_PHYSICAL:false,
-    NEXT_PARENT_CHILD:false,
+    ALL: false,
+    RECOMMEND: false,
+    OTHERS: false,
+    DATA_FLOW: false,
+    PK_FK: false,
+    LAST_PARENT_CHILD: false,
+    LOGICAL_PHYSICAL: false,
+    NEXT_PARENT_CHILD: false
   };
 
   // 增量后子节点Node类型放里面 ; 判断有没有子节点就要根据其数组长度来
@@ -306,8 +306,9 @@ export function updateLinkSvg (linkRootG, links, linkDrawOption = {}) {
     .attr('stroke', d => linkColor[d.group] || 'black')
     .style('stroke-width', 1)
     .attr('id', (d, i) => 'edgepath' + i)
-    .attr('marker-end', 'url(#arrow)')
-  g.attr('opacity', 0)
+    .attr('marker-end', null)
+    // .attr('marker-end', 'url(#arrow)')
+  // g.attr('opacity', 0)
   g = g.merge(g)
 
   g = linkRootG.selectAll('g');
@@ -433,7 +434,7 @@ export function moveLink (linkG, isTransition) {
     linkG
       .transition()
       .duration(800)
-      .attr('opacity', 1)
+      .attr('marker-end', 'url(#arrow)')
       .attr('d', d => `M ${d.sourceNode.x} ${d.sourceNode.y} L ${d.targetNode.x} ${d.targetNode.y}`);
   } else {
     linkG
