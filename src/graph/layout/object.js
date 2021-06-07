@@ -238,24 +238,46 @@ export function NodeDrawOption (option) {
 }
 
 // 更新节点绘画
-export function updateNodeSvg (nodeRootG, nodes, curNode, nodeDrawOption = {
+export function updateNodeSvg (nodeRootG, nodes, nodeDrawOption = {
   nodeSize: 18,
   setColorByKey: 'group',
   isPackage: false
-}) {
+}, callback) {
   // nodes = nodes.filter(d => d.show);
 
   var g = nodeRootG.selectAll('g')
   g = g.data(nodes, function (d) {
     return d.id;
   });
-  g.exit().remove();
-  g = g.enter().append('g').attr('class', 'node').lower()
-  drawCircle(g);
-  drawText(g);
-  g = g.merge(g);
+  let count = 0;
+  if (g.exit().data().length) {
+    g.exit()
+      .attr('opacity', 1)
+      .transition()
+      .duration(800)
+      .attr('opacity', 0.2)
+      .on('end', () => {
+        count++
+        if (count === g.exit().data().length) {
+          g.exit().remove();
+          g = g.enter().append('g').attr('class', 'node').lower()
+          drawCircle(g);
+          drawText(g);
+          g = g.merge(g);
+          g = nodeRootG.selectAll('g');
+          callback(g)
+        }
+      })
+  } else {
+    g.exit().remove();
+    g = g.enter().append('g').attr('class', 'node').lower()
+    drawCircle(g);
+    drawText(g);
+    g = g.merge(g);
 
-  g = nodeRootG.selectAll('g');
+    g = nodeRootG.selectAll('g');
+    callback(g)
+  }
 
   function drawCircle (g) {
     g
@@ -283,8 +305,6 @@ export function updateNodeSvg (nodeRootG, nodes, curNode, nodeDrawOption = {
         d.text = this;
       });
   }
-
-  return g
 }
 
 function setNodeVisibility (g) {
@@ -299,22 +319,27 @@ export function updateLinkSvg (linkRootG, links, linkDrawOption = {}) {
   g = g.data(links, function (d) {
     return d.id;
   });
-  g.exit().remove();
+  let count = 0;
+  if (g.exit().data().length) {
 
-  g = g.enter().append('g').attr('class', 'link')
-    .append('path')
-    .attr('stroke', d => linkColor[d.group] || 'black')
-    .style('stroke-width', 1)
-    .attr('id', (d, i) => 'edgepath' + i)
-    .attr('marker-end', null)
+  } else {
+    g.exit().remove();
+
+    g = g.enter().append('g').attr('class', 'link')
+      .append('path')
+      .attr('stroke', d => linkColor[d.group] || 'black')
+      .style('stroke-width', 1)
+      .attr('id', (d, i) => 'edgepath' + i)
+      .attr('marker-end', null)
     // .attr('marker-end', 'url(#arrow)')
-  // g.attr('opacity', 0)
-  g = g.merge(g)
+    // g.attr('opacity', 0)
+    g = g.merge(g)
 
-  g = linkRootG.selectAll('g');
+    g = linkRootG.selectAll('g');
 
-  // setNodeVisibility(g)
-  return g
+    // setNodeVisibility(g)
+    return g
+  }
 }
 
 // 绘画节点

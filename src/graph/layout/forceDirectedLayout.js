@@ -90,7 +90,6 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
     }
     nodes[initIndex].expandChildrenLink.RECOMMEND.push(link);
     nodes[initIndex].isExpandChildLinkMap.RECOMMEND[link.id] = link;
-
   });
   /*   console.log(rootCenterNodeId, nodes)
   rememberNode(allNodeByIdMap.get(rootCenterNodeId)) */
@@ -157,13 +156,16 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
   // 增量重绘函数
   function restart () {
     // 节点绘制更新
-    nodeG = updateNodeSvg(nodeRootG, nodes, {
+    simulation.stop()
+    updateNodeSvg(nodeRootG, nodes, {
       nodeSize: nodeSize,
       setColorByKey: 'group',
       isPackage: false
-    })
+    }, (nodeGTemp) => {
+      nodeG = nodeGTemp;
+      nodeG
       // 绑定点击事件，点击后即可扩展默认关系
-      .on('click', function (e, d) {
+        .on('click', function (e, d) {
         // 设置为路径记忆的节点
         // rememberNode(d)
 
@@ -173,14 +175,14 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
         // links = links.filter(item => item.sourceNode.isRemember && item.targetNode.isRemember);
         // filterNoRemember(d)
 
-        console.log('在力导向布局中选择了节点', d);
-        d3.select(this).raise()
-        // 要让this有效别用箭头函数
-        highlightNode(curNodeSelection, d3.select(this))
-        curNode = d;
-        curNodeSelection = d3.select(this);
-        callFunSelectNode(d)
-        e.stopPropagation(); // 停止冒泡
+          console.log('在力导向布局中选择了节点', d);
+          d3.select(this).raise()
+          // 要让this有效别用箭头函数
+          highlightNode(curNodeSelection, d3.select(this))
+          curNode = d;
+          curNodeSelection = d3.select(this);
+          callFunSelectNode(d)
+          e.stopPropagation(); // 停止冒泡
 
         // lastExpandNode = d;
 
@@ -208,157 +210,158 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
           })
         } */
         // d.isShrink = false;
-      })
+        })
       // 绑定右键菜单
-      .on('contextmenu', function (e, d) {
-        highlightNode(curNodeSelection, d3.select(this))
-        d3.select(this).raise()
+        .on('contextmenu', function (e, d) {
+          highlightNode(curNodeSelection, d3.select(this))
+          d3.select(this).raise()
 
-        // 根据当前图上肉眼看到的节点判断是否已经全部扩展完，用于动态渲染右键扩展关系菜单项
-        for (let relationshipType in d.currentExpandStatus) {
-          d.currentExpandStatus[relationshipType] = isInCurrentGraph(d, relationshipType)
+          // 根据当前图上肉眼看到的节点判断是否已经全部扩展完，用于动态渲染右键扩展关系菜单项
+          for (let relationshipType in d.currentExpandStatus) {
+            d.currentExpandStatus[relationshipType] = isInCurrentGraph(d, relationshipType)
           // console.log(d, relationshipType,d.currentExpandStatus[relationshipType],isInCurrentGraph(d, relationshipType))
-        }
+          }
 
-        curNode = d;
-        curNodeSelection = d3.select(this);
-        callFunShowNodeContextMenu({
-          node: d,
-          position: [e.clientX, e.clientY]
-        }, () => {
-          console.log('右键扩展事件执行结束');
-          rememberNode(d);
-          if (d.group === 'TABLE') {
-            d.links.forEach(link => {
-              if (link.sourceNode.group === 'NODE') {
-                for (let edge of link.sourceNode.links) {
-                  if (edge.sourceNode.id === link.sourceNode.id && edge.targetNode.isRemember && edge.targetNode.id !== d.id) {
-                    rememberNode(allNodeByIdMap.get(link.sourceNode.id))
-                    break;
-                  }
-                  if (edge.targetNode.id === link.sourceNode.id && edge.sourceNode.isRemember && edge.sourceNode.id !== d.id) {
-                    rememberNode(allNodeByIdMap.get(link.sourceNode.id))
-                    break;
-                  }
-                }
-              }
-              if (link.targetNode.group === 'NODE') {
-                for (let edge of link.targetNode.links) {
-                  if (edge.targetNode.id === link.targetNode.id && edge.sourceNode.isRemember && edge.sourceNode.id !== d.id) {
-                    rememberNode(allNodeByIdMap.get(link.targetNode.id))
-                    break;
-                  }
-                  if (edge.sourceNode.id === link.targetNode.id && edge.targetNode.isRemember && edge.targetNode.id !== d.id) {
-                    rememberNode(allNodeByIdMap.get(link.targetNode.id))
-                    break;
+          curNode = d;
+          curNodeSelection = d3.select(this);
+          callFunShowNodeContextMenu({
+            node: d,
+            position: [e.clientX, e.clientY]
+          }, () => {
+            console.log('右键扩展事件执行结束');
+            rememberNode(d);
+            if (d.group === 'TABLE') {
+              d.links.forEach(link => {
+                if (link.sourceNode.group === 'NODE') {
+                  for (let edge of link.sourceNode.links) {
+                    if (edge.sourceNode.id === link.sourceNode.id && edge.targetNode.isRemember && edge.targetNode.id !== d.id) {
+                      rememberNode(allNodeByIdMap.get(link.sourceNode.id))
+                      break;
+                    }
+                    if (edge.targetNode.id === link.sourceNode.id && edge.sourceNode.isRemember && edge.sourceNode.id !== d.id) {
+                      rememberNode(allNodeByIdMap.get(link.sourceNode.id))
+                      break;
+                    }
                   }
                 }
-              }
-            })
-          }
-          // 如果当前操作的节点与上一次操作的节点不同，则过滤掉非路径记忆节点
-          // 否则可以不用过滤掉非路径记忆节点，直接在操作节点的基础上扩展其他内容
-          // ！！！但这有一个问题：如果先钉住节点A，然后对节点B进行扩展，再对A取消钉住，
-          // 再对节点B扩展相同的东西，会发现A的没有被钉住的节点不消失
-          // 已修复！！！
-          if (lastExpandNode.id !== curNode.id) {
-            console.log('clean')
-            filterNoRemember();
-          }
-          // else {
-          //   filterNoRemember();
-          // }
-          lastExpandNode = d
+                if (link.targetNode.group === 'NODE') {
+                  for (let edge of link.targetNode.links) {
+                    if (edge.targetNode.id === link.targetNode.id && edge.sourceNode.isRemember && edge.sourceNode.id !== d.id) {
+                      rememberNode(allNodeByIdMap.get(link.targetNode.id))
+                      break;
+                    }
+                    if (edge.sourceNode.id === link.targetNode.id && edge.targetNode.isRemember && edge.targetNode.id !== d.id) {
+                      rememberNode(allNodeByIdMap.get(link.targetNode.id))
+                      break;
+                    }
+                  }
+                }
+              })
+            }
+            // 如果当前操作的节点与上一次操作的节点不同，则过滤掉非路径记忆节点
+            // 否则可以不用过滤掉非路径记忆节点，直接在操作节点的基础上扩展其他内容
+            // ！！！但这有一个问题：如果先钉住节点A，然后对节点B进行扩展，再对A取消钉住，
+            // 再对节点B扩展相同的东西，会发现A的没有被钉住的节点不消失
+            // 已修复！！！
+            if (lastExpandNode.id !== curNode.id) {
+              console.log('clean')
+              filterNoRemember();
+            }
+            // else {
+            //   filterNoRemember();
+            // }
+            lastExpandNode = d
           // filterNoRemember(d);
           // switchVisualizeRemember(false);
           // restart();
-        }) // 传递节点数据和鼠标点击所在位置，在这个位置显示右键菜单栏
-        // filterNoRemember(d);
-        e.stopPropagation(); // 停止冒泡，避免被宏观监听到单击事件
-        e.preventDefault(); // 阻止浏览器默认右键单击事件
-      })
-      .call(
-        d3.drag()
-          .on('start', dragstart)
-          .on('drag', dragg)
-          .on('end', dragend)
-      )
-
-    nodeG
-      .attr('transform', (d) => `translate(${d.x},${d.y})`)
-
-    // 边绘制/更新
-    linkG = updateLinkSvg(linkRootG, links)
-      .on('click', (e, d) => {
-        console.log('在力导向布局中选择了边', d);
-        e.stopPropagation(); // 停止冒泡
-      }).selectAll('path')
-      .on('contextmenu', function (e, d) {
-        // console.log(curLinkSelection, d3.select(this))
-        highlightLink(curLinkSelection, d3.select(this))
-        curLinkSelection = d3.select(this)
-        callFunShowNodeContextMenu({
-          link: d,
-          position: [e.clientX, e.clientY]
-        }, () => {
-          console.log('边右键事件执行结束')
-          // filterNoRemember()
+          }) // 传递节点数据和鼠标点击所在位置，在这个位置显示右键菜单栏
+          // filterNoRemember(d);
+          e.stopPropagation(); // 停止冒泡，避免被宏观监听到单击事件
+          e.preventDefault(); // 阻止浏览器默认右键单击事件
         })
-        e.stopPropagation(); // 停止冒泡，避免被宏观监听到单击事件
-        e.preventDefault(); // 阻止浏览器默认右键单击事件
-      })
-      .on('mouseover', function (e, d) {
-        d3.select(this).style('cursor', 'pointer')
-      })
-    linkG
-      .attr('d', d => `M ${d.sourceNode.x} ${d.sourceNode.y} L ${d.targetNode.x} ${d.targetNode.y}`)
+        .call(
+          d3.drag()
+            .on('start', dragstart)
+            .on('drag', dragg)
+            .on('end', dragend)
+        )
 
-    allCurNodeByIdMap = new Map(nodes.map(node => {
-      node.isBeShrinked = false;
-      node.lastCoordinateX = node.x;
-      node.lastCoordinateY = node.y;
-      return [node.id, node]
-    }))
-    allCurLinkByIdMap = new Map(links.map(link => {
-      link.isBeShrinked = false;
-      link.lastCoordinateX = link.x;
-      link.lastCoordinateY = link.y;
-      return [link.id, link]
-    }))
+      nodeG
+        .attr('transform', (d) => `translate(${d.x},${d.y})`)
 
-    // 扩展之后如果当前的节点启用了钉住，则对扩展出来的节点增加钉住功能
-    if (curNode && curNode.isPinStatus) {
-      curNode.links.forEach(link => {
-        if (link.sourceNode.id === curNode.id && allCurLinkByIdMap.has(link.id)) {
-          allNodeByIdMap.get(link.targetNode.id).isPinRemember = true;
-        }
-        if (link.targetNode.id === curNode.id && allCurLinkByIdMap.has(link.id)) {
-          allNodeByIdMap.get(link.sourceNode.id).isPinRemember = true;
-        }
-      })
-    }
+      // 边绘制/更新
+      linkG = updateLinkSvg(linkRootG, links)
+        .on('click', (e, d) => {
+          console.log('在力导向布局中选择了边', d);
+          e.stopPropagation(); // 停止冒泡
+        }).selectAll('path')
+        .on('contextmenu', function (e, d) {
+        // console.log(curLinkSelection, d3.select(this))
+          highlightLink(curLinkSelection, d3.select(this))
+          curLinkSelection = d3.select(this)
+          callFunShowNodeContextMenu({
+            link: d,
+            position: [e.clientX, e.clientY]
+          }, () => {
+            console.log('边右键事件执行结束')
+          // filterNoRemember()
+          })
+          e.stopPropagation(); // 停止冒泡，避免被宏观监听到单击事件
+          e.preventDefault(); // 阻止浏览器默认右键单击事件
+        })
+        .on('mouseover', function (e, d) {
+          d3.select(this).style('cursor', 'pointer')
+        })
+      linkG
+        .attr('d', d => `M ${d.sourceNode.x} ${d.sourceNode.y} L ${d.targetNode.x} ${d.targetNode.y}`)
 
-    // 更新图中节点的当前扩展标识
-    console.log('更新图中所有标识')
-    nodes.forEach(d => {
-      for (let relationshipType in d.currentExpandStatus) {
-        var existResult = isInCurrentGraph(d, relationshipType);
-        d.currentExpandStatus[relationshipType] = existResult;
-        allNodeByIdMap.get(d.id).currentExpandStatus[relationshipType] = existResult;
-        allCurNodeByIdMap.get(d.id).currentExpandStatus[relationshipType] = existResult
+      allCurNodeByIdMap = new Map(nodes.map(node => {
+        node.isBeShrinked = false;
+        node.lastCoordinateX = node.x;
+        node.lastCoordinateY = node.y;
+        return [node.id, node]
+      }))
+      allCurLinkByIdMap = new Map(links.map(link => {
+        link.isBeShrinked = false;
+        link.lastCoordinateX = link.x;
+        link.lastCoordinateY = link.y;
+        return [link.id, link]
+      }))
+
+      // 扩展之后如果当前的节点启用了钉住，则对扩展出来的节点增加钉住功能
+      if (curNode && curNode.isPinStatus) {
+        curNode.links.forEach(link => {
+          if (link.sourceNode.id === curNode.id && allCurLinkByIdMap.has(link.id)) {
+            allNodeByIdMap.get(link.targetNode.id).isPinRemember = true;
+          }
+          if (link.targetNode.id === curNode.id && allCurLinkByIdMap.has(link.id)) {
+            allNodeByIdMap.get(link.sourceNode.id).isPinRemember = true;
+          }
+        })
       }
-    });
 
-    // 仿真器更新
-    simulation.nodes(nodes);
-    simulation.force('link').links(links)
-    // 设置以下四个参数达到过渡动画效果
+      // 更新图中节点的当前扩展标识
+      console.log('更新图中所有标识')
+      nodes.forEach(d => {
+        for (let relationshipType in d.currentExpandStatus) {
+          var existResult = isInCurrentGraph(d, relationshipType);
+          d.currentExpandStatus[relationshipType] = existResult;
+          allNodeByIdMap.get(d.id).currentExpandStatus[relationshipType] = existResult;
+          allCurNodeByIdMap.get(d.id).currentExpandStatus[relationshipType] = existResult
+        }
+      });
 
-    // simulation.force('collision', d3.forceCollide(0.5))
-    // simulation.alphaDecay(0.0005)
-    // simulation.velocityDecay(0.6)
-    // simulation.force('center', d3.forceCenter().x(width/2).y(height/2))
-    simulation.alpha(1).restart();
+      // 仿真器更新
+      simulation.nodes(nodes);
+      simulation.force('link').links(links)
+      // 设置以下四个参数达到过渡动画效果
+
+      // simulation.force('collision', d3.forceCollide(0.5))
+      // simulation.alphaDecay(0.0005)
+      // simulation.velocityDecay(0.6)
+      // simulation.force('center', d3.forceCenter().x(width/2).y(height/2))
+      simulation.alpha(1).restart();
+    })
   }
 
   // 对点边位置进行移动更新
@@ -525,14 +528,14 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
         if (allCurNodeByIdMap.has(childNode.id) && !childNode.isRemember && !childNode.isPinRemember && childNode.id !== curNode.id) {
           // nodes.splice(nodes.findIndex(d => d.id === childNode.id), 1);
           nodes = nodes.filter(d => d.id !== childNode.id);
-          links = links.filter(d=>d.sourceNode.id!==childNode.id&&d.targetNode.id!==childNode.id);
+          links = links.filter(d => d.sourceNode.id !== childNode.id && d.targetNode.id !== childNode.id);
           // 当需要去除的是NODE类型时，再对其DATA_FLOW的二跳点边进行检查
           if (childNode.group === 'NODE' && curExpandRelationshipType === 'DATA_FLOW') {
             childNode.expandChildrenNode[curExpandRelationshipType].forEach(nodeItem => {
               if (allCurNodeByIdMap.has(nodeItem.id) && !nodeItem.isRemember && !nodeItem.isPinRemember && nodeItem.id !== childNode.id) {
                 // nodes.splice(nodes.findIndex(d => d.id === nodeItem.id), 1);
                 nodes = nodes.filter(d => d.id !== nodeItem.id);
-                links = links.filter(d=>d.sourceNode.id!==childNode.id&&d.targetNode.id!==childNode.id);
+                links = links.filter(d => d.sourceNode.id !== childNode.id && d.targetNode.id !== childNode.id);
               }
             });
             childNode.expandChildrenLink[curExpandRelationshipType].forEach(linkItem => {
@@ -562,7 +565,6 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
     if (rootNode.isExpandChildren[curExpandRelationshipType]) {
       expandNode(rootNode);
     } else {
-
       // 过滤原本存在的节点
       const newNodes = newGraph.nodes.filter(node => {
         if (allNodeByIdMap.has(node.guid)) {
@@ -985,7 +987,6 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
   }
   // 判断节点扩展对应关系类型下的节点是否全部在图中
   function isInCurrentGraph (node, relationshipType) {
-
     // -----------------!!!!!!MARK!!!!!!---------------
     // 如果直接改用return会因为forEach导致返回错误
     // 现改为借助变量的方式可解决
