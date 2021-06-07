@@ -254,8 +254,8 @@ export function updateNodeSvg (nodeRootG, nodes, nodeDrawOption = {
     g.exit()
       .attr('opacity', 1)
       .transition()
-      .duration(800)
-      .attr('opacity', 0.2)
+      .duration(400)
+      .attr('opacity', 0)
       .on('end', () => {
         count++
         if (count === g.exit().data().length) {
@@ -312,7 +312,7 @@ function setNodeVisibility (g) {
 }
 
 // 更新连边绘图
-export function updateLinkSvg (linkRootG, links, linkDrawOption = {}) {
+export function updateLinkSvg (linkRootG, links, linkDrawOption = {}, callback) {
   // links = links.filter(d => d.show);
 
   var g = linkRootG.selectAll('g')
@@ -321,7 +321,26 @@ export function updateLinkSvg (linkRootG, links, linkDrawOption = {}) {
   });
   let count = 0;
   if (g.exit().data().length) {
-
+    g.exit()
+      .attr('opacity', 1)
+      .transition()
+      .duration(400)
+      .attr('opacity', 0)
+      .on('end', () => {
+        count++
+        if (count === g.exit().data().length) {
+          g.exit().remove();
+          g = g.enter().append('g').attr('class', 'link')
+            .append('path')
+            .attr('stroke', d => linkColor[d.group] || 'black')
+            .style('stroke-width', 1)
+            .attr('id', (d, i) => 'edgepath' + i)
+            .attr('marker-end', null)
+          g = g.merge(g);
+          g = linkRootG.selectAll('g');
+          callback(g)
+        }
+      })
   } else {
     g.exit().remove();
 
@@ -336,6 +355,7 @@ export function updateLinkSvg (linkRootG, links, linkDrawOption = {}) {
     g = g.merge(g)
 
     g = linkRootG.selectAll('g');
+    callback(g)
 
     // setNodeVisibility(g)
     return g
