@@ -9,7 +9,7 @@ import {
   highlightNode,
   highlightLink,
   Node
-} from './object(整理版)';
+} from './object';
 
 /**
  力引导布局算法
