@@ -647,6 +647,15 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
     if (handleLink.isRelationshipExpand) {
       let newNodes = handleLink.relationshipTypeExpandData.nodes.filter(node => !allCurNodeByIdMap.has(node.id));
       let newLinks = handleLink.relationshipTypeExpandData.links.filter(link => !allCurLinkByIdMap.has(link.id));
+      // 根据连边处理新增节点的初始坐标
+      newLinks.forEach(link => {
+        if (link.sourceNode.group === 'TABLE') {
+          const TableNode = link.sourceNode;
+          const zNode = link.targetNode;
+          zNode.x = TableNode.x;
+          zNode.y = TableNode.y;
+        }
+      })
       nodes.push(...newNodes);
       links.push(...newLinks);
     } else {
