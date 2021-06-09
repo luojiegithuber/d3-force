@@ -212,10 +212,11 @@ export function updateNodeSvg (nodeRootG, nodes, nodeDrawOption = {
 
   let count = 0;
   if (g.exit().data().length) {
+    console.log('点淡出动画开始')
     g.exit()
       .attr('opacity', 1)
       .transition()
-      .duration(400)
+      .duration(800)
       .attr('opacity', 0)
       .on('end', () => {
         count++;
@@ -227,6 +228,7 @@ export function updateNodeSvg (nodeRootG, nodes, nodeDrawOption = {
           g = g.merge(g);
           g = nodeRootG.selectAll('g');
           // 调用回调，以完成相关的事件绑定
+          console.log('点淡出动画结束')
           callback(g)
         }
       })
@@ -285,10 +287,11 @@ export function updateLinkSvg (linkRootG, links, linkDrawOption = {}, callback) 
   g = g.data(links, d => d.id);
   let count = 0;
   if (g.exit().data().length) {
+    console.log('边淡出动画开始')
     g.exit()
       .attr('opacity', 1)
       .transition()
-      .duration(400)
+      .duration(800)
       .attr('opacity', 0)
       .on('end', () => {
         count++;
@@ -304,6 +307,7 @@ export function updateLinkSvg (linkRootG, links, linkDrawOption = {}, callback) 
 
           // 调用回调，以完成相关的事件绑定
           g = linkRootG.selectAll('g');
+          console.log('边淡出动画结束')
           callback(g);
         }
       })
@@ -511,5 +515,3 @@ export function drawLinkSvg (svg, links, linkDrawOption = {nodeSize: 10, setColo
 
   return linkG
 }
-
-

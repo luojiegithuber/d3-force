@@ -21,7 +21,6 @@ import {
  * @returns {{addEdgeRelationshipExpand: addEdgeRelationshipExpand, addNewGraph: addNewGraph, pinNode: pinNode}} [返回给前台右键菜单的调用]
  */
 function createForceDirectedGraph (originalData, svg, callFunSelectNode, option, callFunShowNodeContextMenu) {
-
   // 获取画布尺寸（可作为全局图属性）
   const width = svg.attr('width');
   const height = svg.attr('height');
@@ -333,7 +332,7 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
     if (isTransitionStatus) {
       moveNode(nodeG, true); // 对节点进行过渡变换
       moveLink(linkG, true); // 对连边进行过渡变换
-      isTransitionStatus = false; //过渡完成后关闭过渡标识
+      isTransitionStatus = false; // 过渡完成后关闭过渡标识
     }
   }
 
@@ -463,8 +462,10 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
             // 但如果此时该节点不显示在图谱中（即被隐藏），应当可视化出来
             if (!allCurNodeByIdMap.has(node.guid)) {
               // 设置节点的坐标为选择的扩展节点位置
+              console.log('设置初始化位置')
               allNodeByIdMap.get(node.guid).x = rootNode.x;
               allNodeByIdMap.get(node.guid).y = rootNode.y;
+              moveLink(linkG)
               // 将该节点添加进图谱数据
               nodes.push(allNodeByIdMap.get(node.guid))
             }
@@ -864,7 +865,7 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
   return {
     addNewGraph,
     pinNode,
-    addEdgeRelationshipExpand,
+    addEdgeRelationshipExpand
   }
 }
 
