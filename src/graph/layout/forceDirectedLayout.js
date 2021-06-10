@@ -29,10 +29,10 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
   var {maxRadius, nodeSize} = init();
 
   // 图谱点边哈希记录（可作为全局图属性）
-  var allNodes = []; // 保存了所有请求过的节点数据 Array形式
+  // var allNodes = []; // 保存了所有请求过的节点数据 Array形式(貌似没用)
   var allNodeByIdMap = new Map(); // 保存了所有请求过的节点数据 key-value形式
   var allCurNodeByIdMap = new Map(); // 仅仅保存当前图谱上可见节点的数据,是 allNodeByIdMap 的子集
-  var allLinks = []; // 保存了所有请求过的连边数据 Array形式
+  // var allLinks = []; // 保存了所有请求过的连边数据 Array形式(貌似没用)
   var allLinkByIdMap = new Map(); // 保存了所有请求过的连边数据 key-value形式
   var allCurLinkByIdMap = new Map(); // 仅仅保存当前图谱上可见连边的数据,是 allLinkByIdMap 的子集
 
@@ -47,7 +47,6 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
   curNode.currentExpandStatus[curExpandRelationshipType] = true; // 由于一开始展示默认关系（即推荐关系），需要将其对应的“当前扩展状态——推荐关系”标记为true
   curNode.isExpandChildren[curExpandRelationshipType] = true; // 同时将“是否已经请求过了该类子节点——推荐关系”标记为true（貌似没用）
   var lastExpandNode = new Node(option.selectNode); // 也同样初始化为最初的左侧列表数据表节点
-  lastExpandNode.currentExpandStatus[curExpandRelationshipType] = true; // 将其对应的扩展状态标记为true（貌似没用）
 
   // 当前操作的点边元素，d3格式，用于鼠标选中时高亮效果（可作为全局图属性）
   var curNodeSelection = null;
@@ -272,10 +271,10 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
           if (curNode && curNode.isPinStatus) {
             curNode.links.forEach(link => {
               if (link.sourceNode.id === curNode.id && allCurLinkByIdMap.has(link.id)) {
-                allNodeByIdMap.get(link.targetNode.id).isPinRemember = true;
+                pinRememberNode(allNodeByIdMap.get(link.targetNode.id),true);
               }
               if (link.targetNode.id === curNode.id && allCurLinkByIdMap.has(link.id)) {
-                allNodeByIdMap.get(link.sourceNode.id).isPinRemember = true;
+                pinRememberNode(allNodeByIdMap.get(link.sourceNode.id),true);
               }
             })
           }
@@ -503,9 +502,9 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
           linkTwoNodes(d.sourceNode, d.targetNode, d)
         });
 
-        // 更新全局点边数据记录
-        allNodes.push(...newChildrenNodes);
-        allLinks.push(...newChildrenLinks);
+        // // 更新全局点边数据记录
+        // allNodes.push(...newChildrenNodes);
+        // allLinks.push(...newChildrenLinks);
 
         // 更新图谱数据
         nodes.push(...newChildrenNodes);
@@ -537,77 +536,39 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
    * @param {Object} handelNode [所选择的操作节点]
    */
   function pinNode (handelNode) {
-    // 当前操作节点已经钉住了，则解锁
-    if (handelNode.isPinStatus) {
-      // 更新操作节点的钉住和解锁状态
-      handelNode.isPinStatus = false;
-      handelNode.isPinRemember = false;
-      // 取消相连节点的钉住记忆标识
-      handelNode.links.forEach(link => {
-        if (link.sourceNode.id === handelNode.id && allCurLinkByIdMap.has(link.id)) {
-          allNodeByIdMap.get(link.targetNode.id).isPinRemember = false;
-        }
-        if (link.targetNode.id === handelNode.id && allCurLinkByIdMap.has(link.id)) {
-          allNodeByIdMap.get(link.sourceNode.id).isPinRemember = false;
-        }
-        // 特殊处理——取消二跳数据流关系的钉住记忆标识
-        if (link.sourceNode.group === 'NODE') {
-          for (let edge of link.sourceNode.links) {
-            if (edge.sourceNode.id === link.sourceNode.id) {
-              allNodeByIdMap.get(edge.targetNode.id).isPinRemember = false;
-            }
-            if (edge.targetNode.id === link.sourceNode.id) {
-              allNodeByIdMap.get(edge.sourceNode.id).isPinRemember = false;
-            }
+    // 当前操作节点已经钉住了，则解锁，即此过程为相反的
+    handelNode.isPinStatus = !handelNode.isPinRemember;
+    pinRememberNode(handelNode,handelNode.isPinStatus);
+    // 取消相连节点的钉住记忆标识
+    handelNode.links.forEach(link => {
+      if (link.sourceNode.id === handelNode.id && allCurLinkByIdMap.has(link.id)) {
+        pinRememberNode(allNodeByIdMap.get(link.targetNode.id),handelNode.isPinStatus);
+      }
+      if (link.targetNode.id === handelNode.id && allCurLinkByIdMap.has(link.id)) {
+        pinRememberNode(allNodeByIdMap.get(link.sourceNode.id),handelNode.isPinStatus);
+      }
+      // 特殊处理——取消二跳数据流关系的钉住记忆标识
+      if (link.sourceNode.group === 'NODE') {
+        for (let edge of link.sourceNode.links) {
+          if (edge.sourceNode.id === link.sourceNode.id) {
+            pinRememberNode(allNodeByIdMap.get(edge.targetNode.id),handelNode.isPinStatus);
+          }
+          if (edge.targetNode.id === link.sourceNode.id) {
+            pinRememberNode(allNodeByIdMap.get(edge.sourceNode.id),handelNode.isPinStatus);
           }
         }
-        if (link.targetNode.group === 'NODE') {
-          for (let edge of link.targetNode.links) {
-            if (edge.sourceNode.id === link.targetNode.id) {
-              allNodeByIdMap.get(edge.targetNode.id).isPinRemember = false;
-            }
-            if (edge.targetNode.id === link.targetNode.id) {
-              allNodeByIdMap.get(edge.sourceNode.id).isPinRemember = false;
-            }
+      }
+      if (link.targetNode.group === 'NODE') {
+        for (let edge of link.targetNode.links) {
+          if (edge.sourceNode.id === link.targetNode.id) {
+            pinRememberNode(allNodeByIdMap.get(edge.targetNode.id),handelNode.isPinStatus);
+          }
+          if (edge.targetNode.id === link.targetNode.id) {
+            pinRememberNode(allNodeByIdMap.get(edge.sourceNode.id),handelNode.isPinStatus);
           }
         }
-      })
-    }
-    // 当前操作节点未被钉住，执行钉住
-    else {
-      handelNode.isPinStatus = true;
-      handelNode.isPinRemember = true;
-      // 添加相连节点的钉住记忆标识
-      handelNode.links.forEach(link => {
-        if (link.sourceNode.id === handelNode.id && allCurLinkByIdMap.has(link.id)) {
-          allNodeByIdMap.get(link.targetNode.id).isPinRemember = true;
-        }
-        if (link.targetNode.id === handelNode.id && allCurLinkByIdMap.has(link.id)) {
-          allNodeByIdMap.get(link.sourceNode.id).isPinRemember = true;
-        }
-        // 特殊处理——添加二跳数据流关系的钉住记忆标识
-        if (link.sourceNode.group === 'NODE') {
-          for (let edge of link.sourceNode.links) {
-            if (edge.sourceNode.id === link.sourceNode.id) {
-              allNodeByIdMap.get(edge.targetNode.id).isPinRemember = true;
-            }
-            if (edge.targetNode.id === link.sourceNode.id) {
-              allNodeByIdMap.get(edge.sourceNode.id).isPinRemember = true;
-            }
-          }
-        }
-        if (link.targetNode.group === 'NODE') {
-          for (let edge of link.targetNode.links) {
-            if (edge.sourceNode.id === link.targetNode.id) {
-              allNodeByIdMap.get(edge.targetNode.id).isPinRemember = true;
-            }
-            if (edge.targetNode.id === link.targetNode.id) {
-              allNodeByIdMap.get(edge.sourceNode.id).isPinRemember = true;
-            }
-          }
-        }
-      })
-    }
+      }
+    })
   }
 
   /**
@@ -616,6 +577,15 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
    */
   function rememberNode (handelNode) {
     handelNode.isRemember = true;
+  }
+
+  /**
+   * 钉住记忆统一入口
+   * @param {Object} handelNode [钉住记忆的目标节点]
+   * @param {boolean} pinStatus [设置钉住记忆的状态]
+   */
+  function pinRememberNode (handelNode,pinStatus) {
+    handelNode.isPinRemember = pinStatus;
   }
 
   /**
@@ -658,6 +628,9 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
       })
       nodes.push(...newNodes);
       links.push(...newLinks);
+      // moveLink(linkG);
+      // moveNode(nodeG);
+
     } else {
       // 曾经没有请求过该连边的扩展关系，则处理新数据
       const handleLinkNodes = handleLink.relationshipTypeExpandData.nodes;
@@ -707,9 +680,9 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
         handleTzLink(link);
       });
 
-      // 更新图谱相关数据的属性记录
-      allNodes.push(...newNodes);
-      allLinks.push(...newLinks);
+      // // 更新图谱相关数据的属性记录
+      // allNodes.push(...newNodes);
+      // allLinks.push(...newLinks);
       nodes.push(...newNodes);
       links.push(...newLinks);
 
@@ -737,12 +710,17 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
       if (link.sourceNode.group === 'TABLE') {
         const TableNode = link.sourceNode;
         const zNode = link.targetNode;
-        if (!TableNode.isExpandChildNodeMap[curExpandRelationshipType][zNode.id]) {
-          // 绑定连边两端节点的关联关系
-          linkTwoNodes(TableNode, zNode, handleLink);
-          zNode.x = TableNode.x;
-          zNode.y = TableNode.y;
-        }
+
+        // // 此处不能锁定字段节点和数据表节点间的主外键关联，因为字段节点和数据表类型的管子应该是父子关系，而不是主外键关系
+        // if (!TableNode.isExpandChildNodeMap[curExpandRelationshipType][zNode.id]) {
+        //   // 绑定连边两端节点的关联关系
+        //   linkTwoNodes(TableNode, zNode, handleLink);
+        //   zNode.x = TableNode.x;
+        //   zNode.y = TableNode.y;
+        // }
+
+        zNode.x = TableNode.x;
+        zNode.y = TableNode.y;
       }
     }
   }
@@ -752,13 +730,16 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
    * @param {Object} link [待收缩复原的连边数据]
    */
   function shrinkLink (link) {
-    // 过滤非路径记忆的点边数据
-    filterNoRemember();
+    // 调整了顺序：先恢复后过滤，以防止扩展时出现恢复边的二次添加
     // 恢复原来的边并更新边扩展标识
     if (link) {
       links.push(link);
+      allCurLinkByIdMap.set(link.id,link);
       curRelationshipLink = null;
     }
+
+    // 过滤非路径记忆的点边数据
+    filterNoRemember();
   }
 
   /**
