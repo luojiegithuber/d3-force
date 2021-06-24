@@ -216,7 +216,7 @@ export function updateNodeSvg (nodeRootG, nodes, nodeDrawOption = {
     g.exit()
       .attr('opacity', 1)
       .transition()
-      .duration(800)
+      .duration(500)
       .attr('opacity', 0)
       .on('end', () => {
         count++;
@@ -291,7 +291,7 @@ export function updateLinkSvg (linkRootG, links, linkDrawOption = {}, callback) 
     g.exit()
       .attr('opacity', 1)
       .transition()
-      .duration(800)
+      .duration(500)
       .attr('opacity', 0)
       .on('end', () => {
         count++;
@@ -337,7 +337,7 @@ export function moveNode (nodeG, isTransition) {
   if (isTransition) {
     nodeG
       .transition()
-      .duration(800)
+      .duration(500)
       .attr('transform', (d) => `translate(${d.x},${d.y})`);
   } else {
     nodeG.attr('transform', (d) => `translate(${d.x},${d.y})`);
@@ -354,7 +354,7 @@ export function moveLink (linkG, isTransition) {
   if (isTransition) {
     linkG
       .transition()
-      .duration(800)
+      .duration(500)
       .attr('marker-end', 'url(#arrow)')
       .attr('d', d => `M ${d.sourceNode.x} ${d.sourceNode.y} L ${d.targetNode.x} ${d.targetNode.y}`);
   } else {

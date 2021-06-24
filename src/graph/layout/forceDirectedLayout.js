@@ -39,6 +39,14 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
   // 是否在重新渲染画布时开启过渡动画（可作为全局图属性）
   var isTransitionStatus = false;
 
+  // // 力模型参数待完善啊啊啊啊啊
+  // var minLinkDistance = 200;  // 弹簧力最小距离
+  // var scaleDistance = null; // 弹簧力比例尺
+  // var forceMap = {
+  //   radialForceList:[],
+  //   collideForceList:[]
+  // }
+
   // 当前节点扩展类型，初始化为推荐关系RECOMMEND（可作为全局图属性）
   var curExpandRelationshipType = 'RECOMMEND';
 
@@ -91,13 +99,28 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
 
   // 定义力仿真器（力引导布局变量）
   const simulation = d3.forceSimulation();
+
   simulation.nodes(nodes)
     .on('tick', ticked)
     .on('end', tickEnd)
-    .force('link', d3.forceLink(links).id(d => d.id).distance(maxRadius / 1.75))
-    .force('charge', d3.forceManyBody().strength(-maxRadius * 0.5).distanceMax(maxRadius * 2))
-    .force('center', d3.forceCenter().x(width / 2).y(height / 2))
-    .force('collide', d3.forceCollide().strength(1).iterations(10));
+
+    // // // 这儿是布局效果改进的草稿
+    .force('link', d3.forceLink(links).id(d => d.id).distance(maxRadius / 1.75).iterations(5)) // 设置弹力
+    .force('center', d3.forceCenter().x(width / 2).y(height / 2))  // 设置中心力，将图渲染至画布中心
+    .force('charge', d3.forceManyBody().strength(-10000).distanceMin(nodeSize))
+    .force('collide', d3.forceCollide(nodeSize * 2 ).strength(1).iterations(1)) // 设置碰撞力，以防止节点之间的重叠
+    // .force('radial',d3.forceRadial().radius(nodeSize))
+
+    // // 下面是原始的
+    // .force('link', d3.forceLink(links).id(d => d.id).distance(maxRadius / 1.75))
+    // .force('charge', d3.forceManyBody().strength(-maxRadius * 0.5).distanceMax(maxRadius * 2))
+    // .force('center', d3.forceCenter().x(width / 2).y(height / 2))
+    // .force('collide', d3.forceCollide().strength(1).iterations(10))
+
+
+
+    .alphaDecay(0.02) // alpha 迭代衰减值，默认为0.0228
+    .velocityDecay(0.3) // 节点速度变化率，较低的衰减系数可以使得迭代次数更多，但可能会引起数值不稳定从而导致震荡
 
   // 点和边的骨架设置
   var linkRootG = svg.append('g').attr('class', 'links');
@@ -131,7 +154,7 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
           nodeG
             // 绑定点击事件
             .on('click', function (e, d) {
-              // console.log('在力导向布局中选择了节点', d);
+              console.log('在力导向布局中选择了节点', d);
               d3.select(this).raise();
               // 高亮当前所选节点
               highlightNode(curNodeSelection, d3.select(this));
@@ -154,6 +177,8 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
               // 更新当前操作的节点
               curNode = d;
               curNodeSelection = d3.select(this);
+              // 用于详情信息面板的显示
+              callFunSelectNode(d);
               // 唤出右键菜单
               callFunShowNodeContextMenu({
                 node: d,
@@ -161,6 +186,8 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
               }, () => {
                 // console.log('右键扩展事件执行结束');
                 rememberNode(d); // 对该右键扩展的节点进行路径记忆
+                d.fx = d.x;
+                d.fy = d.y;
 
                 // 如果当前扩展的的节点是数据表节点，则需要进一步判断该节点的一跳关系下的作业节点，是否需要被记忆（即在T-j-T类型且两端T均被记忆的情况下，需要将j记忆）
                 if (d.group === 'TABLE') {
@@ -225,7 +252,7 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
           linkG
             // 绑定点击事件
             .on('click', (e, d) => {
-              // console.log('在力导向布局中选择了边', d);
+              console.log('在力导向布局中选择了边', d, getLinkDistance(d));
               e.stopPropagation(); // 停止冒泡
             })
             // 绑定右键菜单事件
@@ -271,10 +298,10 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
           if (curNode && curNode.isPinStatus) {
             curNode.links.forEach(link => {
               if (link.sourceNode.id === curNode.id && allCurLinkByIdMap.has(link.id)) {
-                pinRememberNode(allNodeByIdMap.get(link.targetNode.id),true);
+                pinRememberNode(allNodeByIdMap.get(link.targetNode.id), true);
               }
               if (link.targetNode.id === curNode.id && allCurLinkByIdMap.has(link.id)) {
-                pinRememberNode(allNodeByIdMap.get(link.sourceNode.id),true);
+                pinRememberNode(allNodeByIdMap.get(link.sourceNode.id), true);
               }
             })
           }
@@ -296,10 +323,10 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
     const pNodeUpdate = updateNodeSvgPromise();
     const pLinkUpdate = updateLinkPromise();
     Promise.all([pNodeUpdate, pLinkUpdate]).then((result) => {
-      // 渲染更新完后再次设置力仿真器参数
-      simulation.nodes(nodes);
-      simulation.force('link').links(links);
-      simulation.alpha(1).restart();
+      // 渲染更新完后再次设置力仿真器参数，待完善啊啊啊啊啊
+      simulation.nodes(nodes)
+        .force('link', d3.forceLink(links).id(d => d.id).distance(maxRadius / 1.75).iterations(5)) // 设置弹力
+        .alpha(1).restart()
     }).catch((error) => {
       console.log(error)
     })
@@ -310,15 +337,23 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
    * 力仿真器调度函数-调度主体
    */
   function ticked () {
+    // // 逐步调整斥力，待完善啊啊啊啊啊
+    // var alpha = this.alpha();
+    // var chargeStrength;
+    // if (alpha > 0.2) {
+    //   chargeStrength = (alpha - 0.2 / 0.8);
+    // } else {
+    //   chargeStrength = 0.2;
+    // }
+    // simulation.force('charge', d3.forceManyBody().strength(-20000 * chargeStrength));
+
     // 过渡动画关闭，则表示节点坐标已计算完毕，可进行节点过渡变换
     if (!isTransitionStatus) {
       moveNode(nodeG); // 对节点进行过渡变换
       moveLink(linkG); // 对连边进行过渡变换
     } else {
       // 否则手动调用tick进行节点计算，采用10次
-      for (let i = 0; i < 10; i++) {
-        simulation.tick();
-      }
+      simulation.tick(10)
     }
   }
 
@@ -332,6 +367,10 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
       moveNode(nodeG, true); // 对节点进行过渡变换
       moveLink(linkG, true); // 对连边进行过渡变换
       isTransitionStatus = false; // 过渡完成后关闭过渡标识
+      nodes.forEach(d=>{
+        d.fx=null;
+        d.fy=null;
+      })
     }
   }
 
@@ -363,8 +402,8 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
    */
   function dragended (event) {
     if (!event.active) simulation.alphaTarget(0);
-    event.subject.fx = null;
-    event.subject.fy = null;
+    // event.subject.fx = null;
+    // event.subject.fy = null;
   }
 
   /**
@@ -386,9 +425,11 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
     curExpandRelationshipType = params.relationshipType;
     if (rootNode.currentExpandStatus[curExpandRelationshipType]) {
       // 如果图谱上显示的当前操作节点已经扩展了该关系，则表现为收缩
+      console.log('已经扩展了该关系，则表现为收缩', rootNode)
       shrinkRelationshipNodes();
     } else {
       // 如果图谱上显示的当前操作节点还没有扩展该关系，则表现为扩展
+      console.log('还没有扩展该关系，则表现为扩展', rootNode, newGraph)
       expandRelationshipNodes();
     }
 
@@ -436,7 +477,6 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
       rootNode.currentExpandStatus[curExpandRelationshipType] = true; // 更新当前操作节点的扩展相关状态
       // 曾经扩展过该类关系，则从缓存中直接读取数据并扩展
       if (rootNode.isExpandChildren[curExpandRelationshipType]) {
-        // expandNode(rootNode);
         // 遍历获取相关扩展的点边数据
         rootNode.expandChildrenNode[curExpandRelationshipType].forEach(childNode => {
           if (!allCurNodeByIdMap.has(childNode.id)) {
@@ -460,11 +500,12 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
             // 如果节点已经被保存在全局属性allNodeByIdMap中，则过滤
             // 但如果此时该节点不显示在图谱中（即被隐藏），应当可视化出来
             if (!allCurNodeByIdMap.has(node.guid)) {
-              // 设置节点的坐标为选择的扩展节点位置
-              console.log('设置初始化位置')
+              // // 设置节点的坐标为选择的扩展节点位置 (如果要设置从父节点发散的话，这里会有延时效果)
+              // console.log('设置初始化位置')
               allNodeByIdMap.get(node.guid).x = rootNode.x;
               allNodeByIdMap.get(node.guid).y = rootNode.y;
-              moveLink(linkG)
+              // 这儿可能会引起节点点边过渡动画又问题
+              // moveLink(linkG)
               // 将该节点添加进图谱数据
               nodes.push(allNodeByIdMap.get(node.guid))
             }
@@ -538,33 +579,34 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
   function pinNode (handelNode) {
     // 当前操作节点已经钉住了，则解锁，即此过程为相反的
     handelNode.isPinStatus = !handelNode.isPinRemember;
-    pinRememberNode(handelNode,handelNode.isPinStatus);
+    pinRememberNode(handelNode, handelNode.isPinStatus);
+    console.log(handelNode, handelNode.isPinStatus ? '锁定' : '解锁')
     // 取消相连节点的钉住记忆标识
     handelNode.links.forEach(link => {
       if (link.sourceNode.id === handelNode.id && allCurLinkByIdMap.has(link.id)) {
-        pinRememberNode(allNodeByIdMap.get(link.targetNode.id),handelNode.isPinStatus);
+        pinRememberNode(allNodeByIdMap.get(link.targetNode.id), handelNode.isPinStatus);
       }
       if (link.targetNode.id === handelNode.id && allCurLinkByIdMap.has(link.id)) {
-        pinRememberNode(allNodeByIdMap.get(link.sourceNode.id),handelNode.isPinStatus);
+        pinRememberNode(allNodeByIdMap.get(link.sourceNode.id), handelNode.isPinStatus);
       }
       // 特殊处理——取消二跳数据流关系的钉住记忆标识
       if (link.sourceNode.group === 'NODE') {
         for (let edge of link.sourceNode.links) {
           if (edge.sourceNode.id === link.sourceNode.id) {
-            pinRememberNode(allNodeByIdMap.get(edge.targetNode.id),handelNode.isPinStatus);
+            pinRememberNode(allNodeByIdMap.get(edge.targetNode.id), handelNode.isPinStatus);
           }
           if (edge.targetNode.id === link.sourceNode.id) {
-            pinRememberNode(allNodeByIdMap.get(edge.sourceNode.id),handelNode.isPinStatus);
+            pinRememberNode(allNodeByIdMap.get(edge.sourceNode.id), handelNode.isPinStatus);
           }
         }
       }
       if (link.targetNode.group === 'NODE') {
         for (let edge of link.targetNode.links) {
           if (edge.sourceNode.id === link.targetNode.id) {
-            pinRememberNode(allNodeByIdMap.get(edge.targetNode.id),handelNode.isPinStatus);
+            pinRememberNode(allNodeByIdMap.get(edge.targetNode.id), handelNode.isPinStatus);
           }
           if (edge.targetNode.id === link.targetNode.id) {
-            pinRememberNode(allNodeByIdMap.get(edge.sourceNode.id),handelNode.isPinStatus);
+            pinRememberNode(allNodeByIdMap.get(edge.sourceNode.id), handelNode.isPinStatus);
           }
         }
       }
@@ -584,7 +626,7 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
    * @param {Object} handelNode [钉住记忆的目标节点]
    * @param {boolean} pinStatus [设置钉住记忆的状态]
    */
-  function pinRememberNode (handelNode,pinStatus) {
+  function pinRememberNode (handelNode, pinStatus) {
     handelNode.isPinRemember = pinStatus;
   }
 
@@ -608,6 +650,16 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
   function addEdgeRelationshipExpand (obj, params) {
     // 收缩非记忆扩展边
     shrinkLink(curRelationshipLink);
+
+    // // 将连边两端的数据表进行路径记忆
+    // rememberNode(handleLink.sourceNode);
+    // rememberNode(handleLink.targetNode);
+    // // 解决包括字段节点在内的节点
+    // nodes = nodes.filter(node => (node.isRemember || node.isPinRemember) && (node.group!=='COLUMN'));
+    // links = links.filter(link => link.isRemember());
+    // allCurNodeByIdMap = new Map(nodes.map(node => [node.id, node]));
+    // allCurLinkByIdMap = new Map(links.map(link => [link.id, link]));
+    // render();
 
     // 获取操作的连边和扩展关系
     const handleLink = obj.link;
@@ -693,6 +745,11 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
 
     // 删除当前扩展操作的连边
     links = links.filter(link => link.id !== handleLink.id);
+    // if (curRelationshipLink) {
+    //   links.push(curRelationshipLink);
+    //   allCurLinkByIdMap.set(curRelationshipLink.id,curRelationshipLink);
+    //   curRelationshipLink = null;
+    // }
 
     // 更新连边的扩展属性标识以及当前的扩展边
     handleLink.isRelationshipExpand = true;
@@ -734,7 +791,7 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
     // 恢复原来的边并更新边扩展标识
     if (link) {
       links.push(link);
-      allCurLinkByIdMap.set(link.id,link);
+      allCurLinkByIdMap.set(link.id, link);
       curRelationshipLink = null;
     }
 
@@ -797,6 +854,37 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
     }
     return !result;
   }
+
+  // 下面的都是针对优化力引导布局的待完善啊啊啊啊啊
+  // /**
+  //  * （可作为全局设置）
+  //  * 根据连边端点的度大小设置连边长度
+  //  */
+  // function getLinkDistance (link) {
+  //   var sourceLinkNums = getVisualNeighbors(link.sourceNode);
+  //   var targetLinkNums =  getVisualNeighbors(link.targetNode);
+  //   if (sourceLinkNums*2<targetLinkNums){
+  //     return scaleDistance(curLinkCal[0])
+  //   }
+  //   return scaleDistance(sourceLinkNums + targetLinkNums)
+  // }
+  // var curLinkCal;
+  //
+  // function updateLinkDistanceScale () {
+  //   curLinkCal= links.map(d => {
+  //     var sourceLinkNums = getVisualNeighbors(d.sourceNode);
+  //     var targetLinkNums =  getVisualNeighbors(d.targetNode);
+  //     return sourceLinkNums + targetLinkNums;
+  //   }).sort();
+  //   scaleDistance = d3.scaleOrdinal().domain(curLinkCal).range([200, 400]);
+  // }
+  //
+  // /**
+  //  * 获取节点在图谱上展示的子节点数目
+  //  */
+  // function getVisualNeighbors (handleNode) {
+  //   return handleNode.links.filter(d=>allCurNodeByIdMap.has(d.sourceNode.id) && allCurNodeByIdMap.has(d.targetNode.id)).length;
+  // }
 
   /**
    * （可作为全局设置）
