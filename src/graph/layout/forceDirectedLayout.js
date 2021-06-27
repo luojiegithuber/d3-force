@@ -39,13 +39,8 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
   // 是否在重新渲染画布时开启过渡动画（可作为全局图属性）
   var isTransitionStatus = false;
 
-  // // 力模型参数待完善啊啊啊啊啊
-  // var minLinkDistance = 200;  // 弹簧力最小距离
-  // var scaleDistance = null; // 弹簧力比例尺
-  // var forceMap = {
-  //   radialForceList:[],
-  //   collideForceList:[]
-  // }
+  // 力模型参数
+  var linkForceByIdMap = new Map(); //弹簧力的哈希记录
 
   // 当前节点扩展类型，初始化为推荐关系RECOMMEND（可作为全局图属性）
   var curExpandRelationshipType = 'RECOMMEND';
@@ -99,28 +94,22 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
 
   // 定义力仿真器（力引导布局变量）
   const simulation = d3.forceSimulation();
-
+// 更新图谱可见数据
+  allCurNodeByIdMap = new Map(nodes.map(node => [node.id, node]));
+  allCurLinkByIdMap = new Map(links.map(link => [link.id, link]));
   simulation.nodes(nodes)
     .on('tick', ticked)
     .on('end', tickEnd)
-
-    // // // 这儿是布局效果改进的草稿
-    .force('link', d3.forceLink(links).id(d => d.id).distance(maxRadius / 1.75).iterations(5)) // 设置弹力
-    .force('center', d3.forceCenter().x(width / 2).y(height / 2))  // 设置中心力，将图渲染至画布中心
-    .force('charge', d3.forceManyBody().strength(-10000).distanceMin(nodeSize))
-    .force('collide', d3.forceCollide(nodeSize * 2 ).strength(1).iterations(1)) // 设置碰撞力，以防止节点之间的重叠
-    // .force('radial',d3.forceRadial().radius(nodeSize))
-
-    // // 下面是原始的
-    // .force('link', d3.forceLink(links).id(d => d.id).distance(maxRadius / 1.75))
-    // .force('charge', d3.forceManyBody().strength(-maxRadius * 0.5).distanceMax(maxRadius * 2))
-    // .force('center', d3.forceCenter().x(width / 2).y(height / 2))
-    // .force('collide', d3.forceCollide().strength(1).iterations(10))
-
-
-
     .alphaDecay(0.02) // alpha 迭代衰减值，默认为0.0228
     .velocityDecay(0.3) // 节点速度变化率，较低的衰减系数可以使得迭代次数更多，但可能会引起数值不稳定从而导致震荡
+
+    // // // 这儿是布局效果改进的草稿
+    .force('link', d3.forceLink(links).id(d => d.id).distance(d => linkDistance(d))
+      .strength(d => linkStrength(d))
+      .iterations(10)) // 设置弹力
+    .force('center', d3.forceCenter().x(width / 2).y(height / 2))  // 设置中心力，将图渲染至画布中心
+    .force('charge-', d3.forceManyBody().strength(d => chargeStrength(d)))
+    .force('collide', d3.forceCollide(nodeSize * 2).strength(1).iterations(1)) // 设置碰撞力，以防止节点之间的重叠
 
   // 点和边的骨架设置
   var linkRootG = svg.append('g').attr('class', 'links');
@@ -186,6 +175,10 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
               }, () => {
                 // console.log('右键扩展事件执行结束');
                 rememberNode(d); // 对该右键扩展的节点进行路径记忆
+                nodes.filter(t => t.id !== d.id && !t.isdraged).forEach(t => {
+                  t.fx = null;
+                  t.fy = null;
+                });
                 d.fx = d.x;
                 d.fy = d.y;
 
@@ -252,7 +245,7 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
           linkG
             // 绑定点击事件
             .on('click', (e, d) => {
-              console.log('在力导向布局中选择了边', d, getLinkDistance(d));
+              console.log('在力导向布局中选择了边', d, linkDistance(d), linkStrength(d));
               e.stopPropagation(); // 停止冒泡
             })
             // 绑定右键菜单事件
@@ -323,9 +316,11 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
     const pNodeUpdate = updateNodeSvgPromise();
     const pLinkUpdate = updateLinkPromise();
     Promise.all([pNodeUpdate, pLinkUpdate]).then((result) => {
-      // 渲染更新完后再次设置力仿真器参数，待完善啊啊啊啊啊
+      // 更新图谱可见数据
       simulation.nodes(nodes)
-        .force('link', d3.forceLink(links).id(d => d.id).distance(maxRadius / 1.75).iterations(5)) // 设置弹力
+        .force('link', d3.forceLink(links).id(d => d.id).distance(d => linkDistance(d))
+          .strength(d => linkStrength(d))
+          .iterations(10)) // 设置弹力
         .alpha(1).restart()
     }).catch((error) => {
       console.log(error)
@@ -337,16 +332,6 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
    * 力仿真器调度函数-调度主体
    */
   function ticked () {
-    // // 逐步调整斥力，待完善啊啊啊啊啊
-    // var alpha = this.alpha();
-    // var chargeStrength;
-    // if (alpha > 0.2) {
-    //   chargeStrength = (alpha - 0.2 / 0.8);
-    // } else {
-    //   chargeStrength = 0.2;
-    // }
-    // simulation.force('charge', d3.forceManyBody().strength(-20000 * chargeStrength));
-
     // 过渡动画关闭，则表示节点坐标已计算完毕，可进行节点过渡变换
     if (!isTransitionStatus) {
       moveNode(nodeG); // 对节点进行过渡变换
@@ -362,15 +347,12 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
    * 力仿真器调度函数-调度结束时
    */
   function tickEnd () {
+    simulation.force('center', null);
     // 处于过渡动画状态中，表示进行节点过渡变换
     if (isTransitionStatus) {
       moveNode(nodeG, true); // 对节点进行过渡变换
       moveLink(linkG, true); // 对连边进行过渡变换
       isTransitionStatus = false; // 过渡完成后关闭过渡标识
-      nodes.forEach(d=>{
-        d.fx=null;
-        d.fy=null;
-      })
     }
   }
 
@@ -404,6 +386,7 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
     if (!event.active) simulation.alphaTarget(0);
     // event.subject.fx = null;
     // event.subject.fy = null;
+    event.subject.isdraged = true;
   }
 
   /**
@@ -578,7 +561,7 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
    */
   function pinNode (handelNode) {
     // 当前操作节点已经钉住了，则解锁，即此过程为相反的
-    handelNode.isPinStatus = !handelNode.isPinRemember;
+    handelNode.isPinStatus = !handelNode.isPinStatus;
     pinRememberNode(handelNode, handelNode.isPinStatus);
     console.log(handelNode, handelNode.isPinStatus ? '锁定' : '解锁')
     // 取消相连节点的钉住记忆标识
@@ -855,36 +838,82 @@ function createForceDirectedGraph (originalData, svg, callFunSelectNode, option,
     return !result;
   }
 
-  // 下面的都是针对优化力引导布局的待完善啊啊啊啊啊
-  // /**
-  //  * （可作为全局设置）
-  //  * 根据连边端点的度大小设置连边长度
-  //  */
-  // function getLinkDistance (link) {
-  //   var sourceLinkNums = getVisualNeighbors(link.sourceNode);
-  //   var targetLinkNums =  getVisualNeighbors(link.targetNode);
-  //   if (sourceLinkNums*2<targetLinkNums){
-  //     return scaleDistance(curLinkCal[0])
-  //   }
-  //   return scaleDistance(sourceLinkNums + targetLinkNums)
-  // }
-  // var curLinkCal;
-  //
-  // function updateLinkDistanceScale () {
-  //   curLinkCal= links.map(d => {
-  //     var sourceLinkNums = getVisualNeighbors(d.sourceNode);
-  //     var targetLinkNums =  getVisualNeighbors(d.targetNode);
-  //     return sourceLinkNums + targetLinkNums;
-  //   }).sort();
-  //   scaleDistance = d3.scaleOrdinal().domain(curLinkCal).range([200, 400]);
-  // }
-  //
-  // /**
-  //  * 获取节点在图谱上展示的子节点数目
-  //  */
-  // function getVisualNeighbors (handleNode) {
-  //   return handleNode.links.filter(d=>allCurNodeByIdMap.has(d.sourceNode.id) && allCurNodeByIdMap.has(d.targetNode.id)).length;
-  // }
+
+  /**
+   * 根据连边端点的在图谱上的度大小设置连边长度
+   * @param link
+   * @returns {*}
+   */
+  function linkDistance (link) {
+    if (!linkForceByIdMap.has(link.id) || (curNode && (link.sourceNode.id === curNode.id || link.targetNode.id === curNode.id))) {
+      let distance = distanceValue(link);
+      linkForceByIdMap.set(link.id, distance);
+      return distance;
+    } else {
+      return distanceValue(link);
+    }
+
+    function distanceValue (link) {
+      let count1 = getVisualNeighbors(link.sourceNode);
+      let count2 = getVisualNeighbors(link.targetNode);
+      let radius1 = count1 * nodeSize * 1.5 / Math.PI;
+      let radius2 = count2 * nodeSize * 1.5 / Math.PI;
+      let minDistance = 200;
+      let radius;
+      if (count1 <= 1 || count2 <= 1) {
+        radius = minDistance;
+      } else {
+        radius = d3.max([minDistance, radius1 + radius2]);
+      }
+      return radius;
+    }
+  }
+
+  /**
+   * 弹簧弹力连现
+   * @param link
+   * @returns {number}
+   */
+  function linkStrength (link) {
+    let count1 = getVisualNeighbors(link.sourceNode);
+    let count2 = getVisualNeighbors(link.targetNode);
+    let strength;
+    if (count1 <= 1 || count2 <= 1) {
+      strength = 1;
+    } else {
+      strength = 1.05 / Math.min(count1, count2) * 1.15;
+    }
+    return strength
+  }
+
+  /**
+   * 根据节点在图谱上的度大小设置电荷力
+   * @param d
+   */
+  function chargeStrength (d) {
+    let count = getVisualNeighbors(d);
+    let strength;
+    if (count <= 1) {
+      // 度为1的节点具有较强的斥力，从而使得较小度的节点相互排开
+      strength = -10000;
+    } else if (count >= 10) {
+      // 高度节点具有较强的引力，从而吸引周围较小度的节点，促成圆形排布
+      strength = 10000;
+    } else {
+      // 其他中度节点，不设置电荷力
+      strength = 0;
+    }
+    return strength;
+  }
+
+  /**
+   * 获取图谱上当前节点的可视邻居
+   * @param handleNode
+   * @returns {*}
+   */
+  function getVisualNeighbors (handleNode) {
+    return handleNode.links.filter(d => allCurLinkByIdMap.has(d.id) && allCurNodeByIdMap.has(d.sourceNode.id) && allCurNodeByIdMap.has(d.targetNode.id)).length;
+  }
 
   /**
    * （可作为全局设置）

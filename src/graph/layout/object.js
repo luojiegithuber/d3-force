@@ -53,6 +53,7 @@ export function Node (node) {
   this.x = undefined; // 坐标x
   this.y = undefined; // 坐标y
   this.data = node; // 后台返回的节点原始数据（力引导中没有用到）
+  this.isdraged = false;
 
   this.pathNum = 0; // 出入度总数（力引导中没有用到）
   this.incoming = []; // 入度线数组，用于高亮时显示入度线（力引导中没有用到）
@@ -337,7 +338,7 @@ export function moveNode (nodeG, isTransition) {
   if (isTransition) {
     nodeG
       .transition()
-      .duration(500)
+      .duration(900)
       .attr('transform', (d) => `translate(${d.x},${d.y})`);
   } else {
     nodeG.attr('transform', (d) => `translate(${d.x},${d.y})`);
@@ -354,7 +355,7 @@ export function moveLink (linkG, isTransition) {
   if (isTransition) {
     linkG
       .transition()
-      .duration(500)
+      .duration(900)
       .attr('marker-end', 'url(#arrow)')
       .attr('d', d => `M ${d.sourceNode.x} ${d.sourceNode.y} L ${d.targetNode.x} ${d.targetNode.y}`);
   } else {
